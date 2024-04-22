@@ -1,0 +1,18 @@
+.login-form {
+    margin-top: 10%;
+    display: flex;
+    justify-content: center;
+}
+
+html{
+    background: linear-gradient(180deg, blue, white 33%, red);
+    background-attachment: fixed;
+}
+
+#Ins{
+    display: none;
+}
+
+#Co{
+    display: block;
+}

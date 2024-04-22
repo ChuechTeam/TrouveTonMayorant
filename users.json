@@ -1,0 +1,17 @@
+{
+    "users": {
+        "_dict": 1,
+        "1": {
+            "id": 1,
+            "email": "salut@coucou.fr",
+            "pass": "1234",
+            "firstName": "moi",
+            "lastName": "pasmoi"
+        }
+    },
+    "byEmail": {
+        "_dict": 1,
+        "salut@coucou.fr": 1
+    },
+    "idSeq": 1
+}
