@@ -1,7 +1,10 @@
-.login-form {
+@import url("/assets/Computer-Modern/Sans/cmun-sans.css");
+
+.login-form-container {
     margin-top: 10%;
     display: flex;
-    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
 html{
@@ -15,4 +18,34 @@ html{
 
 #Co{
     display: block;
+}
+
+.login-form {
+    background-color: rgb(151, 6, 127);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.login-form > form > * {
+    margin: 0 auto;
+    text-align: center;
+}
+
+body {
+    font-family: "Computer Modern Sans", system-ui;
+    font-size: 1.2em;
+}
+
+button {
+    font-family: "Computer Modern Sans";
+    font-size: 1em;
+}
+
+#sub{
+    border-radius: 4px;
+    background-color: rgb(49, 8, 88);
+    color: white;   
+    padding: 6px 8px;
+    border: 1px solid transparent;
 }

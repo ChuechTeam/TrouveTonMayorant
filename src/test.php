@@ -1,10 +1,8 @@
-<?php require "modules/user.php";
-userLoad();
-userPut([
-    "id" => 1,
-    "email" => "salut@coucou.fr",
+<?php require "modules/userDB.php";
+UserDB\put([
+    "id" => 3,
+    "email" => "salut@coucou3.fr",
     "pass" => "1234",
     "firstName" => "moi",
     "lastName" => "pasmoi"
 ]);
-userSave();

@@ -1,17 +1,19 @@
 {
     "users": {
         "_dict": 1,
-        "1": {
-            "id": 1,
-            "email": "salut@coucou.fr",
-            "pass": "1234",
-            "firstName": "moi",
-            "lastName": "pasmoi"
+        "4": {
+            "email": "abc@def.fr",
+            "pass": "$2y$10$12AIy04gepJ\/U1iBgo9iqupi6yfMmhgY0WIJIKgGEwj1qpqEDqWFy",
+            "firstName": " b",
+            "lastName": "a",
+            "age": 44
         }
     },
     "byEmail": {
         "_dict": 1,
-        "salut@coucou.fr": 1
+        "mayo@rant.com": 4,
+        "abc@def.fr": 4
     },
-    "idSeq": 1
+    "idSeq": 4,
+    "revision": 1
 }
