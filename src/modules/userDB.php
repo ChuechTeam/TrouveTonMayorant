@@ -26,7 +26,7 @@ $usersDirty = false; // If we need to save to the database
 $usersFilePath = __DIR__ . "/../../users.json"; // Location of the json database file
 $revision = 1; // Version of the database. 
 
-function load()
+function &load()
 {
     global $usersData;
     global $usersFilePath;
@@ -98,7 +98,7 @@ function put(array $user): int
 
 function findByEmail(string $email): ?array
 {
-    $ud = load();
+    $ud = &load();
 
     if (!isset($ud["byEmail"][$email])) {
         return null;
@@ -109,8 +109,6 @@ function findByEmail(string $email): ?array
 
 function findByEmailPassword(string $email, string $pass): ?array
 {
-    $ud = load();
-
     $u = findByEmail($email);
     if ($u !== null && !password_verify($pass, $u["pass"])) {
         return null;
@@ -121,7 +119,7 @@ function findByEmailPassword(string $email, string $pass): ?array
 
 function findById(int $id): ?array
 {
-    $ud = load();
+    $ud = &load();
 
     if (!isset($ud["users"][$id])) {
         return null;
@@ -134,7 +132,7 @@ function nextId(): int
 {
     global $usersDirty;
     
-    $ud = load();
+    $ud = &load();
 
     // to fix
     $id = $ud["idSeq"];

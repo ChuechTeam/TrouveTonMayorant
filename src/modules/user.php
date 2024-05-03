@@ -29,7 +29,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
     }
 
 
-    \UserDB\put(
+    return \UserDB\put(
         array(
             "email" => $email,
             "pass" => password_hash($password, PASSWORD_DEFAULT),
@@ -38,6 +38,4 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "age" => $age
         )
     );
-
-    return 0;
 }

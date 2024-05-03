@@ -37,11 +37,11 @@ setcookie("erreur", "", -1);
                 </tr>
                 <tr>
                     <td>Email</td>
-                    <td><input type="mail" name="mail" id=""></td>
+                    <td><input type="mail" name="mail" id="" required></td>
                 </tr>
                 <tr>
                     <td>Mot de Passe</td>
-                    <td><input type="password" name="password" id=""></td>
+                    <td><input type="password" name="password" id="" required></td>
                 </tr>
                 <tr>
                     <td colspan="2" style="text-align: center;"><button id="sub" type="submit">Se connecter</button>
@@ -60,23 +60,23 @@ setcookie("erreur", "", -1);
                 </tr>
                 <tr>
                     <td>Email</td>
-                    <td><input type="mail" name="mail" id=""></td>
+                    <td><input type="mail" name="mail" id="" required></td>
                 </tr>
                 <tr>
                     <td>Mot de Passe</td>
-                    <td><input type="password" name="password" id=""></td>
+                    <td><input type="password" name="password" id="" required></td>
                 </tr>
                 <tr>
                     <td>Nom</td>
-                    <td><input type="text" name="name" id=""></td>
+                    <td><input type="text" name="name" id="" required></td>
                 </tr>
                 <tr>
                     <td>Prénom</td>
-                    <td><input type="text" name="fname" id=""></td>
+                    <td><input type="text" name="fname" id="" required></td>
                 </tr>
                 <tr>
                     <td>Age</td>
-                    <td><input type="number" name="age" id="" min="18" max="122"></td>
+                    <td><input type="number" name="age" id="" required min="18" max="122"></td>
                 </tr>
 
                 <tr>
