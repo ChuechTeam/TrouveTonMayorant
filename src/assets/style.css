@@ -56,20 +56,40 @@ button {
 
 
 .user-box {
-    position: fixed;
+    position: relative;
+}
+
+.user-box > .-bg {
+    position: absolute;
     top: 0;
     left: 0;
+    right:0;
     width: 150px;
-    height: 40px;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
-    transition: height 0.5s ease;
-    z-index: 999; /* Assure que la boîte est au-dessus de tous les autres éléments */
+    transition: height 0.3s ease;
+    z-index: 998; /* Assure que la boîte est au-dessus de tous les autres éléments */
 }
 
-.user-info {
+.user-box .-options {
+    display: none;
+    padding-top: 5px;
+}
+
+.user-box .-options a {
+    display: block;
+    padding: 5px 0;
+    color: #333;
+    text-decoration: none;
+}
+
+.user-box.-open .-contents{
+    display: block;
+}
+
+#userInfo {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -77,18 +97,6 @@ button {
 
 .arrow {
     cursor: pointer;
-}
-
-.options {
-    display: none;
-    padding-top: 5px;
-}
-
-.options a {
-    display: block;
-    padding: 5px 0;
-    color: #333;
-    text-decoration: none;
 }
 
 .background {
