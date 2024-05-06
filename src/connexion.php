@@ -7,20 +7,7 @@ $pageBit = 1 << 9;
 $erreur = null;
 $nerreur = !empty($_COOKIE["erreur"]) ? intval($_COOKIE["erreur"]) : null;
 if ($nerreur !== null) {
-    switch ($nerreur & ~$pageBit) {
-        case 1:
-            $erreur = "Ce mail est deja utilise";
-            break;
-        case 2:
-            $erreur = "Le mot de passe ou l'identifiant n'est pas le bon";
-            break;
-        case 3:
-            $erreur = "Veuillez renseigner tous les champs";
-            break;
-        default:
-            $erreur = "";
-            break;
-    }
+    $erreur = \User\errToString($nerreur & ~$pageBit);
 }
 setcookie("erreur", "", -1);
 ?>
@@ -37,7 +24,7 @@ setcookie("erreur", "", -1);
                 </tr>
                 <tr>
                     <td>Email</td>
-                    <td><input type="mail" name="mail" id="" required></td>
+                    <td><input type="email" name="mail" id="" required></td>
                 </tr>
                 <tr>
                     <td>Mot de Passe</td>
@@ -60,7 +47,7 @@ setcookie("erreur", "", -1);
                 </tr>
                 <tr>
                     <td>Email</td>
-                    <td><input type="mail" name="mail" id="" required></td>
+                    <td><input type="email" name="mail" id="" required></td>
                 </tr>
                 <tr>
                     <td>Mot de Passe</td>

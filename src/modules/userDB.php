@@ -79,6 +79,7 @@ function put(array $user): int
     load();
 
     $id = $user["id"] ?? nextId();
+    $user["id"] = $id;
     $email = $user["email"];
     $usersData["users"][$id] = $user;
 
@@ -96,7 +97,23 @@ function put(array $user): int
     return $id;
 }
 
-function findByEmail(string $email): ?array
+// Updates a user which had its fields changed by reference.
+function update(int $id) {
+    $u = &findById($id);
+    if ($u === null) {
+        throw new \Exception("User not found!");
+    }
+
+    _validateExist($u, "email");
+    _validateExist($u, "pass");
+    _validateExist($u, "firstName");
+    _validateExist($u, "lastName");
+
+    global $usersDirty;
+    $usersDirty = true;
+}
+
+function &findByEmail(string $email): ?array
 {
     $ud = &load();
 
@@ -107,17 +124,22 @@ function findByEmail(string $email): ?array
     }
 }
 
-function findByEmailPassword(string $email, string $pass): ?array
+function &findByEmailPassword(string $email, string $pass): ?array
 {
-    $u = findByEmail($email);
+    $u = &findByEmail($email);
     if ($u !== null && !password_verify($pass, $u["pass"])) {
         return null;
     }
-
     return $u;
 }
 
-function findById(int $id): ?array
+function userExistsById(int $id): bool {
+    $ud = &load();
+
+    return isset($ud["users"][$id]);
+}
+
+function &findById(int $id): ?array
 {
     $ud = &load();
 
@@ -134,7 +156,6 @@ function nextId(): int
     
     $ud = &load();
 
-    // to fix
     $id = $ud["idSeq"];
     $ud["idSeq"] = $id + 1;
     $usersDirty = true;

@@ -12,6 +12,10 @@ html{
     background-attachment: fixed;
 }
 
+#title{
+    text-align: center;
+}
+
 #Ins{
     display: none;
 }
@@ -48,4 +52,52 @@ button {
     color: white;   
     padding: 6px 8px;
     border: 1px solid transparent;
+} 
+
+
+.user-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 150px;
+    height: 40px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    transition: height 0.5s ease;
+    z-index: 999; /* Assure que la boîte est au-dessus de tous les autres éléments */
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.arrow {
+    cursor: pointer;
+}
+
+.options {
+    display: none;
+    padding-top: 5px;
+}
+
+.options a {
+    display: block;
+    padding: 5px 0;
+    color: #333;
+    text-decoration: none;
+}
+
+.background {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998; /* Assure que le fond est sous la boîte */
 }

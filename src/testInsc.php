@@ -1,7 +1,6 @@
 <?php require "modules/user.php";
+require "modules/userSession.php";
 require "modules/url.php";
-    session_start();
-
     if(!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['age']))) { //Si les champs ne sont pas vides
         //On recupere les infos importantes
         $user_m = $_POST['mail'];
@@ -19,9 +18,9 @@ require "modules/url.php";
         $user_fn = $_POST['fname'];
         $user_a = $_POST['age'];
 
-        $ok = User\register($user_fn, $user_n, $user_m, $user_p, $user_a);
+        $id = 0;
+        $ok = User\register($user_fn, $user_n, $user_m, $user_p, $user_a, $id);
         if ($ok !== 0) {
-            $_SESSION["loggedIn"] = 0;
             setcookie("erreur", $ok);
             header("Location: $root/connexion.php");
             exit();
@@ -32,12 +31,11 @@ require "modules/url.php";
         // "firstName"=>$user_fn, 
         // "lastName"=>$user_n));
 
-        $_SESSION["loggedIn"] = 1;
+        \UserSession\signIn($id);
         header("Location: http://$dom/index.php");
         exit();
     }
     else{
-        $_SESSION["loggedIn"] = 0;
         $dom = $_SERVER["HTTP_HOST"];
         setcookie("erreur", 3);
         header("Location: http://$dom/connexion.php");

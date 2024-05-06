@@ -1,7 +1,7 @@
 <?php
 require "modules/url.php";
+require "modules/userSession.php";
 
-session_start();
-$_SESSION['loggedIn']=0;
+\UserSession\signOut();
 
 header("Location: $root/index.php");
