@@ -1,23 +1,67 @@
-<?php ob_start();
-session_start();
-$pageBit = 1 << 9;
-// Page bit: 1 << 9
-// 1 --> connexion
-// 0 --> inscription
-$erreur = null;
-$nerreur = !empty($_COOKIE["erreur"]) ? intval($_COOKIE["erreur"]) : null;
-if ($nerreur !== null) {
-    $erreur = \User\errToString($nerreur & ~$pageBit);
+<?php
+require_once "templates/functions.php";
+require_once "modules/userSession.php";
+require_once "modules/url.php";
+
+$register = isset($_GET["register"]);
+$page = $register ? "register" : "signIn";
+
+// -1 : formulaire non envoyé
+// >0 : échec de l'inscription/connexion (code d'erreur User)
+$errCode = -1;
+
+// si on a envoyé le formulaire
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($page === "signIn") {
+        if (!empty(($_POST['mail'])) && !empty(($_POST['password']))) {
+            $user_m = $_POST['mail'];
+            $user_p = $_POST['password'];
+
+            $u = UserDB\findByEmailPassword($user_m, $user_p);
+            if ($u !== null) {
+                \UserSession\signIn($u["id"]);
+                header("Location: $root/index.php");
+                exit();
+            } else {
+                $errCode = User\ERR_INVALID_CREDENTIALS;
+            }
+        } else {
+            $errCode = User\ERR_FIELD_MISSING;
+        }
+    } else {
+        // Inscription
+        if (!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['age']))) { //Si les champs ne sont pas vides
+            //On recupere les infos importantes
+            $user_m = $_POST['mail'];
+
+            $user_p = $_POST['password'];
+            $user_n = $_POST['name'];
+            $user_fn = $_POST['fname'];
+            $user_a = $_POST['age'];
+
+            $id = 0;
+            $errCode = User\register($user_fn, $user_n, $user_m, $user_p, $user_a, $id);
+            if ($errCode === 0) {
+                \UserSession\signIn($id);
+                header("Location: $root/index.php");
+                exit();
+            }
+        } else {
+            $errCode = User\ERR_FIELD_MISSING;
+        }
+    }
 }
-setcookie("erreur", "", -1);
+
+$erreur = $errCode !== -1 ? User\errToString($errCode) : null;
+
+Templates\base($page === "signIn" ? "Connexion" : "Inscription");
 ?>
 
 <h1 style="text-align: center;">Bonyour, bienvenue sur TTM !</h1>
 
-
 <div class="login-form-container">
     <div class="login-form">
-        <form action="testCo.php" method="post" id="Co">
+        <form action="auth.php" method="post" id="Co">
             <table border="1" cellpading="20" cellspacing="0">
                 <tr>
                     <td colspan="2" style="text-align: center;">Se connecter</td>
@@ -31,16 +75,17 @@ setcookie("erreur", "", -1);
                     <td><input type="password" name="password" id="" required></td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="text-align: center;"><button id="sub" type="submit">Se connecter</button>
+                    <td colspan="2" style="text-align: center;">
+                        <button id="sub" type="submit">Se connecter</button>
                         <br>
 
                     </td>
                 </tr>
             </table>
             <p style="font-size: 11px">Pas encore de compte ? <input type="button" value="S'inscrire"
-                    onclick="HideShow('insc')"></p>
+                                                                     onclick="HideShow('register')"></p>
         </form>
-        <form action="testInsc.php" method="post" id="Ins">
+        <form action="auth.php?register" method="post" id="Ins">
             <table border="1" cellpading="20" cellspacing="0">
                 <tr>
                     <td colspan="2" style="text-align: center;">S'inscrire</td>
@@ -67,13 +112,15 @@ setcookie("erreur", "", -1);
                 </tr>
 
                 <tr>
-                    <td colspan="2" style="text-align: center;"><button type="submit" id="sub">S'inscrire</button>
+                    <td colspan="2" style="text-align: center;">
+                        <button type="submit" id="sub">S'inscrire</button>
                         <br>
 
                     </td>
                 </tr>
             </table>
-            <p style="font-size: 11px">Déjà un compte ? <input type="button" value="Connexion" onclick="HideShow('conn')">
+            <p style="font-size: 11px">Déjà un compte ? <input type="button" value="Connexion"
+                                                               onclick="HideShow('signIn')">
             </p>
 
         </form>
@@ -85,7 +132,7 @@ setcookie("erreur", "", -1);
 
 <script>
     function HideShow(page, clear = true) {
-        if (page === "insc") {
+        if (page === "register") {
             var x = document.getElementById("Co");
             x.style.display = "none";
             var y = document.getElementById("Ins");
@@ -94,8 +141,7 @@ setcookie("erreur", "", -1);
             if (clear && p && p.innerHTML.trim() !== '') {
                 p.innerHTML = '';
             }
-        }
-        else {
+        } else if (page === "signIn") {
             var x = document.getElementById("Ins");
             x.style.display = "none";
             var y = document.getElementById("Co");
@@ -104,17 +150,10 @@ setcookie("erreur", "", -1);
             if (clear && p && p.innerHTML.trim() !== '') {
                 p.innerHTML = '';
             }
+        } else {
+            console.error("Unknown page: " + page);
         }
-
     }
-    <?php if ($nerreur !== null): ?>
-        
-        HideShow(<?= ($nerreur & $pageBit) === 0 ? 1 : 0 ?> ? 'insc' : 'conn', false);
-    <?php endif ?>
+
+    HideShow('<?= $page ?>', false);
 </script>
-
-
-
-
-<?php $tmplContent = ob_get_clean();
-include "templates/base.php"; ?>

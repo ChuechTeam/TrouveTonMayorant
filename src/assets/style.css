@@ -7,9 +7,17 @@
     flex-direction: column;
 }
 
-html{
+html {
     background: linear-gradient(180deg, blue, white 33%, red);
     background-attachment: fixed;
+}
+
+body {
+    margin: 8px;
+}
+
+main {
+    margin: 8px;
 }
 
 #title{
@@ -108,4 +116,68 @@ button {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 998; /* Assure que le fond est sous la boîte */
+}
+
+#member-nav {
+    position: sticky;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: white;
+
+    border-radius: 6px;
+    box-shadow: 0px 2px 8px 2px rgba(0, 0, 0, 0.2);
+
+    display: flex;
+    gap: 18px;
+
+    padding: 0 16px;
+
+    & > .-links {
+        margin: 0;
+        list-style: none;
+        padding: 6px 0;
+
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        flex-grow: 1;
+
+        & a, & a:visited {
+            display: block;
+            padding: 4px 12px;
+            text-decoration: none;
+            color: darkblue;
+        }
+
+        & a.-active {
+            background-color: #143080;
+            color: white;
+            border-radius: 4px;
+        }
+
+        & li:first-child {
+            padding-left: 0;
+        }
+
+        & .-sign-out {
+            margin-left: auto;
+
+            & > a {
+                color: red;
+            }
+        }
+    }
+
+    & > .-ttm {
+        align-self: center;
+        font-weight: bold;
+    }
+
+    & > .-sep {
+        border-right: 1px solid rgba(0, 0, 0, 0.3);
+
+        margin: 8px 0;
+    }
 }

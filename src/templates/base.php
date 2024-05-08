@@ -1,32 +1,31 @@
 <?php
-    /**
-     * To use:
-     * 
-     * <?php ob_start(); ?>
-     * <p>My content...</p>
-     * <?php $tmplContent = ob_get_clean(); include "template.php"; ?>
-     * 
-     * ---
-     * You can also set other variables using either:
-     *   - direct assignment:   <?php $tmplTitle = "Mayorant" ?>
-     *   - ob_start() & ob_get_clean()
+    /*
+     * Tuto :
+     *
+     * require_once templates/functions.php
+     * Templates\base();
+     *
+     *
+     * Pour changer le head :
+     * <?php Templates\paramStart("head") ?>
+     *      <meta name="coucou">
+     * <?php Templates\paramEnd(); ?>
      */
-    $tmplContent =  $tmplContent ?? "\$content is empty!";
-    $tmplTitle = $tmplTitle ?? "TrouveTonMayorant";
-    $tmplScripts = $tmplScripts ?? "";
-    $tmplHead = $tmplHead ?? "";
+
+$content = $tmplArgs["content"] ?? "\$content is empty!";
+$title = empty($tmplArgs["title"]) ? "TrouveTonMayorant" : "${tmplArgs["title"]} - TTM";
+$head = $tmplArgs["head"] ?? "";
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $tmplTitle ?></title>
+    <title><?= $title ?></title>
     <link href="/assets/style.css" rel="stylesheet" />
-    <?= $tmplHead ?>
+    <?= $head ?>
 </head>
 <body>
-    <?= $tmplContent ?>
-    <?= $tmplScripts ?>
+<?= $content ?>
 </body>
 </html>

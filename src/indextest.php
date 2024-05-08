@@ -26,7 +26,7 @@ $u = \UserSession\loggedUser();
 
 <?php else: ?>
     <p>eeehh tu n'es pas loggé</p><br>
-    <a href="<?= "$root/connexion.php" ?>"><button>Se connecter/S'inscrire</button></a>
+    <a href="<?= "$root/auth.php" ?>"><button>Se connecter/S'inscrire</button></a>
 <?php endif; ?>
 
 <div class="background" id="background"></div> <!-- c'est quoi ??? -->
