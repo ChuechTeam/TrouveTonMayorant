@@ -57,7 +57,7 @@ $erreur = $errCode !== -1 ? User\errToString($errCode) : null;
 Templates\base($page === "signIn" ? "Connexion" : "Inscription");
 ?>
 
-<h1 style="text-align: center;">Bonyour, bienvenue sur TTM !</h1>
+<h1 class="title">Bonyour, bienvenue sur TTM !</h1>
 
 <div class="login-form-container">
     <div class="login-form">
@@ -76,7 +76,7 @@ Templates\base($page === "signIn" ? "Connexion" : "Inscription");
                 </tr>
                 <tr>
                     <td colspan="2" style="text-align: center;">
-                        <button id="sub" type="submit">Se connecter</button>
+                        <button class="sub" type="submit">Se connecter</button>
                         <br>
 
                     </td>
@@ -113,7 +113,7 @@ Templates\base($page === "signIn" ? "Connexion" : "Inscription");
 
                 <tr>
                     <td colspan="2" style="text-align: center;">
-                        <button type="submit" id="sub">S'inscrire</button>
+                        <button type="submit" class="sub">S'inscrire</button>
                         <br>
 
                     </td>

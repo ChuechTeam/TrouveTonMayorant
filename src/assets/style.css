@@ -8,7 +8,7 @@
 }
 
 html {
-    background: linear-gradient(180deg, blue, white 33%, red);
+    background: linear-gradient(180deg, rgba(171,171,255,1), white 33%, rgba(255,172,172,1));
     background-attachment: fixed;
 }
 
@@ -20,8 +20,9 @@ main {
     margin: 8px;
 }
 
-#title{
+.title{
     text-align: center;
+    color: darkblue;
 }
 
 #Ins{
@@ -54,12 +55,17 @@ button {
     font-size: 1em;
 }
 
-#sub{
+.sub{
     border-radius: 4px;
     background-color: rgb(49, 8, 88);
     color: white;   
     padding: 6px 8px;
     border: 1px solid transparent;
+}
+
+.sub:hover{
+    background-color: rgb(37, 5, 67);
+    cursor: pointer;
 } 
 
 
@@ -151,10 +157,19 @@ button {
             color: darkblue;
         }
 
+        & a:hover {
+            background-color: #E5E5E5;
+            border-radius: 4px;
+        }
+
         & a.-active {
             background-color: #143080;
             color: white;
             border-radius: 4px;
+        }
+
+        & a.-active:hover {
+            background-color: #11296B;
         }
 
         & li:first-child {
@@ -180,4 +195,54 @@ button {
 
         margin: 8px 0;
     }
+
 }
+
+.profile-form-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.profile-form {
+    background-color: rgb(151, 6, 127);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.profile-form table{
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+.profile-form .-title{
+    color: white;
+
+    & > hr{
+        border-top: 2px solid black;
+        margin-top : -2px;
+    }
+}
+
+.profile-form .-delete{
+    background-color: red;
+
+    border-radius: 4px;
+    font-size: 14px;
+    color: white;   
+    padding: 6px 8px;
+    border: 1px solid transparent;
+}
+
+.profile-form .-delete:hover{
+    background-color: rgb(222, 0, 0);
+    cursor: pointer;
+} 
+
+.profile-form > form > *:not(table) {
+    margin: 0 auto;
+}
+
+

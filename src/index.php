@@ -9,7 +9,7 @@ if (UserSession\isLogged()) {
 Templates\base();
 ?>
 
-<h1 id="title">Bonyour !</h1>
+<h1 class="title">Bonyour !</h1>
 
 <p>eeehh tu n'es pas loggé</p>
 <p>eeehh INSCRIS-TOI IMMÉDIATEMENT POUR TROUVER LE/LA MAYORANT(E) DE TES

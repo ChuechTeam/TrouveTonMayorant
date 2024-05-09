@@ -3,9 +3,9 @@ require_once "_common.php";
 Templates\member("Accueil");
 ?>
 
-<h1 id="title">Bonyour !</h1>
+<h1 class="title"><?php echo "Bonyour, ".$user["firstName"]." ".$user["lastName"]." !" ?></h1>
 
-    <div class="user-box" id="userBox">
+    <!-- <div class="user-box" id="userBox">
         <div class="user-info">
             <span id="username"><?php echo $user["firstName"]." ".$user["lastName"] ?></span>
             <i class="arrow down" onclick="toggleOptions()">
@@ -15,9 +15,9 @@ Templates\member("Accueil");
         <div class="options" id="options">
             <a href="<?= "$root/member-area/profile.php"?>">Profil</a>
             <a href="<?= "$root/redirect.php" ?>">Déconnexion</a>
-            <!-- Ajoutez d'autres options ici -->
+            Ajoutez d'autres options ici 
         </div>
-    </div>
+    </div>-->
 
 <div class="background" id="background"></div> <!-- c'est quoi ??? -->
 
@@ -36,7 +36,7 @@ Templates\member("Accueil");
 </div>
 
 <script>
-    function toggleOptions() {
+    /*function toggleOptions() {
         var options = document.getElementById("options");
         var background = document.getElementById("background");
         var userBox = document.getElementById("userBox");
@@ -50,7 +50,7 @@ Templates\member("Accueil");
             background.style.display = "block";
             userBox.style.height = (40 + options.clientHeight) + "px"; // Ajuste la hauteur de la boîte utilisateur
         }
-    }
+    }*/
     function loadresults(str){
         var xhttp;
         if (str.length == 0) {

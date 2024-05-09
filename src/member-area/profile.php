@@ -37,53 +37,56 @@ if ($submitCode > 0) {
 Templates\member("Votre profil");
 ?>
 
-<h1>Profil</h1>
+<h1 class="title">Profil</h1>
 <p><?php print("Ici le profil!!") ?></p>
 
 <p>eeeh tu peux modifier, monsieur ou madame <?= $u["firstName"] ?> <?= $u["lastName"] ?></p>
-<a href="<?= "$root/member-area" ?>">
-    <button>Accueil</button>
-</a>
-<a href="<?= "$root/redirect.php" ?>">
-    <button>Déconnexion</button>
-</a>
-<form action="profile.php" method="post" id="">
-    <table border="1" cellpading="20" cellspacing="0">
-        <tr>
-            <td>Email</td>
-            <td><input type="email" value="<?= htmlspecialchars($u['email']) ?>" name="mail" id="" required></td>
-        </tr>
-        <tr>
-            <td>Mot de Passe</td>
-            <td><input type="password" name="password" id=""></td>
-        </tr>
-        <tr>
-            <td>Nom</td>
-            <td><input type="text" value="<?= htmlspecialchars($u['lastName']) ?>" name="name" id="" required></td>
-        </tr>
-        <tr>
-            <td>Prénom</td>
-            <td><input type="text" value="<?= htmlspecialchars($u['firstName']) ?>" name="fname" id="" required></td>
-        </tr>
-        <tr>
-            <td>Age</td>
-            <td><input type="number" value="<?= htmlspecialchars($u['age']) ?>" name="age" id="" required min="18"
-                       max="122"></td>
-        </tr>
-        <tr>
-            <td>mettre d'autres trucs</td>
-            <td>là</td>
-        </tr>
 
-        <tr>
-            <td colspan="2" style="text-align: center;">
-                <button type="submit" id="sub">Enregistrer</button>
-                <br>
-            </td>
-        </tr>
+<div class="profile-form-container">
+    <div class="profile-form">
+        <form action="profile.php" method="post" id="">
 
-    </table>
-</form>
+            <h2 class="-title">Compte<hr></h2>
+            <table border="1" cellpading="20" cellspacing="0">
+                <tr>
+                    <td>Email</td>
+                    <td><input type="email" value="<?= htmlspecialchars($u['email']) ?>" name="mail" id="" required></td>
+                </tr>
+                <tr>
+                    <td>Mot de Passe</td>
+                    <td><input type="password" name="password" id=""></td>
+                </tr>
+            </table>
+            <button class="-delete">Supprimer le compte</button>
+            <br>
+            <h2 class="-title">Informations personnelles<hr></h2>
+            <table border="1" cellpading="20" cellspacing="0">
+                <tr>
+                    <td>Nom</td>
+                    <td><input type="text" value="<?= htmlspecialchars($u['lastName']) ?>" name="name" id="" required></td>
+                </tr>
+                <tr>
+                    <td>Prénom</td>
+                    <td><input type="text" value="<?= htmlspecialchars($u['firstName']) ?>" name="fname" id="" required></td>
+                </tr>
+                <tr>
+                    <td>Age</td>
+                    <td><input type="number" value="<?= htmlspecialchars($u['age']) ?>" name="age" id="" required min="18"
+                            max="122"></td>
+                </tr>
+                <tr>
+                    <td>mettre d'autres trucs</td>
+                    <td>là</td>
+                </tr>
+
+            </table>
+            <button type="submit" class="sub">Enregistrer</button>
+            <h2>au secours</h2>
+        </form>
+    </div>
+</div>
+
+
 <?php if ($errStr !== null): ?>
     <p id="err"><?= htmlspecialchars($errStr) ?></p>
 <?php elseif ($submitCode == 0): ?>
