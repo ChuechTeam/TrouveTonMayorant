@@ -11,12 +11,12 @@ $submitCode = -1;
 
 // Si l'utilisateur a envoyé le formulaire en cliquant sur "Enregistrer"
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!empty(($_POST['mail'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['age']))) { //Si les champs ne sont pas vides
+    if (!empty(($_POST['mail'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate']))) { //Si les champs ne sont pas vides
         $ok = User\updateProfile($u["id"], array(
             "firstName" => $_POST['fname'],
             "lastName" => $_POST['name'],
             "email" => $_POST['mail'],
-            "age" => $_POST['age']
+            "bdate" => $_POST['bdate']
         ), $u);
 
         if (!empty($_POST["password"]) && $ok === 0) {
@@ -70,9 +70,8 @@ Templates\member("Votre profil");
                     <td><input type="text" value="<?= htmlspecialchars($u['firstName']) ?>" name="fname" id="" required></td>
                 </tr>
                 <tr>
-                    <td>Age</td>
-                    <td><input type="number" value="<?= htmlspecialchars($u['age']) ?>" name="age" id="" required min="18"
-                            max="122"></td>
+                    <td>Date de naissance</td>
+                    <td><input type="date" value="<?= htmlspecialchars($u['bdate']) ?>" name="bdate" id="" required></td>
                 </tr>
                 <tr>
                     <td>mettre d'autres trucs</td>

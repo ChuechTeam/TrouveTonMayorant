@@ -30,17 +30,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         // Inscription
-        if (!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['age']))) { //Si les champs ne sont pas vides
+        if (!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate']))) { //Si les champs ne sont pas vides
             //On recupere les infos importantes
             $user_m = $_POST['mail'];
 
             $user_p = $_POST['password'];
             $user_n = $_POST['name'];
             $user_fn = $_POST['fname'];
-            $user_a = $_POST['age'];
+            $user_bd = $_POST['bdate'];
 
             $id = 0;
-            $errCode = User\register($user_fn, $user_n, $user_m, $user_p, $user_a, $id);
+            $errCode = User\register($user_fn, $user_n, $user_m, $user_p, $user_bd, $id);
             if ($errCode === 0) {
                 \UserSession\signIn($id);
                 header("Location: $root/index.php");
@@ -107,8 +107,8 @@ Templates\base($page === "signIn" ? "Connexion" : "Inscription");
                     <td><input type="text" name="fname" id="" required></td>
                 </tr>
                 <tr>
-                    <td>Age</td>
-                    <td><input type="number" name="age" id="" required min="18" max="122"></td>
+                    <td>Date de naissance</td>
+                    <td><input type="date" name="bdate" id="" required></td>
                 </tr>
 
                 <tr>

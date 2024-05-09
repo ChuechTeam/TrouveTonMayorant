@@ -4,6 +4,8 @@ namespace User;
 
 require_once __DIR__ . "/userDB.php";
 
+use DateTime;
+
 // Liste des codes d'erreur
 const ERR_EMAIL_USED = 1;
 const ERR_FIELD_MISSING = 2;
@@ -18,7 +20,7 @@ const LEVEL_ADMIN = 4; // Administrateur
 
 // 0 --> OK
 // >0 --> OH NOOO
-function register(string $firstname, string $lastname, string $email, string $password, $age, &$id): int {
+function register(string $firstname, string $lastname, string $email, string $password, $bdate, &$id): int {
     if (\UserDB\findByEmail($email) != null) {
         return ERR_EMAIL_USED;
     }
@@ -27,7 +29,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
         "firstName" => $firstname,
         "lastName" => $lastname,
         "email" => $email,
-        "age" => $age
+        "bdate" => $bdate
     ], null);
     if ($valErr !== 0) {
         return $valErr;
@@ -43,7 +45,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "pass" => password_hash($password, PASSWORD_DEFAULT),
             "firstName" => $firstname,
             "lastName" => $lastname,
-            "age" => $age,
+            "bdate" => $bdate,
             "conversations" => [],
             "blockedUsers" => [],
             "blockedBy" => []
@@ -66,7 +68,7 @@ function updateProfile(int $id, array $profile, ?array &$updatedUser = null): in
 
     $user["firstName"] = $profile["firstName"];
     $user["lastName"] = $profile["lastName"];
-    $user["age"] = $profile["age"];
+    $user["bdate"] = $profile["bdate"];
     $user["email"] = $profile["email"];
 
     \UserDB\put($user);
@@ -96,12 +98,17 @@ function validateProfile(array $profile, ?int $existingId): int {
     if (empty($profile["firstName"])
         || empty($profile["lastName"])
         || empty($profile["email"])
-        || empty($profile["age"])
+        || empty($profile["bdate"])
     ) {
         return ERR_FIELD_MISSING;
     }
 
-    $age = intval($profile["age"]);
+
+    $today = new DateTime();
+    $birthdate = new DateTime($profile["bdate"]);
+    $diff = $today->diff($birthdate);
+    $age = $diff->y;
+
     if ($age < 18) {
         return ERR_FIELD_MISSING; // pas le bon error type mais flemme
     }

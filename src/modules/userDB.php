@@ -124,7 +124,7 @@ function put(array $user): int {
     _validateExist($user, "pass");
     _validateExist($user, "firstName");
     _validateExist($user, "lastName");
-    _validateExist($user, "age");
+    _validateExist($user, "bdate");
     _validateExist($user, "conversations");
     _validateExist($user, "blockedUsers");
     _validateExist($user, "blockedBy");
