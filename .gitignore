@@ -1,3 +1,6 @@
 users.json
+moderation.json
 .idea/*
 !.idea/codeStyles
+
+conversations/

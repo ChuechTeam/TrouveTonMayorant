@@ -9,11 +9,23 @@ namespace UserDB;
  * - "pass" (hashé)
  * - "firstName"
  * - "lastName"
+ * - "conversations" : tableau des id des conversations
+ * - "blockedUsers" : tableau associatif d'id d'utilisateurs bloqués : [id]=>1
+ * - "blockedBy" : tableau associatif d'id des utilisateurs qui ont bloqué celui-ci : [id]=>1
+ */
+
+/*
+ *  "users" => tableau assoc des utilisateurs
+ *  "byEmail" => tableau assoc [ [email] => [id utilisateur] ]
+ *  "idSeq" => nombre de séquences d'identifiant
+ *  "revision" => version de la base de donnée
  */
 
 // Liste des versions de la base de donnée, chaque version requiert des changements distincts.
 const REV_FIRST = 1;
 const REV_NEW_DB_LOADING = 2; // Retire le "_dict: 1" dans users et byEmail
+const REV_INTERACTION_UPDATE = 3; // Conversations et blocage
+const REV_LAST = REV_INTERACTION_UPDATE; // Dernière version de la base de donnée
 
 $usersFile = null; // Le fichier json chargé avec fopen
 $usersReadOnly = false; // Si la base de donnée est ouverte en lecture seule
@@ -21,7 +33,6 @@ $usersData = null; // Le tableau associatif avec toutes les données du JSON
 $usersDirty = false; // Si des changements ont été effectués à la base de données.
 $usersFilePath = __DIR__ . "/../../users.json"; // Emplacement du fichier JSON
 $shutdownRegistered = false; // Pour éviter d'appeler unload() deux fois à la fin du script
-$revision = REV_NEW_DB_LOADING; // Version de la base de donnée
 
 /**
  * Charge intégralement la base de donnée.
@@ -33,22 +44,21 @@ $revision = REV_NEW_DB_LOADING; // Version de la base de donnée
  * @param bool $readOnly si la base de donnée doit être chargée en lecture seule
  * @return array une référence vers l'intégralité des données
  */
-function &load(bool $readOnly = false): array
-{
+function &load(bool $readOnly = false): array {
     global $usersData;
     global $usersReadOnly;
     global $usersFile;
     global $usersFilePath;
     global $shutdownRegistered;
-    global $revision;
 
     if ($usersData === null) {
         $usersFile = @fopen($usersFilePath, $readOnly ? "r" : "r+");
         if ($usersFile !== false) {
-            if (flock($usersFile,  $readOnly ? LOCK_SH : LOCK_EX)) {
+            if (flock($usersFile, $readOnly ? LOCK_SH : LOCK_EX)) {
                 $json = fread($usersFile, filesize($usersFilePath));
                 $usersData = json_decode($json, true);
-                upgrade();
+                $usersReadOnly = $readOnly;
+                _upgrade($usersData);
             } else {
                 fclose($usersFile);
                 $usersFile = null;
@@ -63,15 +73,13 @@ function &load(bool $readOnly = false): array
                 "users" => [],
                 "byEmail" => [],
                 "idSeq" => 1,
-                "revision" => $revision,
+                "revision" => REV_LAST,
             ];
 
-            fwrite($usersFile, json_encode($usersData, JSON_FORCE_OBJECT));
+            fwrite($usersFile, json_encode($usersData));
         } else {
             throw new \RuntimeException("Failed to read the existing user database.");
         }
-
-        $usersReadOnly = $readOnly;
 
         if (!$shutdownRegistered) {
             register_shutdown_function(function () {
@@ -104,8 +112,7 @@ function isReadOnly(): bool {
  * @param array $user le tableau associatif qui contient les données de l'utilisateur.
  * @return int l'id de l'utilisateur créé ou mis à jour
  */
-function put(array $user): int
-{
+function put(array $user): int {
     if ($user === null) {
         throw new \InvalidArgumentException("User is null!");
     }
@@ -118,6 +125,9 @@ function put(array $user): int
     _validateExist($user, "firstName");
     _validateExist($user, "lastName");
     _validateExist($user, "age");
+    _validateExist($user, "conversations");
+    _validateExist($user, "blockedUsers");
+    _validateExist($user, "blockedBy");
 
     global $usersDirty;
 
@@ -144,6 +154,8 @@ function put(array $user): int
         }
     }
 
+    _updateUserBlocks($id, $existingUser["blockedUsers"] ?? [], $user["blockedUsers"]);
+
     $ud["byEmail"][$newEmail] = $id;
     $ud["users"][$id] = $user;
     $usersDirty = true;
@@ -151,8 +163,7 @@ function put(array $user): int
     return $id;
 }
 
-function findByEmail(string $email): ?array
-{
+function findByEmail(string $email): ?array {
     $ud = &load();
 
     if (!isset($ud["byEmail"][$email])) {
@@ -162,8 +173,7 @@ function findByEmail(string $email): ?array
     }
 }
 
-function findByEmailPassword(string $email, string $pass): ?array
-{
+function findByEmailPassword(string $email, string $pass): ?array {
     $u = findByEmail($email);
     if ($u !== null && !password_verify($pass, $u["pass"])) {
         return null;
@@ -171,15 +181,13 @@ function findByEmailPassword(string $email, string $pass): ?array
     return $u;
 }
 
-function userExistsById(int $id): bool
-{
+function userExistsById(int $id): bool {
     $ud = &load();
 
     return isset($ud["users"][$id]);
 }
 
-function findById(int $id): ?array
-{
+function findById(int $id): ?array {
     $ud = &load();
 
     if (!isset($ud["users"][$id])) {
@@ -200,8 +208,7 @@ function query(): array {
     return array_values($ud["users"]);
 }
 
-function nextId(): int
-{
+function nextId(): int {
     global $usersDirty;
 
     $ud = &load();
@@ -212,45 +219,76 @@ function nextId(): int
     return $id;
 }
 
-function upgrade()
-{
-    global $usersData;
+function _updateUserBlocks(int $blocker, array $oldBlocks, array &$newBlocks) {
+    if ($oldBlocks == $newBlocks) {
+        return;
+    }
+
+    $ud = &load();
+    $removed = array_diff_key($oldBlocks, $newBlocks);
+    $added = array_diff_key($newBlocks, $oldBlocks);
+
+    foreach ($removed as $unblockedId => $_) {
+        if (isset($ud["users"][$unblockedId])) {
+            $u = &$ud["users"][$unblockedId];
+            unset($u["blockedBy"][$blocker]);
+        }
+        // si l'id n'est pas trouvé c'est pas grave, l'utilisateur a été supprimé
+    }
+
+    foreach ($added as $blockedId => $_) {
+        if (isset($ud["users"][$blockedId])) {
+            $u = &$ud["users"][$blockedId];
+            $u["blockedBy"][$blocker] = 1;
+        } else {
+            trigger_error("Inexistant user id ($blockedId) has been added to the blockedUsers list! This user will be ignored.",
+                E_USER_WARNING);
+            unset($newBlocks[$blockedId]);
+        }
+    }
+}
+
+function _upgrade(array &$data) {
     global $usersDirty;
     global $usersReadOnly;
-    global $revision;
 
-    $prev = $usersData["revision"] ?? null;
+    $prev = $data["revision"] ?? null;
     if ($prev === null) {
         throw new \RuntimeException("Revision property not found, the user database file is likely invalid or corrupted!");
     }
-    if ($prev < $revision) {
+    if ($prev < REV_LAST) {
         if ($usersReadOnly) {
             throw new \RuntimeException("Cannot update the database in read-only mode!");
         }
 
         $cur = $prev;
-        while ($cur < $revision) {
-            trigger_error("Upgrading database to revision " . $cur . ".");
+        while ($cur < REV_LAST) {
             $cur++;
+            trigger_error("Upgrading database to revision " . $cur . ".");
 
             switch ($cur) {
                 case REV_NEW_DB_LOADING:
-                    unset($usersData["users"]["_dict"]);
-                    unset($usersData["byEmail"]["_dict"]);
+                    unset($data["users"]["_dict"]);
+                    unset($data["byEmail"]["_dict"]);
+                    break;
+                case REV_INTERACTION_UPDATE:
+                    foreach ($data["users"] as &$u) {
+                        $u["conversations"] = [];
+                        $u["blockedUsers"] = [];
+                        $u["blockedBy"] = [];
+                    }
                     break;
                 default:
                     break;
             }
         }
-        // todo!
 
-        $usersData["revision"] = $revision;
+        $data["revision"] = REV_LAST;
         $usersDirty = true;
     }
 }
 
-function save()
-{
+function save() {
     global $usersData;
     global $usersFilePath;
     global $usersDirty;
@@ -274,8 +312,7 @@ function save()
     $usersDirty = false;
 }
 
-function unload()
-{
+function unload() {
     global $usersData;
     global $usersDirty;
     global $usersFile;
@@ -297,8 +334,7 @@ function unload()
     $usersReadOnly = false;
 }
 
-function _validateExist(array $user, string $prop)
-{
+function _validateExist(array $user, string $prop) {
     if (!isset($user[$prop])) {
         throw new \InvalidArgumentException("User is invalid: $prop missing.");
     }

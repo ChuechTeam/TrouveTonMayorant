@@ -43,7 +43,10 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "pass" => password_hash($password, PASSWORD_DEFAULT),
             "firstName" => $firstname,
             "lastName" => $lastname,
-            "age" => $age
+            "age" => $age,
+            "conversations" => [],
+            "blockedUsers" => [],
+            "blockedBy" => []
         )
     );
 
