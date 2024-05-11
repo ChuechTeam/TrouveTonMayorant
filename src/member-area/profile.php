@@ -55,7 +55,7 @@ Templates\member("Votre profil");
 <div class="profile-form-container">
     <div class="profile-form">
         <form action="profile.php" method="post" id="">
-
+    
             <h2 class="-title">Compte<hr></h2>
             <table border="1" cellpading="20" cellspacing="0">
                 <tr>
@@ -72,7 +72,7 @@ Templates\member("Votre profil");
                 </tr>
             </table>
             <button class="-delete">Supprimer le compte</button>
-            <br>
+            <br><br>
             <h2 class="-title">Informations personnelles<hr></h2>
             <table border="1" cellpading="20" cellspacing="0">
                 <tr>
@@ -152,10 +152,10 @@ Templates\member("Votre profil");
                 </tr>
             </table>
 
-            <h2>Je recherche</h2>
+            <h2 class="-title">Je recherche<hr></h2>
             <table border="1" cellpading="20" cellspacing="0">
                 <tr>
-                    <td>Je recherche</td>
+                    <td>Genre</td>
                     <td>
                         <ul>
                             <li><input type="checkbox" name="gender_search[]" id="h" value="h" <?= (in_array("h", $u['gender_search'])) ? "checked" : "" ?> ><label for="h">Homme</label></li>
@@ -187,8 +187,8 @@ Templates\member("Votre profil");
                         </select>
                     </td>
                 </tr>
-
             </table>
+            <br>
             <button type="submit" class="sub">Enregistrer</button>
         </form>
     </div>
