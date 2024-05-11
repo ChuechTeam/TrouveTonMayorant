@@ -1,6 +1,5 @@
 <?php
 require __DIR__ . "/../modules/url.php";
-require_once __DIR__ . "/../modules/userSession.php";
 
 $content = $tmplArgs["content"] ?? "\$content is empty!";
 
@@ -26,15 +25,11 @@ function linkAttribs($path) {
     }
 }
 
-/*
- * Données utilisateur
+/**
+ * (À utiliser pour afficher le nom/prénom du profil après)
+ * @var array $user
  */
-
-$user = UserSession\loggedUser();
-if ($user == null) {
-    die("The member template requires a logged user!");
-}
-
+$user = $tmplArgs["user"] ?? die("The member template requires a logged user!");
 ?>
 
 <nav id="member-nav">

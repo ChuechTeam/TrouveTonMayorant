@@ -171,7 +171,7 @@ function _read(string $path, &$handle, ?array &$conv = null, bool $readOnly = fa
         return false;
     }
 
-    $data = fread($handle, filesize($path));
+    $data = fread($handle, _fSize($path));
     if ($data === false) {
         _close($handle);
         return false;
@@ -209,4 +209,12 @@ function _close($handle, ?array $conv = null): bool {
     $ok &= fclose($handle);
 
     return $ok;
+}
+
+function _fSize($handle) {
+    $stat = fstat($handle);
+    if ($stat === false) {
+        throw new \RuntimeException("Failed to gather the file size!");
+    }
+    return $stat['size'];
 }
