@@ -55,7 +55,10 @@ function &load(bool $readOnly = false): array {
         $usersFile = @fopen($usersFilePath, $readOnly ? "r" : "r+");
         if ($usersFile !== false) {
             if (flock($usersFile, $readOnly ? LOCK_SH : LOCK_EX)) {
-                $json = fread($usersFile, filesize($usersFilePath));
+                $json = fread($usersFile, _fSize($usersFile));
+                if ($json === false) {
+                    throw new \RuntimeException("Failed to read the users database.");
+                }
                 $usersData = json_decode($json, true);
                 $usersReadOnly = $readOnly;
                 _upgrade($usersData);
@@ -338,4 +341,12 @@ function _validateExist(array $user, string $prop) {
     if (!isset($user[$prop])) {
         throw new \InvalidArgumentException("User is invalid: $prop missing.");
     }
+}
+
+function _fSize($handle) {
+    $stat = fstat($handle);
+    if ($stat === false) {
+        throw new \RuntimeException("Failed to gather the file size!");
+    }
+    return $stat['size'];
 }
