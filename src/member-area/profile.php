@@ -132,7 +132,7 @@ Templates\member("Votre profil");
                 <tr>
                     <td>Description physique</td>
                     <td>
-                        <textarea name="desc" placeholder="brun, grand, yeux bruns..." cols="30" rows="2" maxlength="200"><?php echo htmlspecialchars($u['desc']) ?></textarea>
+                        <textarea name="desc" placeholder="brun, grand, yeux bruns..." cols="64" rows="2" maxlength="200"><?php echo htmlspecialchars($u['desc']) ?></textarea>
                     </td>
                 </tr>
                 <tr>
