@@ -18,6 +18,36 @@ const LEVEL_MEMBER = 2; // Utilisateur non abonné
 const LEVEL_SUBSCRIBER = 3; // Utilisateur abonné
 const LEVEL_ADMIN = 4; // Administrateur
 
+// Liste des genres (dans "gender")
+const GENDER_MAN = "m";
+const GENDER_WOMAN = "f";
+const GENDER_NON_BINARY = "nb";
+const GENDER_OTHER = "a";
+
+// Liste des orientations (dans "orientation")
+const ORIENTATION_HETERO = "het";
+const ORIENTATION_HOMO = "ho";
+const ORIENTATION_BI = "bi";
+const ORIENTATION_PAN = "pan";
+const ORIENTATION_ASEXUAL = "as";
+const ORIENTATION_OTHER = "a";
+
+// Liste des situations (dans "situation")
+const SITUATION_SINGLE = "single";
+const SITUATION_OPEN = "open";
+
+// Liste des types de relation (dans "rel_search")
+const REL_OCCASIONAL = "ro";
+const REL_SERIOUS = "rs";
+const REL_NO_TOMORROW = "rl";
+const REL_TALK_AND_SEE = "ad";
+const REL_NON_EXCLUSIVE = "rne";
+
+// Préférence (booléen avec peu importe)
+const PREF_YES = "yes";
+const PREF_NO = "no";
+const PREF_WHATEVER = "w";
+
 // 0 --> OK
 // >0 --> OH NOOO
 function register(string $firstname, string $lastname, string $email, string $password, $bdate, &$id): int {

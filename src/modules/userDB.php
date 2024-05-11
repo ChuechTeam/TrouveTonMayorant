@@ -25,7 +25,8 @@ namespace UserDB;
 const REV_FIRST = 1;
 const REV_NEW_DB_LOADING = 2; // Retire le "_dict: 1" dans users et byEmail
 const REV_INTERACTION_UPDATE = 3; // Conversations et blocage
-const REV_LAST = REV_INTERACTION_UPDATE; // Dernière version de la base de donnée
+const REV_PROFILE_DETAILS = 4; // La màj qui fait que c'est un site de rencontre
+const REV_LAST = REV_PROFILE_DETAILS; // Dernière version de la base de donnée
 
 $usersFile = null; // Le fichier json chargé avec fopen
 $usersReadOnly = false; // Si la base de donnée est ouverte en lecture seule
@@ -279,6 +280,25 @@ function _upgrade(array &$data) {
                         $u["conversations"] = [];
                         $u["blockedUsers"] = [];
                         $u["blockedBy"] = [];
+                    }
+                    break;
+                case REV_PROFILE_DETAILS:
+                    $year = (new \DateTime())->format("Y");
+                    foreach ($data["users"] as &$u) {
+                        if (!isset($u["bdate"])) {
+                            $ny = $year - $u["age"];
+                            $u["bdate"] = "$ny-01-01";
+                        }
+                        unset($u["age"]);
+
+                        $strProps = ["gender", "orientation", "job", "situation", "desc", "bio", "user_smoke", "search_smoke"];
+                        foreach ($strProps as $p) {
+                            if (!isset($u[$p])) {
+                                $u[$p] = "";
+                            }
+                        }
+                        $u["gender_search"] = $u["gender_search"] ?? [];
+                        $u["rel_search"] = $u["rel_search"] ?? [];
                     }
                     break;
                 default:
