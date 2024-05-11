@@ -210,11 +210,16 @@ button {
     padding: 12px;
     border-radius: 8px;
     text-align: center;
+    width: 50%;
+    height: 30%;
+    overflow: auto;
 }
 
 .profile-form table{
     margin: auto;
     margin-bottom: 10px;
+    width: 100%;
+    height: 100%;
 }
 
 .profile-form .-title{
@@ -243,6 +248,19 @@ button {
 
 .profile-form > form > *:not(table) {
     margin: 0 auto;
+}
+
+.profile-form ul{
+    margin: 0;
+    list-style: none;
+    float: left;
+    text-align: left;
+}
+
+.profile-form ul>li>label{
+    margin: 0;
+    list-style: none;
+
 }
 
 

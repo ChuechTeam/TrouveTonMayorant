@@ -46,6 +46,14 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "firstName" => $firstname,
             "lastName" => $lastname,
             "bdate" => $bdate,
+            "gender" => "",
+            "orientation" => "",
+            "job" => "",
+            "situation" => "",
+            "desc" => "",
+            "bio" => "",
+            "user_smoke" => "",
+            "search_smoke" => "",
             "conversations" => [],
             "blockedUsers" => [],
             "blockedBy" => []
@@ -55,7 +63,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
     return 0;
 }
 
-function updateProfile(int $id, array $profile, ?array &$updatedUser = null): int {
+function updateProfile(int $id, array $profile, ?array $profile_details=null, ?array &$updatedUser = null): int {
     $user = \UserDB\findById($id);
     if ($user == null) {
         return ERR_USER_NOT_FOUND;
@@ -70,6 +78,15 @@ function updateProfile(int $id, array $profile, ?array &$updatedUser = null): in
     $user["lastName"] = $profile["lastName"];
     $user["bdate"] = $profile["bdate"];
     $user["email"] = $profile["email"];
+
+    $user["gender"] = $profile_details["gender"];
+    $user["orientation"] = $profile_details["orientation"];
+    $user["job"] = $profile_details["job"];
+    $user["situation"] = $profile_details["situation"];
+    $user["desc"] = $profile_details["desc"];
+    $user["bio"] = $profile_details["bio"];
+    $user["user_smoke"] = $profile_details["user_smoke"];
+    $user["search_smoke"] = $profile_details["search_smoke"];
 
     \UserDB\put($user);
     $updatedUser = $user;
