@@ -54,6 +54,8 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "bio" => "",
             "user_smoke" => "",
             "search_smoke" => "",
+            "gender_search" => [],
+            "rel_search" => [],
             "conversations" => [],
             "blockedUsers" => [],
             "blockedBy" => []
@@ -87,6 +89,8 @@ function updateProfile(int $id, array $profile, ?array $profile_details=null, ?a
     $user["bio"] = $profile_details["bio"];
     $user["user_smoke"] = $profile_details["user_smoke"];
     $user["search_smoke"] = $profile_details["search_smoke"];
+    $user["gender_search"] = $profile_details["gender_search"];
+    $user["rel_search"] = $profile_details["rel_search"];
 
     \UserDB\put($user);
     $updatedUser = $user;

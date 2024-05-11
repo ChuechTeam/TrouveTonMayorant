@@ -27,6 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 "bio" => (isset($_POST['bio'])) ? $_POST['bio'] : "",
                 "user_smoke" => (isset($_POST['user_smoke'])) ? $_POST['user_smoke'] : "",
                 "search_smoke" => (isset($_POST['search_smoke'])) ? $_POST['search_smoke'] : "",
+                "gender_search" => (isset($_POST['gender_search'])) ? $_POST['gender_search'] : [],
+                "rel_search" => (isset($_POST['rel_search'])) ? $_POST['rel_search'] : [],
+
             ),$u);
 
         if (!empty($_POST["password"]) && $ok === 0) {
@@ -129,13 +132,13 @@ Templates\member("Votre profil");
                 <tr>
                     <td>Description physique</td>
                     <td>
-                        <textarea name="desc" placeholder="brun, grand, yeux bruns..." cols="30" rows="2" maxlength="200" value="<?= htmlspecialchars($u['desc']) ?>"></textarea>
+                        <textarea name="desc" placeholder="brun, grand, yeux bruns..." cols="30" rows="2" maxlength="200"><?php echo htmlspecialchars($u['desc']) ?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <td>Bio</td>
                     <td>
-                        <textarea name="bio" cols="64" rows="9" maxlength="1000" value="<?= htmlspecialchars($u['bio']) ?>" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"></textarea>
+                        <textarea name="bio" cols="64" rows="9" maxlength="1000" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"><?php echo htmlspecialchars($u['bio']) ?></textarea>
                     </td>
                 </tr>
                 <tr>
@@ -155,10 +158,10 @@ Templates\member("Votre profil");
                     <td>Je recherche</td>
                     <td>
                         <ul>
-                            <li><input type="checkbox" name="gender_search[]" id="h" value="h"><label for="h">Homme</label></li>
-                            <li><input type="checkbox" name="gender_search[]" id="f" value="f"><label for="f">Femme</label></li>
-                            <li><input type="checkbox" name="gender_search[]" id="nb" value="nb"><label for="nb">Non-binaire</label></li>
-                            <li><input type="checkbox" name="gender_search[]" id="a" value="a"><label for="a">Autre</label></li>
+                            <li><input type="checkbox" name="gender_search[]" id="h" value="h" <?= (in_array("h", $u['gender_search'])) ? "checked" : "" ?> ><label for="h">Homme</label></li>
+                            <li><input type="checkbox" name="gender_search[]" id="f" value="f" <?= (in_array("f", $u['gender_search'])) ? "checked" : "" ?> ><label for="f">Femme</label></li>
+                            <li><input type="checkbox" name="gender_search[]" id="nb" value="nb" <?= (in_array("nb", $u['gender_search'])) ? "checked" : "" ?> ><label for="nb">Non-binaire</label></li>
+                            <li><input type="checkbox" name="gender_search[]" id="a" value="a" <?= (in_array("a", $u['gender_search'])) ? "checked" : "" ?> ><label for="a">Autre</label></li>
                         </ul>
                     </td>
                 </tr>
@@ -166,11 +169,11 @@ Templates\member("Votre profil");
                     <td>Type de relation</td>
                     <td>
                         <ul>
-                            <li><input type="checkbox" name="rel_search[]" id="ro" value="ro"><label for="ro">Rencontres occasionnelles</label></li>
-                            <li><input type="checkbox" name="rel_search[]" id="rs" value="rs"><label for="rs">Relation sérieuse</label></li>
-                            <li><input type="checkbox" name="rel_search[]" id="rl" value="rl"><label for="rl">Relation sans lendemain</label></li>
-                            <li><input type="checkbox" name="rel_search[]" id="ad" value="ad"><label for="ad">À découvrir au fil des échanges</label></li>
-                            <li><input type="checkbox" name="rel_search[]" id="rne" value="rne"><label for="rne">Relation non exclusive</label></li>
+                            <li><input type="checkbox" name="rel_search[]" id="ro" value="ro" <?= (in_array("ro", $u['rel_search'])) ? "checked" : "" ?> ><label for="ro">Rencontres occasionnelles</label></li>
+                            <li><input type="checkbox" name="rel_search[]" id="rs" value="rs" <?= (in_array("rs", $u['rel_search'])) ? "checked" : "" ?> ><label for="rs">Relation sérieuse</label></li>
+                            <li><input type="checkbox" name="rel_search[]" id="rl" value="rl" <?= (in_array("rl", $u['rel_search'])) ? "checked" : "" ?> ><label for="rl">Relation sans lendemain</label></li>
+                            <li><input type="checkbox" name="rel_search[]" id="ad" value="ad" <?= (in_array("ad", $u['rel_search'])) ? "checked" : "" ?> ><label for="ad">À découvrir au fil des échanges</label></li>
+                            <li><input type="checkbox" name="rel_search[]" id="rne" value="rne"  <?= (in_array("rne", $u['rel_search'])) ? "checked" : "" ?> ><label for="rne">Relation non exclusive</label></li>
                         </ul>
                     </td>
                 </tr>
