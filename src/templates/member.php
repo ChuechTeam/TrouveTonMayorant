@@ -38,9 +38,24 @@ $user = $tmplArgs["user"] ?? die("The member template requires a logged user!");
     </div>
     <div class="-sep"></div>
     <ul class="-links">
-        <li><a <?php linkAttribs($homePath); ?>>Accueil</a></li>
-        <li><a <?php linkAttribs($profilePath); ?>>Profil</a></li>
-        <li class="-sign-out"><a href="<?= "$root/redirect.php" ?>">Déconnexion</a></li>
+        <li>
+            <a <?php linkAttribs($homePath); ?>>
+                <span class="material-symbols-rounded -inl -icon">home</span>
+                <span class="-label">Accueil</span>
+            </a>
+        </li>
+        <li>
+            <a <?php linkAttribs($profilePath); ?>>
+                <span class="material-symbols-rounded -inl -icon">account_circle</span>
+                <span class="-label">Profil</span>
+            </a>
+        </li>
+        <li class="-sign-out">
+            <a href="<?= "$root/redirect.php" ?>">
+                <span class="material-symbols-rounded -inl -icon">logout</span>
+                <span class="-label -mobile-hide">Déconnexion</span>
+            </a>
+        </li>
     </ul>
 </nav>
 <main>

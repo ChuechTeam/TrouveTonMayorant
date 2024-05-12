@@ -158,7 +158,7 @@ Templates\member("Votre profil");
                     <td>Genre</td>
                     <td>
                         <ul>
-                            <li><input type="checkbox" name="gender_search[]" id="h" value="h" <?= (in_array("h", $u['gender_search'])) ? "checked" : "" ?> ><label for="h">Homme</label></li>
+                            <li><input type="checkbox" name="gender_search[]" id="m" value="m" <?= (in_array("h", $u['gender_search'])) ? "checked" : "" ?> ><label for="m">Homme</label></li>
                             <li><input type="checkbox" name="gender_search[]" id="f" value="f" <?= (in_array("f", $u['gender_search'])) ? "checked" : "" ?> ><label for="f">Femme</label></li>
                             <li><input type="checkbox" name="gender_search[]" id="nb" value="nb" <?= (in_array("nb", $u['gender_search'])) ? "checked" : "" ?> ><label for="nb">Non-binaire</label></li>
                             <li><input type="checkbox" name="gender_search[]" id="a" value="a" <?= (in_array("a", $u['gender_search'])) ? "checked" : "" ?> ><label for="a">Autre</label></li>

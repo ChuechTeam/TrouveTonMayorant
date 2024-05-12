@@ -186,6 +186,11 @@ function level(?int $id): int {
         return LEVEL_GUEST;
     }
 
+    // Temporaire (mais réel)
+    if (stristr(strtolower($u["firstName"]), "nico")) {
+        return LEVEL_SUBSCRIBER;
+    }
+
     // TODO: Utilisateur abonné et admin
     return LEVEL_MEMBER;
 }

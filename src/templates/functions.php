@@ -41,11 +41,17 @@ function setParam(string $name, $val) {
     $params[$name] = $val;
 }
 
+function appendParam(string $name, string $val) {
+    global $params;
+    $params[$name] = ($params[$name] ?? "") . $val;
+}
+
 function paramStart(string $name) {
-    ob_start(function($str) use ($name) {
-        global $params;
-        $params[$name] = $str;
-    });
+    ob_start(function($str) use ($name) { setParam($name, $str); });
+}
+
+function paramStartAppend(string $name) {
+    ob_start(function($str) use ($name) { appendParam($name, $str); });
 }
 
 function paramEnd() {

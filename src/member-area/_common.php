@@ -7,3 +7,7 @@ require __DIR__ . "/../modules/url.php";
 $api = $api ?? false;
 \UserSession\requireLevel(User\LEVEL_MEMBER, $api);
 $user = \UserSession\loggedUser();
+
+Templates\appendParam("head", '<script src="/scripts/profile.js" type="module" defer></script>
+<link rel="preload" href="/assets/sup.svg" as="image"/>');
+?>

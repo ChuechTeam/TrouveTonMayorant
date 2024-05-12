@@ -1,8 +1,11 @@
 <?php
 
 require_once "modules/userDB.php";
+require_once "./member-area/_profileCard.php";
+require "./modules/url.php";
+
 $q = $_REQUEST["q"];
-$res = "";
+$first = true;
 $q = strtolower($q);
 $len=strlen($q);
 
@@ -10,17 +13,21 @@ $len=strlen($q);
 UserDB\load(true);
 foreach(UserDB\query() as $u){
     if (stristr($q, substr($u["firstName"], 0, $len))) {
-        if ($res === "") {
-            $res = htmlspecialchars($u["firstName"]);
+        if ($first) {
+            echo '<div class="search-results">';
+            $first = false;
         }
-        else {
-            $res .= "<br>".htmlspecialchars($u['firstName']);
-        }
+
+        profileCard($u);
     }
 }
 
 
-echo $res === "" ? "no suggestion" : $res;
+if ($first) {
+    echo "<div class=\"search-results -empty\">Aucun résultat</div>";
+} else {
+    echo "</div>";
+}
 
 
 ?>
