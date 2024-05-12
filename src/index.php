@@ -1,7 +1,7 @@
 <?php
-require "templates/functions.php";
+require_once "templates/functions.php";
+require_once "modules/userSession.php";
 require "modules/url.php";
-require "modules/userSession.php";
 if (UserSession\isLogged()) {
     header("Location: $root/member-area");
     exit();

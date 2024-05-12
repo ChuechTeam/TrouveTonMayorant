@@ -1,6 +1,6 @@
 <?php
 require "modules/url.php";
-require "modules/userSession.php";
+require_once "modules/userSession.php";
 
 \UserSession\signOut();
 
