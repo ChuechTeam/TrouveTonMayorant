@@ -68,7 +68,7 @@ Templates\member("Votre profil");
                 </tr>
                 <tr>
                     <td>Date d'inscription</td>
-                    <td>aaaa</td>
+                    <td><?= DateTime::createFromFormat('Y-m-d', $u['rdate'])->format('d/m/Y'); ?></td>
                 </tr>
             </table>
             <button class="-delete">Supprimer le compte</button>

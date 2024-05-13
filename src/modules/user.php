@@ -59,7 +59,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
         "firstName" => $firstname,
         "lastName" => $lastname,
         "email" => $email,
-        "bdate" => $bdate
+        "bdate" => $bdate,
     ], null);
     if ($valErr !== 0) {
         return $valErr;
@@ -76,6 +76,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "firstName" => $firstname,
             "lastName" => $lastname,
             "bdate" => $bdate,
+            "rdate" => date('Y-m-d'),
             "gender" => "",
             "orientation" => "",
             "job" => "",
