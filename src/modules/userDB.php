@@ -26,7 +26,8 @@ const REV_FIRST = 1;
 const REV_NEW_DB_LOADING = 2; // Retire le "_dict: 1" dans users et byEmail
 const REV_INTERACTION_UPDATE = 3; // Conversations et blocage
 const REV_PROFILE_DETAILS = 4; // La màj qui fait que c'est un site de rencontre
-const REV_LAST = REV_PROFILE_DETAILS; // Dernière version de la base de donnée
+const REV_REG_DATE = 5; // Ajout de la date d'inscription
+const REV_LAST = REV_REG_DATE; // Dernière version de la base de donnée
 
 $usersFile = null; // Le fichier json chargé avec fopen
 $usersReadOnly = false; // Si la base de donnée est ouverte en lecture seule
@@ -299,6 +300,13 @@ function _upgrade(array &$data) {
                         }
                         $u["gender_search"] = $u["gender_search"] ?? [];
                         $u["rel_search"] = $u["rel_search"] ?? [];
+                    }
+                    break;
+                case REV_REG_DATE:
+                    foreach ($data["users"] as &$u) {
+                        if (!isset($u["rdate"])) {
+                            $u["rdate"] = (new \DateTime())->format("Y-m-d");
+                        }
                     }
                     break;
                 default:

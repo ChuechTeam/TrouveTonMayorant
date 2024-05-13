@@ -1,5 +1,4 @@
 document.addEventListener("click", function(e) {
-    console.log(e.target);
     const card = e.target.closest(".profile-card");
     if (card !== null) {
         e.preventDefault();

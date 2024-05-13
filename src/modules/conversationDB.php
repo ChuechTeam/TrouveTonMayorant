@@ -63,7 +63,7 @@ function find(string $id): ?array {
     $conv = null;
     $handle = null;
 
-    if (_read($id, $handle, $conv, true)) {
+    if (_read(_path($id), $handle, $conv, true)) {
         _close($handle);
     }
 
@@ -176,7 +176,7 @@ function _read(string $path, &$handle, ?array &$conv = null, bool $readOnly = fa
         return false;
     }
 
-    $data = fread($handle, _fSize($path));
+    $data = fread($handle, _fSize($handle));
     if ($data === false) {
         _close($handle);
         return false;

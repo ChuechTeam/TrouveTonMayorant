@@ -9,6 +9,7 @@ $content = $tmplArgs["content"] ?? "\$content is empty!";
 
 $homePath = "/member-area";
 $profilePath = "/member-area/profile.php";
+$chatPath = "/member-area/chat.php";
 
 global $curPath;
 $curPath = rtrim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
@@ -50,6 +51,11 @@ $user = $tmplArgs["user"] ?? die("The member template requires a logged user!");
                 <span class="-label">Profil</span>
             </a>
         </li>
+        <li>
+            <a <?php linkAttribs($chatPath); ?>>
+                <span class="material-symbols-rounded -inl -icon">chat</span>
+                <span class="-label">Chat</span>
+            </a>
         <li class="-sign-out">
             <a href="<?= "$root/redirect.php" ?>">
                 <span class="material-symbols-rounded -inl -icon">logout</span>

@@ -133,6 +133,8 @@ function profileCard(array $u, bool $full = false) {
                 }
             }
         }
+
+        $convUrl = "/member-area/chat.php?startNew=" . $u["id"];
     }
 
     $phys = !empty($u["desc"]) ? $u["desc"] : null;
@@ -181,7 +183,10 @@ function profileCard(array $u, bool $full = false) {
                 <?php endif; ?>
 
                 <?php if ($u["user_smoke"] === "yes"): ?>
-                    <div class="pill -smoke -label-only">Fumeur</div>
+                    <div class="pill -smoke -label-only"><?=
+                        $u["gender"] == \User\GENDER_MAN ? "Fumeur"
+                            : ($u["gender"] == \User\GENDER_WOMAN ? "Fumeuse" : "Fumeu·r·se")
+                        ?></div>
                 <?php endif; ?>
 
                 <?php if ($hasPrefs): ?>
@@ -214,6 +219,7 @@ function profileCard(array $u, bool $full = false) {
                 <?php endif; ?>
                 <h2>Bientôt</h2>
                 <p>Les valeurs propres, les problèmes en tête d'affiche...</p>
+                <button onclick="window.location.href = '<?= $convUrl ?>';">Démarrer une conversation</button>
             </section>
         </article>
     <?php else: ?>

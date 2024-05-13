@@ -3,6 +3,7 @@
 namespace User;
 
 require_once __DIR__ . "/userDB.php";
+require_once __DIR__ . "/conversationDB.php";
 
 use DateTime;
 
@@ -11,6 +12,8 @@ const ERR_EMAIL_USED = 1;
 const ERR_FIELD_MISSING = 2;
 const ERR_INVALID_CREDENTIALS = 3;
 const ERR_USER_NOT_FOUND = 4;
+const ERR_CONVERSATION_EXISTS = 5;
+const ERR_SAME_USER = 6;
 
 // Liste des grades/rôles
 const LEVEL_GUEST = 1; // Visiteur non inscrit
@@ -96,7 +99,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
     return 0;
 }
 
-function updateProfile(int $id, array $profile, ?array $profile_details=null, ?array &$updatedUser = null): int {
+function updateProfile(int $id, array $profile, ?array $profile_details = null, ?array &$updatedUser = null): int {
     $user = \UserDB\findById($id);
     if ($user == null) {
         return ERR_USER_NOT_FOUND;
@@ -175,6 +178,58 @@ function validateProfile(array $profile, ?int $existingId): int {
     }
 
     return 0;
+}
+
+// Codes d'erreur possibles:
+// - ERR_SAME_USER
+// - ERR_USER_NOT_FOUND
+// - ERR_CONVERSATION_EXISTS
+function startConversation(int    $id1,
+                           int    $id2,
+                           string &$convId = null,
+                           array  &$updatedUser1 = null,
+                           array  &$updatedUser2 = null): int {
+    if ($id1 == $id2) {
+        return ERR_SAME_USER;
+    }
+
+    $user1 = \UserDB\findById($id1);
+    $user2 = \UserDB\findById($id2);
+
+    if ($user1 === null || $user2 === null) {
+        return ERR_USER_NOT_FOUND;
+    }
+
+    $convId = \ConversationDB\existingId($id1, $id2);
+    if ($convId !== null) {
+        return ERR_CONVERSATION_EXISTS;
+    }
+
+    $convId = \ConversationDB\create($id1, $id2);
+    $user1["conversations"][] = $convId;
+    $user2["conversations"][] = $convId;
+
+    \UserDB\put($user1);
+    \UserDB\put($user2);
+
+    $updatedUser1 = $user1;
+    $updatedUser2 = $user2;
+
+    return 0;
+}
+
+// Retourne la conversation SEULEMENT si l'utilisateur a le droit de la voir
+function findConversation(int $userId, string $convId): ?array {
+    $user = \UserDB\findById($userId);
+    if ($user === null) {
+        return null;
+    }
+
+    if (in_array($convId, $user["conversations"]) || level($userId) >= LEVEL_ADMIN) {
+        return \ConversationDB\find($convId);
+    } else {
+        return null;
+    }
 }
 
 function level(?int $id): int {

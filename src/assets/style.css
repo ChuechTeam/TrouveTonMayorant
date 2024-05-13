@@ -559,3 +559,170 @@ button {
     height: 1em;
     vertical-align: middle;
 }
+
+#chat-box {
+    display: flex;
+    flex-direction: row;
+    max-width: 1440px;
+    margin: 24px auto;
+
+    height: 85vh;
+    border: 1px solid black;
+
+    --controls-height: 32px;
+
+    & .-people-slot {
+        background-color: white;
+        width: 33%;
+        flex-shrink: 0;
+
+        display: flex;
+        flex-direction: column;
+
+        box-shadow: 1px 0px 12px 1px rgba(0, 0, 0, 0.125);
+        z-index: 1;
+
+        & > .chat-people {
+            flex-grow: 1;
+            overflow-y: auto;
+
+            padding: 5px 10px;
+            padding-top: 8px;
+        }
+
+        & > #create-conv {
+            justify-self: stretch;
+            min-height: var(--controls-height);
+            box-sizing: border-box;
+
+            margin: 0 10px;
+            margin-bottom: 5px;
+        }
+    }
+
+    & .-conversation-slot {
+        flex-grow: 1;
+        min-height: 0;
+
+        & > .chat-conversation {
+            height: 100%;
+            padding: 5px 10px;
+            padding-top: 8px;
+            box-sizing: border-box;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        flex-direction: column;
+
+        & .-people-slot {
+            width: unset;
+            max-height: 33%;
+        }
+    }
+}
+
+.chat-people {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0;
+    margin: 0;
+
+    list-style: none;
+}
+
+.chat-person {
+    padding: 12px;
+    border-radius: 4px;
+
+    & > .-name {
+        font-weight: bold;
+    }
+
+    & > .-last-msg:empty {
+        color: gray;
+
+        &::after {
+            content: "Aucun message";
+        }
+    }
+    & > .-last-msg {
+        font-size: 0.9em;
+        overflow-x: hidden;
+        white-space: nowrap;
+    }
+
+    &:hover {
+        background-color: #f3f3f3;
+    }
+
+    &.-selected {
+        background-color: #143080;
+        color: white;
+
+        & > .-last-msg:empty::after { color: lightgray; }
+        &:hover {
+            background-color: #214098;
+        }
+    }
+}
+
+.chat-conversation {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+
+    & > .-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+
+        & > .chat-message {
+            margin-bottom: 8px;
+        }
+    }
+
+    & > .-send {
+        display: flex;
+        gap: 12px;
+        height: var(--controls-height, 32px);
+
+        & > input {
+            flex-grow: 1;
+        }
+    }
+
+    &.-empty {
+        background-color: lightgray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.chat-message {
+    padding: 4px;
+    border-radius: 4px;
+    width: auto;
+
+    &.-me {
+
+    }
+
+    &.-other {
+
+    }
+
+    & > .-author {
+        font-weight: bold;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+
+        display: inline-block;
+        padding-right: 2em;
+    }
+
+    & > .-content {
+        margin: 0;
+    }
+}
