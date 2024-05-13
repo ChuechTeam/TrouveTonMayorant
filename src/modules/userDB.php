@@ -139,7 +139,7 @@ function put(array $user): int {
 
     $existingUser = isset($user["id"]) ? findById($user["id"]) : null;
     if ($existingUser === null && isset($user["id"])) {
-        throw new \RuntimeException("Attempted to update an inexistant user (id=${user['id']})");
+        throw new \RuntimeException("Attempted to update an inexistant user (id={$user['id']})");
     }
 
     $id = $user["id"] ?? nextId();

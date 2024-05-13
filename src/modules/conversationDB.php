@@ -130,7 +130,12 @@ function deleteMessage(int $convId, int $msgId, array &$conv = null): bool {
 function upgradeAll() {
     $ok = true;
 
-    foreach (scandir(CONV_DIR) as $file) {
+    $dirs = @scandir(CONV_DIR);
+    if ($dirs === false) {
+        return;
+    }
+    
+    foreach ($dirs as $file) {
         if (is_file($file) && pathinfo($file, PATHINFO_EXTENSION) === "json") {
             $ok &= _read($file, $handle, $conv);
             $ok &= _close($handle);

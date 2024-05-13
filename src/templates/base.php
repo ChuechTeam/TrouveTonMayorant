@@ -13,7 +13,7 @@
      */
 
 $content = $tmplArgs["content"] ?? "\$content is empty!";
-$title = empty($tmplArgs["title"]) ? "TrouveTonMayorant" : "${tmplArgs["title"]} - TTM";
+$title = empty($tmplArgs["title"]) ? "TrouveTonMayorant" : "{$tmplArgs["title"]} - TTM";
 $head = $tmplArgs["head"] ?? "";
 ?>
 <!DOCTYPE html>
