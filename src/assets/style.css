@@ -31,13 +31,6 @@
     }
 }
 
-.login-form-container {
-    margin-top: 10%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-}
-
 html {
     background: linear-gradient(180deg, rgba(171, 171, 255, 1), white 33%, rgba(255, 172, 172, 1));
     background-attachment: fixed;
@@ -68,16 +61,90 @@ main {
     display: block;
 }
 
+.login-form-container {
+    margin-top: 10%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
 .login-form {
-    background-color: rgb(151, 6, 127);
-    color: white;
+    background-color: white;
+    color: rgb(82, 84, 110);
     padding: 12px;
     border-radius: 8px;
+    text-align: center;
+    overflow: auto;
+    width: 22%;
+    min-width: 320px;
 }
 
 .login-form > form > * {
     margin: 0 auto;
     text-align: center;
+}
+
+.login-form .-grid-container{
+    display: grid;
+    grid-template-areas:
+        'header header'
+        '. .'
+        '. .'
+        'footer footer';
+    grid-template-columns: 0.7fr 1fr;
+    margin-bottom: 10px;
+    
+    /* Mobile */
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.login-form .-grid-container2{
+    display: grid;
+    grid-template-areas:
+        'header header'
+        '. .'
+        '. .'
+        '. .'
+        '. .'
+        '. .'
+        'footer footer';
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 10px;
+
+    
+    /* Mobile */
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.login-form .-grid-item{
+    padding:10px;
+    font-weight: bold;
+}
+
+.login-form .-header{
+    grid-area: header;
+    border-bottom: 1px solid rgb(192, 192, 192);
+    color: darkblue;
+    font-size: 28px;
+}
+
+.login-form .-footer{
+    grid-area: footer;
+}
+
+.login-form h3{
+    margin: -5px;
+}
+
+@media (max-width: 768px) {
+    .login-form{
+        width: 80%;
+    }
+
 }
 
 body {

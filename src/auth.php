@@ -62,63 +62,36 @@ Templates\base($page === "signIn" ? "Connexion" : "Inscription");
 <div class="login-form-container">
     <div class="login-form">
         <form action="auth.php" method="post" id="Co">
-            <table border="1" cellpading="20" cellspacing="0">
-                <tr>
-                    <td colspan="2" style="text-align: center;">Se connecter</td>
-                </tr>
-                <tr>
-                    <td>Email</td>
-                    <td><input type="email" name="mail" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Mot de Passe</td>
-                    <td><input type="password" name="password" id="" required></td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="text-align: center;">
-                        <button class="sub" type="submit">Se connecter</button>
-                        <br>
+            <div class="-grid-container">
+                <div class="-grid-item -header"><h3>Se connecter</h3></div>
+                <div class="-grid-item">Email</div>
+                <div class="-grid-item"><input type="email" name="mail" id="" required></div>
+                <div class="-grid-item">Mot de Passe</div>
+                <div class="-grid-item"><input type="password" name="password" id="" required></div>
+                <div class="-grid-item -footer"><button class="sub" type="submit">Se connecter</button></div>
+            </div>
 
-                    </td>
-                </tr>
-            </table>
             <p style="font-size: 11px">Pas encore de compte ? <input type="button" value="S'inscrire"
                                                                      onclick="HideShow('register')"></p>
         </form>
+
         <form action="auth.php?register" method="post" id="Ins">
-            <table border="1" cellpading="20" cellspacing="0">
-                <tr>
-                    <td colspan="2" style="text-align: center;">S'inscrire</td>
-                </tr>
-                <tr>
-                    <td>Email</td>
-                    <td><input type="email" name="mail" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Mot de Passe</td>
-                    <td><input type="password" name="password" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Nom</td>
-                    <td><input type="text" name="name" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Prénom</td>
-                    <td><input type="text" name="fname" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Date de naissance</td>
-                    <td><input type="date" name="bdate" id="" required></td>
-                </tr>
 
-                <tr>
-                    <td colspan="2" style="text-align: center;">
-                        <button type="submit" class="sub">S'inscrire</button>
-                        <br>
-
-                    </td>
-                </tr>
-            </table>
+            <div class="-grid-container2">
+                <div class="-grid-item -header"><h3>S'inscrire</h3></div>
+                <div class="-grid-item">Email</div>
+                <div class="-grid-item"><input type="email" name="mail" id="" required></div>
+                <div class="-grid-item">Mot de Passe</div>
+                <div class="-grid-item"><input type="password" name="password" id="" required></div>
+                <div class="-grid-item">Nom</div>
+                <div class="-grid-item"><input type="text" name="name" id="" required></div>
+                <div class="-grid-item">Prénom</div>
+                <div class="-grid-item"><input type="text" name="fname" id="" required></div>
+                <div class="-grid-item">Date de naissance</div>
+                <div class="-grid-item"><input type="date" name="bdate" id="" required></div>
+                <div class="-grid-item -footer"><button type="submit" class="sub">S'inscrire</button></div>
+            </div>
+            
             <p style="font-size: 11px">Déjà un compte ? <input type="button" value="Connexion"
                                                                onclick="HideShow('signIn')">
             </p>
