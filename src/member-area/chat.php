@@ -13,6 +13,7 @@ $selectedConvId = null;
 if (!empty($_GET["startNew"])) {
     $otherId = intval($_GET["startNew"]);
     if ($otherId !== $user["id"]) {
+        // Si la conversation existe déjà, elle sera mise dans selectedConvId.
         User\startConversation($user["id"], $otherId, $selectedConvId, $user);
     }
 }

@@ -4,6 +4,16 @@ $api = true;
 require "../_common.php";
 require_once "../_conversation.php";
 
+/*
+ * GET /member-area/conversations.php
+ * Renvoie l'HTML d'une conversation.  
+ * 
+ * Paramètres (URL) :
+ * ?id : l'identifiant de la conversation
+ * 
+ * Retour : l'HTML complet de la conversation
+ */
+
 $convId = $_GET["id"];
 $conv = User\findConversation($user["id"], $convId);
 

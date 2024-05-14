@@ -5,6 +5,8 @@ require_once __DIR__ . "/userDB.php";
 require_once __DIR__ . "/user.php";
 require __DIR__ . "/url.php";
 
+const SESSION_DIR = __DIR__ . "/../../sessions";
+
 $sessionStarted = false;
 $cachedId = null;
 
@@ -12,6 +14,11 @@ function start() {
     global $sessionStarted;
 
     if (!$sessionStarted) {
+        session_save_path(SESSION_DIR);
+        if (!file_exists(SESSION_DIR)) {
+            mkdir(SESSION_DIR, 0777, true);
+        }
+        
         session_start();
         $sessionStarted = true;
     }

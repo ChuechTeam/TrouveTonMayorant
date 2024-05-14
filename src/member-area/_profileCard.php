@@ -1,7 +1,16 @@
 <?php
 
 require_once __DIR__ . "/../modules/user.php";
+
+/**
+ * Print l'HTML du profil d'un utilisateur `$u`. Si `$full` est `true`, alors le profil
+ * complet sera affiché, sinon, une version abrégée sera utilisée.
+ * @param array $u l'utilisateur
+ * @param bool $full si on doit afficher le profil complet
+ * @return void
+ */
 function profileCard(array $u, bool $full = false) {
+    // Âge de l'utilisateur (> 18 ans normalement sauf si qqun fait des choses illégales)
     $age = (new DateTime($u["bdate"]))->diff(new DateTime())->y;
     switch ($u["gender"]) {
         case \User\GENDER_MAN:
@@ -18,12 +27,15 @@ function profileCard(array $u, bool $full = false) {
             break;
     }
 
+    // Biographie tronquée si trop grande
     $bio = $u["bio"];
     if (!$full && strlen($bio) > 80) {
         // abrège
         $bio = substr($bio, 0, 80) . "...";
     }
 
+    // profil complet : tableau des choix de relation
+    // profil abrégé : version raccourcie dans un string
     $rls = null;
     if ($full) {
         $rls = [];
@@ -47,6 +59,7 @@ function profileCard(array $u, bool $full = false) {
             }
         }
     } else {
+        
         if (count($u["rel_search"]) == 5) {
             $rls = "Tout type de relation";
         } else {
@@ -75,6 +88,7 @@ function profileCard(array $u, bool $full = false) {
         }
     }
 
+    // Situation de couple
     $sit = null;
     switch ($u["situation"]) {
         case User\SITUATION_SINGLE:
@@ -85,7 +99,9 @@ function profileCard(array $u, bool $full = false) {
             break;
     }
 
+    // Profil complet uniquement
     if ($full) {
+        // Label pour l'orientation sexuelle (s'adapte selon le genre)
         $colloquialOrient = null;
         switch ($u["orientation"]) {
             case User\ORIENTATION_HETERO:
@@ -114,6 +130,7 @@ function profileCard(array $u, bool $full = false) {
                 break;
         }
 
+        // Préférences de genre
         $genderPref = [];
         if (count($u["gender_search"]) == 3) {
             $genderPref[] = "une personne de n'importe quel genre";
@@ -137,19 +154,41 @@ function profileCard(array $u, bool $full = false) {
         $convUrl = "/member-area/chat.php?startNew=" . $u["id"];
     }
 
+    // Label fumeur ou non fumeur
+    $smokeLabel = null;
+    if (!empty($u["user_smoke"])) {
+        $smokeLabel = "";
+        
+        // On met le préfixe Non- si on ne fume pas.
+        if ($u["user_smoke"] === "no") {
+            $smokeLabel = "Non-";
+        }
+        
+        // Ajouter le "fumeur" ou "fumeuse" ou "fumeu·r·se"
+        $smokeLabel .= $u["gender"] == \User\GENDER_MAN ? "Fumeur"
+            : ($u["gender"] == \User\GENDER_WOMAN ? "Fumeuse" : "Fumeu·r·se");
+    }
+    
+    // Description physique
     $phys = !empty($u["desc"]) ? $u["desc"] : null;
 
+    // Si l'utilisateur a l'abonnement TTM Sup
     $sup = \User\level($u["id"]) >= \User\LEVEL_SUBSCRIBER;
     if ($full) {
         $supClass = $sup ? " -sup" : "";
     }
 
+    // Nom complet
     $fn = $u["firstName"] . " " . $u["lastName"];
 
+    // A des préférences de relations
     $hasRelPref = !empty($rls);
+    // A des préférences de genre
     $hasGenderPref = !empty($genderPref);
+    // A des préférences de fumeur/non-fumeur
     $hasSmokePref = $u["search_smoke"] === "yes" || $u["search_smoke"] === "no";
 
+    // A des préférences en général
     $hasPrefs = $hasRelPref || $hasGenderPref || $hasSmokePref;
     ?>
 
@@ -182,11 +221,8 @@ function profileCard(array $u, bool $full = false) {
                     </div>
                 <?php endif; ?>
 
-                <?php if ($u["user_smoke"] === "yes"): ?>
-                    <div class="pill -smoke -label-only"><?=
-                        $u["gender"] == \User\GENDER_MAN ? "Fumeur"
-                            : ($u["gender"] == \User\GENDER_WOMAN ? "Fumeuse" : "Fumeu·r·se")
-                        ?></div>
+                <?php if (!empty($smokeLabel)): ?>
+                    <div class="pill -smoke -label-only"><?= $smokeLabel ?>/div>
                 <?php endif; ?>
 
                 <?php if ($hasPrefs): ?>
@@ -202,7 +238,7 @@ function profileCard(array $u, bool $full = false) {
                         <h3>Avec...</h3>
                         <ul class="-pref-list">
                             <?php foreach ($genderPref as $g) echo "<li>$g</li>"; ?>
-                            <?php if ($u["search_smoke"] === "yes" || $u["search_smoke"] === "no"):
+                            <?php if ($hasSmokePref):
                                 $smokeClass = $u["search_smoke"] === "no" ? "-not" : ""; ?>
                                 <li class="<?= $smokeClass ?> ">une personne qui fume</li>
                             <?php endif; ?>
@@ -224,7 +260,7 @@ function profileCard(array $u, bool $full = false) {
         </article>
     <?php else: ?>
         <article class="profile-card" data-id="<?= $u["id"] ?>">
-            <div class="-name"><?= htmlspecialchars($u["firstName"] . " " . $u["lastName"]) ?></div>
+            <div class="-name"><?= htmlspecialchars($fn) ?></div>
             <div class="-bio"><?= htmlspecialchars($bio) ?> </div>
             <div class="-details">
                 <div class="-gender"><?= $gender ?></div>
@@ -238,8 +274,8 @@ function profileCard(array $u, bool $full = false) {
                     <div class="-rel-search"><?= $rls ?></div>
                 <?php endif; ?>
 
-                <?php if ($u["user_smoke"] === "yes"): ?>
-                    <div class="-smoke">Fumeur</div>
+                <?php if (!empty($smokeLabel)): ?>
+                    <div class="-smoke"><?= $smokeLabel ?></div>
                 <?php endif; ?>
             </div>
         </article>
