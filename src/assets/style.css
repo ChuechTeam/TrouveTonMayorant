@@ -624,8 +624,9 @@ button {
 
     & .-people-slot {
         background-color: white;
-        width: 33%;
-        flex-shrink: 0;
+        flex: 0 0 33%;
+        min-width: 0;
+        min-height: 0;
 
         display: flex;
         flex-direction: column;
@@ -652,7 +653,8 @@ button {
     }
 
     & .-conversation-slot {
-        flex-grow: 1;
+        flex: 0 0 66%;
+        min-width: 0;
         min-height: 0;
 
         & > .chat-conversation {
@@ -666,11 +668,6 @@ button {
     /* Mobile */
     @media (max-width: 768px) {
         flex-direction: column;
-
-        & .-people-slot {
-            width: unset;
-            max-height: 33%;
-        }
     }
 }
 
@@ -756,22 +753,54 @@ button {
 .chat-message {
     padding: 4px;
     border-radius: 4px;
-    width: auto;
+    width: fit-content;
 
     &.-me {
-
+        background-color: #b9edff;
+        margin-left: auto;
     }
 
     &.-other {
-
+        background-color: #d5b8ff;
     }
 
-    & > .-author {
+    & > .-head {
         font-weight: bold;
         border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        display: flex;
+        justify-content: space-between;
 
-        display: inline-block;
-        padding-right: 2em;
+        padding-right: 4px;
+        padding-bottom: 2px;
+
+        align-items: center;
+
+        & > .-author {
+            margin-right: 0.8em;
+        }
+
+        & > .-delete {
+            border: 0;
+            padding: 2px 4px;
+            margin: 0;
+            border-radius: 4px;
+            color: red;
+            background-color: transparent;
+
+            &:hover {
+                background-color: #bd0000;
+                color: white;
+            }
+            &:active {
+                background-color: #610000;
+                color: white;
+            }
+
+            & > .-icon {
+                display: block;
+                pointer-events: none;
+            }
+        }
     }
 
     & > .-content {

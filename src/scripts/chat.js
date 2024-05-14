@@ -29,7 +29,7 @@ function initChatBox(element) {
                 }
             })
 
-            element.querySelector("#create-conv").addEventListener("click", function() {
+            element.querySelector("#create-conv").addEventListener("click", function () {
                 alert('C\'est pas implémenté... va dans profil et clique sur "Démarrer une discussion"');
             })
         },
@@ -40,7 +40,7 @@ function initChatBox(element) {
                 // Même conversation sélectionnée, ne rien faire
                 return;
             }
-            
+
             this.selectedPerson?.classList.remove("-selected");
             this.selectedPerson = element;
             element.classList.add("-selected");
@@ -118,7 +118,20 @@ function initConversation(element) {
             if (this.elems.messages.children.length > 0) {
                 this.lastSeenMsgId = this.elems.messages.lastElementChild.dataset.id;
             }
-            
+
+            // Supprimer un message quand on clique sur le bouton "supprimer"
+            this.elems.messages.addEventListener("click", e => {
+                if (e.target.classList.contains("-delete")) {
+                    // trouver le message parent
+                    const msg = e.target.closest(".chat-message");
+                    if (msg != null) {
+                        if (confirm("Voulez-vous vraiment supprimer ce message ?")) {
+                            this.deleteMessage(msg);
+                        }
+                    }
+                }
+            })
+
             // Planifier la maj 
             this.updateHandle = setTimeout(this.updateTick.bind(this), CONV_UPDATE_INTERVAL);
 
@@ -163,8 +176,8 @@ function initConversation(element) {
                         break;
                     }
                 }
-            }   
-            
+            }
+
             this.lastSeenMsgId = lastMsgId
 
             // On envoie un événement pour mettre à jour le dernier message affiché sur la liste
@@ -180,6 +193,12 @@ function initConversation(element) {
             }
         },
 
+        deleteMessage(msgElement) {
+            const msgId = msgElement.dataset.id;
+            api.deleteMessage(this.id, msgId)
+                .then(() => msgElement.remove());
+        },
+
         // Renvoie true si le scroll est suffisamment proche de la fin des messages
         scrollCloseEnough() {
             const m = this.elems.messages;
@@ -191,12 +210,14 @@ function initConversation(element) {
             const m = this.elems.messages;
             m.scrollTo(0, m.scrollHeight);
         },
-        
+
         // Met à jour la liste des messages
         async updateTick() {
             // Si on a été retiré de l'écran, on arrête de faire des requêtes
-            if (!this.alive) { return; }
-            
+            if (!this.alive) {
+                return;
+            }
+
             try {
                 // Recevoir les messages de l'API (voir convMessages.php)
                 const m = await api.getMessages(this.id, this.lastSeenMsgId);
@@ -250,7 +271,7 @@ const api = {
                 "Content-Type": "application/json"
             }
         });
-        
+
         if (res.status !== 200) {
             throw new Error("Failed to send message! Error code: " + res.status);
         }
@@ -261,7 +282,7 @@ const api = {
             html: await res.text()
         };
     },
-    
+
     async getMessages(convId, since) {
         const endpoint = new URL("member-area/api/convMessages.php", root);
         endpoint.searchParams.set("id", convId);
@@ -284,6 +305,20 @@ const api = {
             lastMsgId: parseInt(res.headers.get("Last-Message-Id")),
             html: await res.text()
         };
+    },
+
+    async deleteMessage(convId, msgId) {
+        const endpoint = new URL("member-area/api/convMessages.php", root);
+        endpoint.searchParams.set("id", convId);
+        endpoint.searchParams.set("msgId", msgId);
+
+        const res = await fetch(endpoint, {
+            method: "DELETE"
+        });
+
+        if (res.status !== 200) {
+            throw new Error("Failed to delete message! Error code: " + res.status);
+        }
     },
 
     async getConversation(convId) {

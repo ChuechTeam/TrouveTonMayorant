@@ -13,6 +13,11 @@ namespace ConversationDB;
  *       user => int
  *       content => string
  *   ]
+ * - deleteEvents => tableau de
+ *   [
+ *      deletedId => int
+ *      lastMsgId => int
+ *   ]
  * - msgIdSeq => int
  * - revision => int
  */
@@ -20,7 +25,8 @@ namespace ConversationDB;
 const CONV_DIR = __DIR__ . "/../../conversations";
 
 const REV_FIRST = 1;
-const REV_LAST = REV_FIRST;
+const REV_DELETE_EVENTS = 2;
+const REV_LAST = REV_DELETE_EVENTS;
 
 function _path(string $id): string {
     return CONV_DIR . "/$id.json";
@@ -50,6 +56,7 @@ function create(int $u1, int $u2): string {
             "userId1" => $u1,
             "userId2" => $u2,
             "messages" => [],
+            "deleteEvents" => [],
             "msgIdSeq" => 1,
             "revision" => REV_LAST
         ];
@@ -109,8 +116,10 @@ function deleteMessage(int $convId, int $msgId, array &$conv = null): bool {
         $list = &$conv["messages"];
 
         $del = false;
+        $lastMsgId = null;
         for ($i = 0; $i < count($list); $i++) {
             if ($list[$i]["id"] == $msgId) {
+                $lastMsgId = $list[$i - 1]["id"] ?? null;
                 array_splice($list, $i, 1);
                 $del = true;
                 break;
@@ -118,6 +127,10 @@ function deleteMessage(int $convId, int $msgId, array &$conv = null): bool {
         }
 
         if ($del) {
+            $conv["deleteEvents"][] = [
+                "deletedId" => $msgId,
+                "lastMsgId" => $lastMsgId
+            ];
             return _close($handle, $conv);
         } else {
             return _close($handle);
@@ -136,8 +149,9 @@ function upgradeAll() {
     }
     
     foreach ($dirs as $file) {
-        if (is_file($file) && pathinfo($file, PATHINFO_EXTENSION) === "json") {
-            $ok &= _read($file, $handle, $conv);
+        $fp = rtrim(CONV_DIR, "/\\") . "/$file";
+        if (is_file($fp) && pathinfo($fp, PATHINFO_EXTENSION) == "json") {
+            $ok &= _read($fp, $handle, $conv);
             $ok &= _close($handle);
 
             if (!$ok) {
@@ -157,9 +171,15 @@ function _upgrade(array &$conv): bool {
     }
 
     while ($rev < REV_LAST) {
-        // mettre les actions de migration vers la nouvelle version ici
         $rev++;
+        switch ($rev) {
+            case REV_DELETE_EVENTS:
+                $conv["deleteEvents"] = [];
+                break;
+        }
     }
+
+    $conv["revision"] = REV_LAST;
 
     return true;
 }
