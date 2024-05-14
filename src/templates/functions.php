@@ -60,9 +60,7 @@ function paramEnd() {
 
 function _prepareArgs(): array {
     global $params;
-
-    return [
-        "content" => ob_get_clean(),
-        ...$params
-    ];
+    $copy = $params;
+    $copy["content"] = ob_get_clean();
+    return $copy;
 }

@@ -42,7 +42,7 @@ HTML;
         </div>
         <?php if (!$readOnly): ?>
             <form class="-send">
-                <input type="text" name="content" placeholder="Message..." class="-msg-input">
+                <input type="text" name="content" placeholder="Message..." class="-msg-input" maxlength="2000" autocomplete="off">
                 <button type="submit">Envoyer</button>
             </form>
         <?php endif; ?>

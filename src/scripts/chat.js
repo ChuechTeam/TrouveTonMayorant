@@ -142,7 +142,7 @@ function initConversation(element) {
 
         receiveMessages({html, firstMsgId, lastMsgId}) {
             console.log(`Receiving messages: [${firstMsgId}, ${lastMsgId}]`);
-            
+
             // Pour savoir si on doit scroll tout en bas après ou non
             const scrollDown = this.scrollCloseEnough();
             // On met l'HTML reçu à la fin de la liste des messages
@@ -152,16 +152,20 @@ function initConversation(element) {
             if (this.lastSeenMsgId !== null && firstMsgId <= this.lastSeenMsgId) {
                 for (let i = this.elems.messages.children.length - 1; i >= 0; i--) {
                     const msg = this.elems.messages.children[i];
+
+                    // Ancien message
                     if (msg.dataset.id <= this.lastSeenMsgId) {
                         msg.remove();
-                    } else {
+                    }
+
+                    // Fin des messages envoyés par le serveur
+                    if (msg.dataset.id <= firstMsgId) {
                         break;
                     }
                 }
-            }
-            if (lastMsgId > this.lastSeenMsgId) {
-                this.lastSeenMsgId = lastMsgId
-            }
+            }   
+            
+            this.lastSeenMsgId = lastMsgId
 
             // On envoie un événement pour mettre à jour le dernier message affiché sur la liste
             // des personnes.

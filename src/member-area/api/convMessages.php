@@ -58,7 +58,7 @@ function lastMessages(array $conv, ?int $since) {
     
     foreach ($conv["messages"] as $msg) {
         if ($since === null || $msg["id"] > $since) {
-            if ($first !== null) { $first = $msg["id"]; }
+            if ($first === null) { $first = $msg["id"]; }
             $last = $msg["id"];
             
             chatMessage($msg["id"], $msg["author"], $msg["content"]);
@@ -87,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         bail(400);
     }
 
-    $content = trim($data["content"] ?? "");
+    $content = substr(trim($data["content"] ?? ""), 0, 2000);
     if (empty($content)) {
         bail(400);
     }

@@ -54,53 +54,48 @@ Templates\member("Votre profil");
 
 <div class="profile-form-container">
     <div class="profile-form">
-        <form action="profile.php" method="post" id="">
+        <form action="profile.php" method="post" id="" style="font-weight:800;">
     
             <h2 class="-title">Compte<hr></h2>
-            <table border="1" cellpading="20" cellspacing="0">
-                <tr>
-                    <td>Email</td>
-                    <td><input type="email" value="<?= htmlspecialchars($u['email']) ?>" name="mail" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Mot de Passe</td>
-                    <td><input type="password" name="password" id=""></td>
-                </tr>
-                <tr>
-                    <td>Date d'inscription</td>
-                    <td><?= DateTime::createFromFormat('Y-m-d', $u['rdate'])->format('d/m/Y'); ?></td>
-                </tr>
-            </table>
+            <div class="-grid-container">
+                <div class="-grid-item">Email</div>
+                <div class="-grid-item"><input type="email" value="<?= htmlspecialchars($u['email']) ?>" name="mail" id="" required></div>   
+                
+                <div class="-grid-item">Mot de Passe</div>
+                <div class="-grid-item"><input type="password" name="password" id=""></div>   
+                
+                <div class="-grid-item" >Date d'inscription</div>
+                <div class="-grid-item" style="font-weight:400;"><?= DateTime::createFromFormat('Y-m-d', $u['rdate'])->format('d/m/Y'); ?></div>
+            </div>
+
             <button class="-delete">Supprimer le compte</button>
             <br><br>
+
             <h2 class="-title">Informations personnelles<hr></h2>
-            <table border="1" cellpading="20" cellspacing="0">
-                <tr>
-                    <td>Nom</td>
-                    <td><input type="text" value="<?= htmlspecialchars($u['lastName']) ?>" name="name" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Prénom</td>
-                    <td><input type="text" value="<?= htmlspecialchars($u['firstName']) ?>" name="fname" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Date de naissance</td>
-                    <td><input type="date" value="<?= htmlspecialchars($u['bdate']) ?>" name="bdate" id="" required></td>
-                </tr>
-                <tr>
-                    <td>Genre</td>
-                    <td><select id="gender" name="gender">
+            <div class="-grid-container">
+                <div class="-grid-item">Nom</div>
+                <div class="-grid-item"><input type="text" value="<?= htmlspecialchars($u['lastName']) ?>" name="name" id="" required></div>   
+                
+                <div class="-grid-item">Prénom</div>
+                <div class="-grid-item"><input type="text" value="<?= htmlspecialchars($u['firstName']) ?>" name="fname" id="" required></div>   
+                
+                <div class="-grid-item">Date de naissance</div>
+                <div class="-grid-item"><input type="date" value="<?= htmlspecialchars($u['bdate']) ?>" name="bdate" id="" required></div>
+
+                <div class="-grid-item" >Genre</div>
+                <div class="-grid-item">
+                    <select id="gender" name="gender">
                         <option disabled selected value></option>
-                        <option value="m" <?= ($u['gender']=="m") ? "selected" : "" ?> >Homme</option>
+                        <option value="m" <?= ($u['gender']=="m") ? "selected" : "" ?>  >Homme</option>
                         <option value="f" <?= ($u['gender']=="f") ? "selected" : "" ?> >Femme</option>
                         <option value="nb" <?= ($u['gender']=="nb") ? "selected" : "" ?> >Non-binaire</option>
                         <option value="a" <?= ($u['gender']=="a") ? "selected" : "" ?> >Autre</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Orientation</td>
-                    <td><select id="orientation" name="orientation">
+                    </select>
+                </div>
+
+                <div class="-grid-item">Orientation</div>
+                <div class="-grid-item">
+                    <select id="orientation" name="orientation">
                         <option disabled selected value></option>
                         <option value="het" <?= ($u['orientation']=="het") ? "selected" : "" ?> >Hétérosexuel(le)</option>
                         <option value="ho" <?= ($u['orientation']=="ho") ? "selected" : "" ?> >Homosexuel(le)</option>
@@ -108,86 +103,76 @@ Templates\member("Votre profil");
                         <option value="pan" <?= ($u['orientation']=="pan") ? "selected" : "" ?> >Pansexuel(le)</option>
                         <option value="as" <?= ($u['orientation']=="as") ? "selected" : "" ?> >Asexuel(le)</option>
                         <option value="a" <?= ($u['orientation']=="a") ? "selected" : "" ?> >Autre</option>
-                        </select>
-                    </td>
-                </tr>
+                    </select>
+                </div>
 
-                <tr>
-                    <td>Profession</td>
-                    <td><input type="text" name="job" id="job" value="<?= htmlspecialchars($u['job']) ?>"></td>
-                </tr>
-                <tr>
-                    <td>Lieu de résidence</td>
-                    <td>selecteur de ville svp</td>
-                </tr>
-                <tr>
-                    <td>Situation</td>
-                    <td><select id="situation" name="situation">
+                <div class="-grid-item">Profession</div>
+                <div class="-grid-item"><input type="text" name="job" id="job" value="<?= htmlspecialchars($u['job']) ?>"></div>
+                
+                <div class="-grid-item">Lieu de résidence</div>
+                <div class="-grid-item">selecteur de ville svp</div>
+
+                <div class="-grid-item">Situation</div>
+                <div class="-grid-item">
+                    <select id="situation" name="situation">
                         <option disabled selected value></option>
                         <option value="single" <?= ($u['situation']=="single") ? "selected" : "" ?> >Célibataire</option>
                         <option value="open" <?= ($u['situation']=="open") ? "selected" : "" ?> >En couple libre</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Description physique</td>
-                    <td>
-                        <textarea name="desc" placeholder="brun, grand, yeux bruns..." cols="64" rows="2" maxlength="200"><?php echo htmlspecialchars($u['desc']) ?></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Bio</td>
-                    <td>
-                        <textarea name="bio" cols="64" rows="9" maxlength="1000" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"><?php echo htmlspecialchars($u['bio']) ?></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Fumeur(se) ?</td>
-                    <td><select id="user_smoke" name="user_smoke">
+                    </select>
+                </div>
+
+                <div class="-grid-item">Description physique</div>
+                <div class="-grid-item"><textarea name="desc" class="-desc-input" placeholder="brun, grand, yeux bruns..." maxlength="200"><?php echo htmlspecialchars($u['desc']) ?></textarea></div>
+
+                <div class="-grid-item">Bio</div>
+                <div class="-grid-item"><textarea name="bio" class="-bio-input" maxlength="1000" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"><?php echo htmlspecialchars($u['bio']) ?></textarea></div>
+                
+                <div class="-grid-item">Fumeur(se) ?</div>
+                <div class="-grid-item">
+                    <select id="user_smoke" name="user_smoke">
                         <option disabled selected value></option>
                         <option value="yes" <?= ($u['user_smoke']=="yes") ? "selected" : "" ?> >Oui</option>
                         <option value="no" <?= ($u['user_smoke']=="no") ? "selected" : "" ?> >Non</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
+                    </select>
+                </div>
+            </div>
+            <br>
 
             <h2 class="-title">Je recherche<hr></h2>
-            <table border="1" cellpading="20" cellspacing="0">
-                <tr>
-                    <td>Genre</td>
-                    <td>
-                        <ul>
-                            <li><input type="checkbox" name="gender_search[]" id="m" value="m" <?= (in_array("h", $u['gender_search'])) ? "checked" : "" ?> ><label for="m">Homme</label></li>
-                            <li><input type="checkbox" name="gender_search[]" id="f" value="f" <?= (in_array("f", $u['gender_search'])) ? "checked" : "" ?> ><label for="f">Femme</label></li>
-                            <li><input type="checkbox" name="gender_search[]" id="nb" value="nb" <?= (in_array("nb", $u['gender_search'])) ? "checked" : "" ?> ><label for="nb">Non-binaire</label></li>
-                            <li><input type="checkbox" name="gender_search[]" id="a" value="a" <?= (in_array("a", $u['gender_search'])) ? "checked" : "" ?> ><label for="a">Autre</label></li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Type de relation</td>
-                    <td>
-                        <ul>
-                            <li><input type="checkbox" name="rel_search[]" id="ro" value="ro" <?= (in_array("ro", $u['rel_search'])) ? "checked" : "" ?> ><label for="ro">Rencontres occasionnelles</label></li>
-                            <li><input type="checkbox" name="rel_search[]" id="rs" value="rs" <?= (in_array("rs", $u['rel_search'])) ? "checked" : "" ?> ><label for="rs">Relation sérieuse</label></li>
-                            <li><input type="checkbox" name="rel_search[]" id="rl" value="rl" <?= (in_array("rl", $u['rel_search'])) ? "checked" : "" ?> ><label for="rl">Relation sans lendemain</label></li>
-                            <li><input type="checkbox" name="rel_search[]" id="ad" value="ad" <?= (in_array("ad", $u['rel_search'])) ? "checked" : "" ?> ><label for="ad">À découvrir au fil des échanges</label></li>
-                            <li><input type="checkbox" name="rel_search[]" id="rne" value="rne"  <?= (in_array("rne", $u['rel_search'])) ? "checked" : "" ?> ><label for="rne">Relation non exclusive</label></li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Fumeur(se) ?</td>
-                    <td><select id="search_smoke" name="search_smoke">
+            <div class="-grid-container">
+                <div class="-grid-item">Genre</div>
+                <div class="-grid-item" style="font-weight:400;">
+                    <ul>
+                        <li><input type="checkbox" name="gender_search[]" id="m" value="m" <?= (in_array("h", $u['gender_search'])) ? "checked" : "" ?> ><label for="m">Homme</label></li>
+                        <li><input type="checkbox" name="gender_search[]" id="f" value="f" <?= (in_array("f", $u['gender_search'])) ? "checked" : "" ?> ><label for="f">Femme</label></li>
+                        <li><input type="checkbox" name="gender_search[]" id="nb" value="nb" <?= (in_array("nb", $u['gender_search'])) ? "checked" : "" ?> ><label for="nb">Non-binaire</label></li>
+                        <li><input type="checkbox" name="gender_search[]" id="a" value="a" <?= (in_array("a", $u['gender_search'])) ? "checked" : "" ?> ><label for="a">Autre</label></li>
+                    </ul>
+                </div>
+
+                <div class="-grid-item">Type de relation</div>
+                <div class="-grid-item" style="font-weight:400;">
+                    <ul>
+                        <li><input type="checkbox" name="rel_search[]" id="ro" value="ro" <?= (in_array("ro", $u['rel_search'])) ? "checked" : "" ?> ><label for="ro">Rencontres occasionnelles</label></li>
+                        <li><input type="checkbox" name="rel_search[]" id="rs" value="rs" <?= (in_array("rs", $u['rel_search'])) ? "checked" : "" ?> ><label for="rs">Relation sérieuse</label></li>
+                        <li><input type="checkbox" name="rel_search[]" id="rl" value="rl" <?= (in_array("rl", $u['rel_search'])) ? "checked" : "" ?> ><label for="rl">Relation sans lendemain</label></li>
+                        <li><input type="checkbox" name="rel_search[]" id="ad" value="ad" <?= (in_array("ad", $u['rel_search'])) ? "checked" : "" ?> ><label for="ad">À découvrir au fil des échanges</label></li>
+                        <li><input type="checkbox" name="rel_search[]" id="rne" value="rne"  <?= (in_array("rne", $u['rel_search'])) ? "checked" : "" ?> ><label for="rne">Relation non exclusive</label></li>
+                    </ul>
+                </div>
+
+                <div class="-grid-item">Fumeur(se) ?</div>
+                <div class="-grid-item">
+                    <select id="search_smoke" name="search_smoke">
                         <option disabled selected value></option>
                         <option value="yes" <?= ($u['search_smoke']=="yes") ? "selected" : "" ?> >Oui</option>
                         <option value="no" <?= ($u['search_smoke']=="no") ? "selected" : "" ?> >Non</option>
                         <option value="w" <?= ($u['search_smoke']=="w") ? "selected" : "" ?> >Peu importe</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
+                    </select>
+                </div>
+
+            </div>
+            
             <br>
             <button type="submit" class="sub">Enregistrer</button>
         </form>
@@ -206,6 +191,14 @@ Templates\member("Votre profil");
         color: red;
     }
     #all-good {
-        color: green;
+        color: white;
+        background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(37,173,44,1) 0%, rgba(54,207,9,1) 50%, rgba(37,173,44,1) 100%);        
+        border : 1px solid darkgreen;
+        border-radius : 7px;
+        position: fixed;
+        bottom: 0;
+        font-size: 15px;
+        padding : 1px 2px 1px 2px ;
+        font-weight: bolder;
     }
 </style>

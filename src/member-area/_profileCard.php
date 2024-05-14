@@ -222,7 +222,7 @@ function profileCard(array $u, bool $full = false) {
                 <?php endif; ?>
 
                 <?php if (!empty($smokeLabel)): ?>
-                    <div class="pill -smoke -label-only"><?= $smokeLabel ?>/div>
+                    <div class="pill -smoke -label-only"><?= $smokeLabel ?></div>
                 <?php endif; ?>
 
                 <?php if ($hasPrefs): ?>
