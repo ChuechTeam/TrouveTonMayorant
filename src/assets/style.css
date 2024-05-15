@@ -691,7 +691,7 @@ button {
 
     & .-people-slot {
         background-color: white;
-        flex: 0 0 33%;
+        flex: 0 0 34%;
         min-width: 0;
         min-height: 0;
 
@@ -846,7 +846,7 @@ button {
             margin-right: 0.8em;
         }
 
-        & > .-delete {
+        & > .-delete, & > .-report {
             border: 0;
             padding: 2px 4px;
             margin: 0;

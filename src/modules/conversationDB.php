@@ -110,7 +110,7 @@ function addMessage(string $id, int $author, string $content, array &$conv = nul
     }
 }
 
-function deleteMessage(int $convId, int $msgId, array &$conv = null): bool {
+function deleteMessage(string $convId, int $msgId, array &$conv = null): bool {
     $handle = null;
     if (_read(_path($convId), $handle, $conv)) {
         $list = &$conv["messages"];
@@ -131,6 +131,7 @@ function deleteMessage(int $convId, int $msgId, array &$conv = null): bool {
                 "deletedId" => $msgId,
                 "lastMsgId" => $lastMsgId
             ];
+            trigger_error("bégué");
             return _close($handle, $conv);
         } else {
             return _close($handle);

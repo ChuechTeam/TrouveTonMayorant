@@ -120,6 +120,7 @@ function initConversation(element) {
             }
 
             // Supprimer un message quand on clique sur le bouton "supprimer"
+            // Ou lancer un signalement si on clique sur "signaler"
             this.elems.messages.addEventListener("click", e => {
                 if (e.target.classList.contains("-delete")) {
                     // trouver le message parent
@@ -127,6 +128,15 @@ function initConversation(element) {
                     if (msg != null) {
                         if (confirm("Voulez-vous vraiment supprimer ce message ?")) {
                             this.deleteMessage(msg);
+                        }
+                    }
+                } else if (e.target.classList.contains("-report")) {
+                    const msg = e.target.closest(".chat-message");
+                    if (msg != null) {
+                        let r = prompt("Écrivez en quoi ce message est problématique afin de le signaler.")
+                        r = r?.trim(); // retirer les espaces en trop
+                        if (r) { // pas vide, pas null
+                            this.reportMessage(msg, r);
                         }
                     }
                 }
@@ -194,9 +204,15 @@ function initConversation(element) {
         },
 
         deleteMessage(msgElement) {
-            const msgId = msgElement.dataset.id;
+            const msgId = parseInt(msgElement.dataset.id);
             api.deleteMessage(this.id, msgId)
                 .then(() => msgElement.remove());
+        },
+        
+        reportMessage(msgElement, reason) {
+            const msgId = parseInt(msgElement.dataset.id);
+            api.reportMessage(this.id,  msgId, reason)
+                .then(() => alert("Signalement envoyé !"));
         },
 
         // Renvoie true si le scroll est suffisamment proche de la fin des messages
@@ -327,5 +343,21 @@ const api = {
 
         const res = await fetch(endpoint);
         return await res.text();
+    },
+    
+    async reportMessage(convId, msgId, reason) {
+        const endpoint = new URL("member-area/api/reports.php", root);
+
+        const res = await fetch(endpoint, {
+            method: "POST",
+            body: JSON.stringify({convId, msgId, reason}),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        
+        if (res.status !== 200) {
+            throw new Error("Failed to report message! Error code: " + res.status);
+        }
     }
 }

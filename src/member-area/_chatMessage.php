@@ -19,12 +19,17 @@ function chatMessage(int $msgId, int $userId, string $content) {
 
     $showDelete = $author !== null && $myId === $author["id"]
         || \User\level($myId) >= \User\LEVEL_ADMIN;
+    
+    $showReport = $myId !== $author["id"]
     ?>
     <article class="chat-message<?= $msgClass ?>" data-id="<?= $msgId ?>">
         <header class="-head">
             <div class="-author"><?= htmlspecialchars($authorName) ?></div>
             <?php if ($showDelete): ?>
                 <button class="-delete"><span class="material-symbols-rounded -icon">delete</span></button>
+            <?php endif; ?>
+            <?php if ($showReport): ?>
+                <button class="-report"><span class="material-symbols-rounded -icon">flag</span></button>
             <?php endif; ?>
         </header>
         <p class="-content"><?= htmlspecialchars($content) ?></p>

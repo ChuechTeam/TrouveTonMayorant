@@ -4,7 +4,7 @@ namespace ModerationDB;
 
 /*
  * Structure :
- * reports => tableau de [
+ * reports => tableau assoc [id] => [
  *     id => int
  *     convId => string
  *     msgId => int
@@ -23,20 +23,20 @@ const PATH = __DIR__ . "/../../moderation.json";
 const REV_FIRST = 1;
 const REV_LAST = REV_FIRST;
 
-$handle = null;
-$data = null;
-$readOnly = false;
-$dirty = false;
-$shutdownRegistered = false;
+$modHandle = null;
+$modData = null;
+$modReadOnly = false;
+$modDirty = false;
+$modShutdownRegistered = false;
 
 function &load(bool $ro = false): array {
-    global $handle;
-    global $data;
-    global $readOnly;
-    global $shutdownRegistered;
-
-    if ($data === null) {
-        if (!_read(PATH, $handle, $data, $ro)) {
+    global $modHandle;
+    global $modData;
+    global $modReadOnly;
+    global $modShutdownRegistered;
+    
+    if ($modData === null) {
+        if (!_read(PATH, $modHandle, $modData, $ro)) {
             // On crée le fichier pour la première fois et on le relit juste après.
             trigger_error("Creating moderation database for the first time.");
             $ok = file_put_contents(PATH, json_encode(
@@ -51,59 +51,59 @@ function &load(bool $ro = false): array {
                 throw new \RuntimeException("Failed to create the moderation database.");
             }
 
-            return load($readOnly);
+            return load($modReadOnly);
         }
+        
+        $modReadOnly = $ro;
 
-        $readOnly = $ro;
-
-        if (!$shutdownRegistered) {
+        if (!$modShutdownRegistered) {
             register_shutdown_function(function () {
                 unload();
             });
-            $shutdownRegistered = true;
+            $modShutdownRegistered = true;
         }
     }
 
-    return $data;
+    return $modData;
 }
 
 function save() {
-    global $handle;
-    global $data;
-    global $dirty;
-    global $readOnly;
+    global $modHandle;
+    global $modData;
+    global $modDirty;
+    global $modReadOnly;
 
-    if (!$dirty || !$data || !$handle || $readOnly) {
+    if (!$modDirty || !$modData || !$modHandle || $modReadOnly) {
         return;
     }
 
-    if (!_save($handle, $data)) {
+    if (!_save($modHandle, $modData)) {
         throw new \RuntimeException("Failed to save moderation database.");
     }
 
-    $dirty = false;
+    $modDirty = false;
 }
 
 function unload() {
-    global $handle;
-    global $data;
-    global $dirty;
-    global $readOnly;
-
-    if (!$handle) {
+    global $modHandle;
+    global $modData;
+    global $modDirty;
+    global $modReadOnly;
+    
+    if (!$modHandle) {
         return;
     }
-
-    if ($dirty) {
+    
+    if ($modDirty) {
         save();
     }
 
-    _close($handle);
+    _close($modHandle);
 
-    $data = null;
-    $handle = null;
-    $dirty = false;
-    $readOnly = false;
+    $modData = null;
+    $modHandle = null;
+    $modDirty = false;
+    $modReadOnly = false;
 }
 
 function queryReports(): array {
@@ -117,10 +117,10 @@ function findReport(int $reportId): ?array {
 }
 
 function addReport(string $convId, int $msgId, int $userId, string $reason) {
-    global $dirty;
-    global $readOnly;
+    global $modDirty;
+    global $modReadOnly;
 
-    if ($readOnly) {
+    if ($modReadOnly) {
         throw new \RuntimeException("Cannot add reports in read-only mode.");
     }
 
@@ -133,16 +133,16 @@ function addReport(string $convId, int $msgId, int $userId, string $reason) {
         "userId" => $userId,
         "reason" => $reason
     ];
-    $ud["reports"][] = $rep;
+    $ud["reports"][$id] = $rep;
 
-    $dirty = true;
+    $modDirty = true;
 }
 
 function deleteReport(int $reportId): bool {
-    global $dirty;
-    global $readOnly;
+    global $modDirty;
+    global $modReadOnly;
 
-    if ($readOnly) {
+    if ($modReadOnly) {
         throw new \RuntimeException("Cannot delete reports in read-only mode.");
     }
 
@@ -159,7 +159,7 @@ function deleteReport(int $reportId): bool {
     }
 
     if ($found) {
-        $dirty = true;
+        $modDirty = true;
         return true;
     } else {
         return false;
@@ -167,32 +167,32 @@ function deleteReport(int $reportId): bool {
 }
 
 function banEmail(string $email) {
-    global $dirty;
-    global $readOnly;
+    global $modDirty;
+    global $modReadOnly;
 
-    if ($readOnly) {
+    if ($modReadOnly) {
         throw new \RuntimeException("Cannot ban emails in read-only mode.");
     }
 
     $ud = &load();
     if (!isset($ud["bannedEmails"][$email])) {
         $ud["bannedEmails"][$email] = 1;
-        $dirty = true;
+        $modDirty = true;
     }
 }
 
 function unbanEmail(string $email) {
-    global $dirty;
-    global $readOnly;
+    global $modDirty;
+    global $modReadOnly;
 
-    if ($readOnly) {
+    if ($modReadOnly) {
         throw new \RuntimeException("Cannot ban emails in read-only mode.");
     }
 
     $ud = &load();
     if (isset($ud["bannedEmails"][$email])) {
         unset($ud["bannedEmails"][$email]);
-        $dirty = true;
+        $modDirty = true;
     }
 }
 
@@ -234,13 +234,13 @@ function _read(string $path, &$handle, ?array &$db = null, bool $readOnly = fals
         return false;
     }
 
-    $data = fread($handle, _fSize($handle));
-    if ($data === false) {
+    $modData = fread($handle, _fSize($handle));
+    if ($modData === false) {
         _close($handle);
         return false;
     }
 
-    $db = json_decode($data, true);
+    $db = json_decode($modData, true);
     if (_upgrade($db)) {
         if ($readOnly) {
             throw new \RuntimeException("Cannot upgrade database in read-only mode.");
