@@ -84,6 +84,8 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "orientation" => "",
             "job" => "",
             "situation" => "",
+            "dep" => "",
+            "city" => "",
             "desc" => "",
             "bio" => "",
             "user_smoke" => "",
@@ -119,6 +121,8 @@ function updateProfile(int $id, array $profile, ?array $profile_details = null, 
     $user["orientation"] = $profile_details["orientation"];
     $user["job"] = $profile_details["job"];
     $user["situation"] = $profile_details["situation"];
+    $user["dep"] = $profile_details["dep"];
+    $user["city"] = $profile_details["city"];
     $user["desc"] = $profile_details["desc"];
     $user["bio"] = $profile_details["bio"];
     $user["user_smoke"] = $profile_details["user_smoke"];

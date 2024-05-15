@@ -23,6 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 "orientation" => (isset($_POST['orientation'])) ? $_POST['orientation'] : "",
                 "job" => (isset($_POST['job'])) ? $_POST['job'] : "",
                 "situation" => (isset($_POST['situation'])) ? $_POST['situation'] : "",
+                "dep" => (isset($_POST['dep'])) ? $_POST['dep'] : "",
+                "city" => (isset($_POST['city'])) ? $_POST['city'] : "",
                 "desc" => (isset($_POST['desc'])) ? $_POST['desc'] : "",
                 "bio" => (isset($_POST['bio'])) ? $_POST['bio'] : "",
                 "user_smoke" => (isset($_POST['user_smoke'])) ? $_POST['user_smoke'] : "",
@@ -48,7 +50,9 @@ if ($submitCode > 0) {
 }
 
 Templates\member("Votre profil");
+$depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement du fichier JSON
 ?>
+
 
 <h1 class="title">Profil</h1>
 
@@ -110,7 +114,15 @@ Templates\member("Votre profil");
                 <div class="-grid-item"><input type="text" name="job" id="job" value="<?= htmlspecialchars($u['job']) ?>"></div>
                 
                 <div class="-grid-item">Lieu de résidence</div>
-                <div class="-grid-item">selecteur de ville svp</div>
+                <div class="-grid-item">
+                    <select id="departmentSelect" name="dep">
+                        <option disabled selected value> -- Département -- </option>
+                    </select>
+                    <br>
+                    <select id="citySelect" class="d-none" name="city">
+                        <option disabled selected value> -- Ville -- </option>
+                    </select>
+                </div>
 
                 <div class="-grid-item">Situation</div>
                 <div class="-grid-item">
@@ -202,3 +214,68 @@ Templates\member("Votre profil");
         font-weight: bolder;
     }
 </style>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const departmentSelect = document.getElementById('departmentSelect');
+        const citySelect = document.getElementById('citySelect');
+        let previousDep = null;
+
+        // Fetch JSON data from file
+        fetch('departements-region.json')
+        .then(response => response.json())
+        .then(data => {
+            
+            
+            // Iterate through JSON data and populate dropdown
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.num_dep;
+                option.textContent = item.dep_name;
+                departmentSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching JSON:', error));
+        
+        function filterCities(selectedDep){
+            citySelect.innerHTML = '<option disabled selected value> -- Ville -- </option>';
+
+            fetch('cities.json')
+            .then(response => response.json())
+            .then(data => {
+                
+                
+                // Iterate through JSON data and populate dropdown
+                data.cities.forEach(item => {
+                    if(item.department_number === selectedDep){
+                        const option = document.createElement('option');
+                        option.value = item.insee_code;
+                        var cityName = item.label.split(" ");
+                        for (let i = 0; i < cityName.length; i++) {
+                            cityName[i] = cityName[i][0].toUpperCase() + cityName[i].substr(1);
+                        }
+
+                        cityName = cityName.join(" ");
+                        option.textContent = cityName;
+                        citySelect.appendChild(option);
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching JSON:', error));
+        }
+        
+        departmentSelect.addEventListener('change', function(){
+            const selectedDep = this.value;
+            if(selectedDep !== previousDep){
+                filterCities(selectedDep);
+                previousDep = selectedDep;
+            }
+            if(selectedDep){
+                citySelect.classList.remove('d-none');
+            }
+        });
+
+    });
+
+</script>

@@ -292,7 +292,7 @@ function _upgrade(array &$data) {
                         }
                         unset($u["age"]);
 
-                        $strProps = ["gender", "orientation", "job", "situation", "desc", "bio", "user_smoke", "search_smoke"];
+                        $strProps = ["gender", "orientation", "job", "situation", "dep", "city", "desc", "bio", "user_smoke", "search_smoke"];
                         foreach ($strProps as $p) {
                             if (!isset($u[$p])) {
                                 $u[$p] = "";
