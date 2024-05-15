@@ -254,7 +254,8 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
             fetch('cities.json')
             .then(response => response.json())
             .then(data => {
-                data.cities.forEach(item => {
+                let dataCities = Array.from(new Set(data.cities.map(JSON.stringify))).map(JSON.parse); //nécessaire pour retirer les dupliqués (parce que le json officiel du gouvernement il est nul)
+                dataCities.forEach(item => {
                     if(item.department_number === selectedDep){
                         const option = document.createElement('option');
                         option.value = item.insee_code;
