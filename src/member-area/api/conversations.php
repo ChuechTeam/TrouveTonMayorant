@@ -21,5 +21,5 @@ if ($conv === null) {
     conversation(null);
     bail(404);
 } else {
-    conversation($convId, User\level($user["id"]) >= User\LEVEL_ADMIN);
+    conversation($convId, false);
 }

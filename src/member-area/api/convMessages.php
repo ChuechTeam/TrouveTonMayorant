@@ -62,7 +62,8 @@ if ($conv === null) {
 // Id du dernier message vu
 $since = is_numeric($_GET["since"] ?? null) ? intval($_GET["since"]) : null;
 
-function lastMessages(array $conv, ?int $since) {
+function lastMessages(array $conv, ?int $since)
+{
     $first = null;
     $last = null;
 
@@ -117,6 +118,8 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         lastMessages($conv, $since);
     } else {
         chatMessage($msgId, $user["id"], $content);
+        header("First-Message-Id: " . $msgId);
+        header("Last-Message-Id: " . $msgId);
     }
 } else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     if (!is_numeric($_GET["msgId"] ?? null)) {
@@ -124,6 +127,20 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     }
 
     $msgId = intval($_GET["msgId"]);
+
+    // Vérifier si on a le droit de supprimer ce message
+    // (C'est un recherche O(n) mais bon)
+    if (User\level($user["id"]) < User\LEVEL_ADMIN) {
+        foreach ($conv["messages"] as $msg) {
+            if ($msg["id"] === $msgId) {
+                if ($msg["user"] !== $user["id"]) {
+                    bail(403); // Forbidden
+                }
+                break;
+            }
+        }
+    }
+
     if (!ConversationDB\deleteMessage($convId, $msgId, $conv)) {
         bail(404);
     }

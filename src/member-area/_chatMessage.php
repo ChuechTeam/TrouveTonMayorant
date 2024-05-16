@@ -9,28 +9,31 @@ require_once __DIR__ . "/../modules/userSession.php";
  * @param int $msgId l'id du message
  * @param int $userId l'id de l'auteur
  * @param string $content le contenu du message
+ * @param bool $externalView si le message est vu à l'extérieur de la conversation (exemple : depuis la liste de signalements)
  * @return void
  */
-function chatMessage(int $msgId, int $userId, string $content) {
+function chatMessage(int $msgId, int $userId, string $content, bool $externalView = false) {
     $myId = \UserSession\loggedUserId();
     $author = \UserDB\findById($userId);
     $authorName = $author == null ? "Utilisateur supprimé" : ($author["firstName"] . ' ' . $author["lastName"]);
-    $msgClass = $author == null || $myId !== $author["id"] ? " -other" : " -me";
+    $msgClass = $externalView || $author == null || $myId !== $author["id"] ? " -other" : " -me";
 
-    $showDelete = $author !== null && $myId === $author["id"]
-        || \User\level($myId) >= \User\LEVEL_ADMIN;
+    $showDelete = !$externalView && ($author !== null && $myId === $author["id"]
+        || \User\level($myId) >= \User\LEVEL_ADMIN);
     
-    $showReport = $myId !== $author["id"]
+    $showReport = !$externalView && $author !== null && $myId !== $author["id"]
     ?>
     <article class="chat-message<?= $msgClass ?>" data-id="<?= $msgId ?>">
         <header class="-head">
             <div class="-author"><?= htmlspecialchars($authorName) ?></div>
-            <?php if ($showDelete): ?>
-                <button class="-delete"><span class="material-symbols-rounded -icon">delete</span></button>
-            <?php endif; ?>
-            <?php if ($showReport): ?>
-                <button class="-report"><span class="material-symbols-rounded -icon">flag</span></button>
-            <?php endif; ?>
+            <div class="-controls">
+                <?php if ($showDelete): ?>
+                    <button class="-delete"><span class="material-symbols-rounded -icon">delete</span></button>
+                <?php endif; ?>
+                <?php if ($showReport): ?>
+                    <button class="-report"><span class="material-symbols-rounded -icon">flag</span></button>
+                <?php endif; ?>
+            </div>
         </header>
         <p class="-content"><?= htmlspecialchars($content) ?></p>
     </article>

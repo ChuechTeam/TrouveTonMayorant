@@ -18,6 +18,15 @@ require_once "../../modules/moderationDB.php";
  * 
  * Retour :
  * 200 OK
+ * 
+ * DELETE /member-area/api/reports.php
+ * Supprime un signalement (admin uniquement)
+ * 
+ * Entrée :
+ * ?id : l'id du signalement
+ * 
+ * Retour :
+ * 200 OK
  */
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -58,6 +67,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     
     bail(404);
-} else {
+} else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
+    if (User\level($user["id"]) < User\LEVEL_ADMIN) {
+        bail(400);
+    }
+
+    $id = $_GET["id"] ?? null;
+    if (!is_numeric($id)) {
+        bail(400);
+    }
+    
+    if (!ModerationDB\deleteReport(intval($id))) {
+        bail(404);
+    }
+}
+else {
     bail(400);
 }

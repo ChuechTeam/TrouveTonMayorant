@@ -22,14 +22,21 @@ Templates\member("Accueil");
 <div class="background" id="background"></div> <!-- c'est quoi ??? -->
 
 
-<div id="search">
-    <div>
-        <input type="text" onkeyup="loadresults(this.value)">
+<div id="search" style="background: purple;">
+    <form id="search-form">
+        <ul style="display:inline-flex; gap: 32px; list-style: none;" >
+            <li><input type="checkbox" name="genre[]" value="f" ><label>Femme</label></li>
+            <li><input type="checkbox" name="genre[]" value="m"><label for="h">Homme</label></li>
+            <li><input type="checkbox" name="genre[]" value="nb"><label for="nb">Non-binaire</label></li>
+        </ul>
+        <br>
+        <ul style="display:inline-flex; list-style: none;" >
+            <li><input type="checkbox" name="fumeur" value="yes"><label>Fumeur</label></li>
+        </ul>
+        
+    </form>
 
-        <div id="options">
-
-        </div>
-    </div>
+    <button class="sub" onclick="loadresults()">Recherche</button>
     <div id="resultats">
 
     </div>
@@ -51,12 +58,8 @@ Templates\member("Accueil");
             userBox.style.height = (40 + options.clientHeight) + "px"; // Ajuste la hauteur de la boîte utilisateur
         }
     }*/
-    function loadresults(str){
+    function loadresults(){
         var xhttp;
-        if (str.length == 0) {
-            document.getElementById("resultats").innerHTML = "";
-            return;
-        }
         xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -64,7 +67,12 @@ Templates\member("Accueil");
             }
         };
         // window.location.origin = http://localhost:8080 (par exemple)
-        xhttp.open("GET", window.location.origin + "/recup.php?q="+str, true);
+        const endpoint = new URL("newrecup.php", window.location.origin);
+        const sp = new URLSearchParams(new FormData(document.getElementById("search-form")));
+        for (const [key, value] of sp) {
+            endpoint.searchParams.append(key, value);
+        }
+        xhttp.open("GET", endpoint, true);
         xhttp.send();
     }
 </script>

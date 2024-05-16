@@ -1,3 +1,5 @@
+import {api} from "./api.js";
+
 const CONV_UPDATE_INTERVAL = 1000; // ms
 
 /** @param {HTMLElement} element */
@@ -29,7 +31,7 @@ function initChatBox(element) {
                 }
             })
 
-            element.querySelector("#create-conv").addEventListener("click", function () {
+            element.querySelector("#create-conv")?.addEventListener("click", function () {
                 alert('C\'est pas implémenté... va dans profil et clique sur "Démarrer une discussion"');
             })
         },
@@ -89,7 +91,7 @@ function initChatBox(element) {
 }
 
 /** @param {HTMLElement} element */
-function initConversation(element) {
+export function initConversation(element) {
     const id = element.dataset.id;
     if (id == null) {
         return;
@@ -107,14 +109,13 @@ function initConversation(element) {
         },
 
         init() {
-            if (this.elems.msgForm == null) {
-                return; // surement un admin
+            if (this.elems.msgForm !== null) {
+                this.elems.msgForm.addEventListener("submit", e => {
+                    e.preventDefault();
+                    this.postMessage();
+                });
             }
 
-            this.elems.msgForm.addEventListener("submit", e => {
-                e.preventDefault();
-                this.postMessage();
-            });
             if (this.elems.messages.children.length > 0) {
                 this.lastSeenMsgId = this.elems.messages.lastElementChild.dataset.id;
             }
@@ -260,104 +261,113 @@ function initConversation(element) {
     element.convState = state;
 }
 
+/**
+ * Boîte de dialogue Conversation
+ * Utilise un élément personnalisé (custom element) pour afficher une conversation dans une boîte de dialogue.
+ */
+const convDialogTemplate = document.createElement("template");
+convDialogTemplate.innerHTML = `
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+#dialog {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+
+    & > .-header {
+        display: flex;
+        & > .-title {
+            margin: 4px 8px;
+            margin-bottom: 2px;
+            flex-grow: 1;
+            font-size: 1.33em;
+        }
+        & > .-close {
+            border: none;
+            background-color: transparent;
+            & > .-icon {
+                display: block;
+                margin: auto 0;
+                font-size: 1.5em;
+                color: white; 
+                pointer-events: none; 
+            }
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+            }
+            &:active {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        background-color: #a30000;
+        color: white;
+    }
+
+    & > .-slot {
+        display: contents;
+    }
+
+    border: 1px solid rgb(129, 129, 129);
+    border-radius: 4px;
+
+    height: 95%;
+    width: 90%;
+
+    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
+
+    /** Mobile */
+    @media (max-width: 768px) {
+        width: 98%;
+    }
+}
+
+#dialog:not([open]) {
+    display: none;
+}
+
+::slotted(.chat-conversation) {
+    flex-grow: 1;
+    padding: 8px;
+    overflow: auto;
+}
+</style>
+<dialog id="dialog">
+    <form class="-header" method="dialog">
+    <h2 class="-title">Conversation</h2>
+    <button class="-close"><div class="material-symbols-rounded -icon">close</div> </button>
+    </form>
+    <slot></slot>
+</dialog>
+`;
+export class ConversationDialog extends HTMLElement {
+    constructor() {
+        super();
+        this.dom = this.attachShadow({mode: "open"});
+        this.dom.replaceChildren(convDialogTemplate.content.cloneNode(true));
+        this.dialog = this.dom.getElementById("dialog");
+        this.dialog.addEventListener("close", () => this.remove());
+    }
+
+    show(html) {
+        this.dialog.showModal();
+        this.innerHTML = html;
+        initConversation(this.querySelector(".chat-conversation"));
+    }
+}
+customElements.define("conversation-dialog", ConversationDialog);
+
+export async function fetchAndOpenConv(convId) {
+    const conversationHTML = await api.getConversation(convId);
+    const dialog = document.body.appendChild(new ConversationDialog());
+    dialog.show(conversationHTML);
+}
+
+/*
+Initialisation de la boîte de chat
+*/
+
 const box = document.getElementById("chat-box")
 if (box) {
     initChatBox(box);
-}
-
-const root = new URL(window.location.origin);
-const api = {
-    /**
-     * Envoie un message
-     * @param {number} convId l'id de la conversation
-     * @param {string} content le contenu du message
-     * @param {number | null} since l'id du dernier message reçu
-     */
-    async sendMessage(convId, content, since) {
-        const endpoint = new URL("member-area/api/convMessages.php", root);
-        endpoint.searchParams.set("id", convId);
-        if (since != null) {
-            endpoint.searchParams.set("since", since);
-        }
-
-        const res = await fetch(endpoint, {
-            method: "POST",
-            body: JSON.stringify({content}),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (res.status !== 200) {
-            throw new Error("Failed to send message! Error code: " + res.status);
-        }
-
-        return {
-            firstMsgId: parseInt(res.headers.get("First-Message-Id")),
-            lastMsgId: parseInt(res.headers.get("Last-Message-Id")),
-            html: await res.text()
-        };
-    },
-
-    async getMessages(convId, since) {
-        const endpoint = new URL("member-area/api/convMessages.php", root);
-        endpoint.searchParams.set("id", convId);
-        if (since != null) {
-            endpoint.searchParams.set("since", since);
-        }
-
-        const res = await fetch(endpoint);
-        if (res.status === 204) {
-            // no content
-            return null;
-        }
-
-        if (res.status !== 200) {
-            throw new Error("Failed to send message! Error code: " + res.status);
-        }
-
-        return {
-            firstMsgId: parseInt(res.headers.get("First-Message-Id")),
-            lastMsgId: parseInt(res.headers.get("Last-Message-Id")),
-            html: await res.text()
-        };
-    },
-
-    async deleteMessage(convId, msgId) {
-        const endpoint = new URL("member-area/api/convMessages.php", root);
-        endpoint.searchParams.set("id", convId);
-        endpoint.searchParams.set("msgId", msgId);
-
-        const res = await fetch(endpoint, {
-            method: "DELETE"
-        });
-
-        if (res.status !== 200) {
-            throw new Error("Failed to delete message! Error code: " + res.status);
-        }
-    },
-
-    async getConversation(convId) {
-        const endpoint = new URL("member-area/api/conversations.php", root);
-        endpoint.searchParams.set("id", convId);
-
-        const res = await fetch(endpoint);
-        return await res.text();
-    },
-    
-    async reportMessage(convId, msgId, reason) {
-        const endpoint = new URL("member-area/api/reports.php", root);
-
-        const res = await fetch(endpoint, {
-            method: "POST",
-            body: JSON.stringify({convId, msgId, reason}),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-        
-        if (res.status !== 200) {
-            throw new Error("Failed to report message! Error code: " + res.status);
-        }
-    }
 }

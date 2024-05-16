@@ -7,14 +7,28 @@ require_once "_conversation.php";
 Templates\member("Messagerie");
 Templates\appendParam("head", '<script src="/scripts/chat.js" type="module" defer></script>');
 
+// Pouvoir voir la messagerie de quelqu'un d'autre si l'on est admin uniquement
+$u = null;
+$impersonate = false;
+if (isset($_GET["impersonate"]) && UserSession\level() >= \User\LEVEL_ADMIN) {
+    $u = UserDB\findById(intval($_GET["impersonate"]));
+    $impersonate = true;
+    if ($u === null) {
+        echo '<div class="not-found">Utilisateur introuvable</div>';
+        http_response_code(404);
+        exit();
+    }
+} else {
+    $u = $user;
+}
 
 $selectedConvId = null;
 
 if (!empty($_GET["startNew"])) {
     $otherId = intval($_GET["startNew"]);
-    if ($otherId !== $user["id"]) {
+    if ($otherId !== $u["id"]) {
         // Si la conversation existe déjà, elle sera mise dans selectedConvId.
-        User\startConversation($user["id"], $otherId, $selectedConvId, $user);
+        User\startConversation($u["id"], $otherId, $selectedConvId, $u);
     }
 }
 
@@ -23,20 +37,24 @@ if ($selectedConvId === null && !empty($_GET["conv"])) {
 }
 
 $conversations = [];
-foreach ($user["conversations"] as $convId) {
+foreach ($u["conversations"] as $convId) {
     $conv = ConversationDB\find($convId);
     if ($conv !== null) {
-        $otherUserId = $conv["userId1"] == $user["id"] ? $conv["userId2"] : $conv["userId1"];
+        $otherUserId = $conv["userId1"] == $u["id"] ? $conv["userId2"] : $conv["userId1"];
         $otherUser = UserDB\findById($otherUserId);
         $conversations[] = [
             "id" => $convId,
             "userName" => $otherUser !== null ? $otherUser["firstName"] . " " . $otherUser["lastName"] : "Utilisateur supprimé",
-            "lastMsg" => !empty($conv["messages"]) ?  $conv["messages"][count($conv["messages"]) - 1]["content"] : "",
+            "lastMsg" => !empty($conv["messages"]) ? $conv["messages"][count($conv["messages"]) - 1]["content"] : "",
             "selectedClass" => $selectedConvId === $convId ? " -selected" : ""
         ];
     }
 }
 ?>
+
+<?php if ($impersonate): ?>
+    <h1 id="impersonate-title">Messagerie de <?= $u["firstName"] .' '. $u["lastName"] ?></h1>
+<?php endif; ?>
 
 <div id="chat-box">
     <aside class="-people-slot">
@@ -48,7 +66,7 @@ foreach ($user["conversations"] as $convId) {
                 </li>
             <?php endforeach; ?>
         </ul>
-        <button id="create-conv">Commencer une conversation</button>
+        <?php if (!$impersonate): ?> <button id="create-conv">Commencer une conversation</button> <?php endif; ?>
     </aside>
     <section class="-conversation-slot">
         <?php conversation($selectedConvId); ?>

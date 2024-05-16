@@ -12,6 +12,8 @@ namespace UserDB;
  * - "conversations" : tableau des id des conversations
  * - "blockedUsers" : tableau associatif d'id d'utilisateurs bloqués : [id]=>1
  * - "blockedBy" : tableau associatif d'id des utilisateurs qui ont bloqué celui-ci : [id]=>1
+ * - "supExpire" : date à laquelle l'abonnement sup expire
+ * - "admin" : si l'utilisateur est admin : true
  */
 
 /*
@@ -27,7 +29,11 @@ const REV_NEW_DB_LOADING = 2; // Retire le "_dict: 1" dans users et byEmail
 const REV_INTERACTION_UPDATE = 3; // Conversations et blocage
 const REV_PROFILE_DETAILS = 4; // La màj qui fait que c'est un site de rencontre
 const REV_REG_DATE = 5; // Ajout de la date d'inscription
-const REV_LAST = REV_REG_DATE; // Dernière version de la base de donnée
+const REV_MATHS_PREFS = 6; // Ajout des vecteurs propres 
+const REV_SUP_ADMIN = 7; // Sup et admin (logique)
+const REV_EQUATION = 8; // Ajoute des équations
+const REV_PFP = 9; // Photos de profil
+const REV_LAST = REV_PFP; // Dernière version de la base de donnée
 
 $usersFile = null; // Le fichier json chargé avec fopen
 $usersReadOnly = false; // Si la base de donnée est ouverte en lecture seule
@@ -130,6 +136,7 @@ function put(array $user): int {
     _validateExist($user, "firstName");
     _validateExist($user, "lastName");
     _validateExist($user, "bdate");
+    _validateExist($user, "gender");
     _validateExist($user, "conversations");
     _validateExist($user, "blockedUsers");
     _validateExist($user, "blockedBy");
@@ -166,6 +173,31 @@ function put(array $user): int {
     $usersDirty = true;
 
     return $id;
+}
+
+/**
+ * Supprime un utilisateur de la base de donnée.
+ * Les conversations restent intactes, la liste des utilisateurs bloqués n'est pas changée.
+ */
+function delete(int $id): bool {
+    if (isReadOnly()) {
+        throw new \RuntimeException("User database is opened in read-only mode!");
+    }
+
+    global $usersDirty;
+
+    $ud = &load();
+
+    if (!isset($ud["users"][$id])) {
+        return false;
+    }
+
+    $email = $ud["users"][$id]["email"];
+    unset($ud["users"][$id]);
+    unset($ud["byEmail"][$email]);
+    $usersDirty = true;
+
+    return true;
 }
 
 function findByEmail(string $email): ?array {
@@ -307,6 +339,27 @@ function _upgrade(array &$data) {
                         if (!isset($u["rdate"])) {
                             $u["rdate"] = (new \DateTime())->format("Y-m-d");
                         }
+                    }
+                    break;
+                case REV_MATHS_PREFS:
+                    foreach ($data["users"] as &$u) {
+                        $u["eigenVal"] = $u["eigenVal"] ?? "";
+                        $u["mathField"] = $u["mathField"] ?? "";
+                    }
+                    break;
+                case REV_SUP_ADMIN:
+                    foreach ($data["users"] as &$u) {
+                        $u["supExpire"] = null;
+                        $u["admin"] = false;
+                    }
+                case REV_EQUATION:
+                    foreach ($data["users"] as &$u) {
+                        $u["equation"] = "";
+                    }
+                    break;
+                case REV_PFP:
+                    foreach ($data["users"] as &$u) {
+                        $u["pfp"] = $u["pfp"] ?? "";
                     }
                     break;
                 default:

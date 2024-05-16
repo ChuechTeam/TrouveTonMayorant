@@ -13,6 +13,7 @@ $errCode = -1;
 // si on a envoyé le formulaire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($page === "signIn") {
+        // Connexion
         if (!empty(($_POST['mail'])) && !empty(($_POST['password']))) {
             $user_m = $_POST['mail'];
             $user_p = $_POST['password'];
@@ -30,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         // Inscription
-        if (!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate']))) { //Si les champs ne sont pas vides
+        if (!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate'])) && !empty(($_POST['gender']))) { //Si les champs ne sont pas vides
             //On recupere les infos importantes
             $user_m = $_POST['mail'];
 
@@ -38,9 +39,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $user_n = $_POST['name'];
             $user_fn = $_POST['fname'];
             $user_bd = $_POST['bdate'];
+            $user_gender = $_POST['gender'];
 
             $id = 0;
-            $errCode = User\register($user_fn, $user_n, $user_m, $user_p, $user_bd, $id);
+            $errCode = User\register($user_fn, $user_n, $user_m, $user_p, $user_bd, $user_gender, $id);
             if ($errCode === 0) {
                 \UserSession\signIn($id);
                 header("Location: $root/index.php");
@@ -89,6 +91,15 @@ Templates\base($page === "signIn" ? "Connexion" : "Inscription");
                 <div class="-grid-item"><input type="text" name="fname" id="" required></div>
                 <div class="-grid-item">Date de naissance</div>
                 <div class="-grid-item"><input type="date" name="bdate" id="" required></div>
+                <div class="-grid-item">Genre</div>
+                <div class="-grid-item">
+                    <select id="gender" name="gender" required>
+                        <option value="m">Homme</option>
+                        <option value="f">Femme</option>
+                        <option value="nb">Non-binaire</option>
+                        <option value="a">Autre</option>
+                    </select>
+                </div>
                 <div class="-grid-item -footer"><button type="submit" class="sub">S'inscrire</button></div>
             </div>
             

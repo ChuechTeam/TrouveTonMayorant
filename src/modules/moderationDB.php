@@ -148,17 +148,9 @@ function deleteReport(int $reportId): bool {
 
     $ud = &load();
     $reps = &$ud["reports"];
-    $found = false;
-
-    for ($i = 0; $i < count($reps); $i++) {
-        if ($reps[$i]["id"] == $reportId) {
-            array_splice($reps, $i, 1);
-            $found = true;
-            break;
-        }
-    }
-
-    if ($found) {
+    
+    if (isset($reps[$reportId])) {
+        unset($reps[$reportId]);
         $modDirty = true;
         return true;
     } else {

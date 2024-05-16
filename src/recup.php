@@ -11,6 +11,7 @@ $len=strlen($q);
 
 // Charger la base de données en lecture seule pour éviter de verrouiller le fichier pour rien
 UserDB\load(true);
+
 foreach(UserDB\query() as $u){
     if (stristr($q, substr($u["firstName"], 0, $len))) {
         if ($first) {

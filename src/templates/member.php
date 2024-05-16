@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . "/../modules/url.php";
+require_once __DIR__ . "/../modules/user.php";
 
 $content = $tmplArgs["content"] ?? "\$content is empty!";
 
@@ -10,18 +11,24 @@ $content = $tmplArgs["content"] ?? "\$content is empty!";
 $homePath = "/member-area";
 $profilePath = "/member-area/profile.php";
 $chatPath = "/member-area/chat.php";
+$adminPath = "/admin-area";
 
 global $curPath;
 $curPath = rtrim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
 
-function isCurrentPage($path): bool {
+function isCurrentPage($path, bool $prefix=false): bool {
     global $curPath;
-    return $path === $curPath || $path . "/index.php" === $curPath;
+    if ($prefix) {
+        return strpos($curPath, $path) === 0;
+    } 
+    else {
+        return $path === $curPath || $path . "/index.php" === $curPath;
+    }
 }
 
-function linkAttribs($path) {
+function linkAttribs($path, bool $prefix=false) {
     printf('href="%s"', $path);
-    if (isCurrentPage($path)) {
+    if (isCurrentPage($path, $prefix)) {
         printf('class="-active"');
     }
 }
@@ -31,6 +38,7 @@ function linkAttribs($path) {
  * @var array $user
  */
 $user = $tmplArgs["user"] ?? die("The member template requires a logged user!");
+$isAdmin = $tmplArgs["userLevel"] >= User\LEVEL_ADMIN;
 ?>
 
 <nav id="member-nav">
@@ -56,6 +64,15 @@ $user = $tmplArgs["user"] ?? die("The member template requires a logged user!");
                 <span class="material-symbols-rounded -inl -icon">chat</span>
                 <span class="-label">Chat</span>
             </a>
+        </li>
+        <?php if ($isAdmin): ?>
+        <li>
+            <a <?php linkAttribs($adminPath, true); ?>>
+                <span class="material-symbols-rounded -inl -icon">admin_panel_settings</span>
+                <span class="-label">Admin</span>
+            </a>
+        </li>
+        <?php endif; ?>
         <li class="-sign-out">
             <a href="<?= "$root/redirect.php" ?>">
                 <span class="material-symbols-rounded -inl -icon">logout</span>

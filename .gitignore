@@ -5,3 +5,5 @@ moderation.json
 
 conversations/
 sessions/
+.vsls.json
+user-image-db/

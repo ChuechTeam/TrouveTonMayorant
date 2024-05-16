@@ -3,6 +3,7 @@
 namespace Templates;
 
 require_once __DIR__ . "/../modules/userSession.php";
+require_once __DIR__ . "/../modules/user.php";
 
 $params = [];
 
@@ -28,6 +29,7 @@ function member(?string $title = null) {
     }
 
     setParam("user", $user);
+    setParam("userLevel", \User\level($user["id"]));
 
     register_shutdown_function(function($title) {
         $tmplArgs = _prepareArgs();

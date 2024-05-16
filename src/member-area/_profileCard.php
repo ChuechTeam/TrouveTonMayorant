@@ -9,7 +9,7 @@ require_once __DIR__ . "/../modules/user.php";
  * @param bool $full si on doit afficher le profil complet
  * @return void
  */
-function profileCard(array $u, bool $full = false) {
+function profileCard(array $u, bool $full = false, bool $adminMode = false) {
     // Âge de l'utilisateur (> 18 ans normalement sauf si qqun fait des choses illégales)
     $age = (new DateTime($u["bdate"]))->diff(new DateTime())->y;
     switch ($u["gender"]) {
@@ -33,6 +33,9 @@ function profileCard(array $u, bool $full = false) {
         // abrège
         $bio = substr($bio, 0, 80) . "...";
     }
+
+    // URL vers l'image
+    $pfp = empty($u["pfp"]) ? User\DEFAULT_PFP : $u["pfp"];
 
     // profil complet : tableau des choix de relation
     // profil abrégé : version raccourcie dans un string
@@ -59,7 +62,7 @@ function profileCard(array $u, bool $full = false) {
             }
         }
     } else {
-        
+
         if (count($u["rel_search"]) == 5) {
             $rls = "Tout type de relation";
         } else {
@@ -105,25 +108,20 @@ function profileCard(array $u, bool $full = false) {
         $colloquialOrient = null;
         switch ($u["orientation"]) {
             case User\ORIENTATION_HETERO:
-                $colloquialOrient = $u["gender"] == \User\GENDER_MAN ? "Hétérosexuel" :
-                    ($u["gender"] == \User\GENDER_WOMAN ? "Hétérosexuelle" : "Hétérosexuel(le)");
+                $colloquialOrient = $u["gender"] == \User\GENDER_MAN ? "Hétérosexuel" : ($u["gender"] == \User\GENDER_WOMAN ? "Hétérosexuelle" : "Hétérosexuel(le)");
                 break;
             case User\ORIENTATION_HOMO:
                 $colloquialOrient =
-                    $u["gender"] == \User\GENDER_MAN ? "Gay" :
-                        ($u["gender"] == \User\GENDER_WOMAN ? "Lesbienne" : "Homosexuel(le)");
+                    $u["gender"] == \User\GENDER_MAN ? "Gay" : ($u["gender"] == \User\GENDER_WOMAN ? "Lesbienne" : "Homosexuel(le)");
                 break;
             case User\ORIENTATION_ASEXUAL:
-                $colloquialOrient = $u["gender"] == \User\GENDER_MAN ? "Asexuel" :
-                    ($u["gender"] == \User\GENDER_WOMAN ? "Asexuelle" : "Asexuel(le)");
+                $colloquialOrient = $u["gender"] == \User\GENDER_MAN ? "Asexuel" : ($u["gender"] == \User\GENDER_WOMAN ? "Asexuelle" : "Asexuel(le)");
                 break;
             case User\ORIENTATION_BI:
-                $colloquialOrient = $u["gender"] == \User\GENDER_MAN ? "Bisexuel" :
-                    ($u["gender"] == \User\GENDER_WOMAN ? "Bisexuelle" : "Bisexuel(le)");
+                $colloquialOrient = $u["gender"] == \User\GENDER_MAN ? "Bisexuel" : ($u["gender"] == \User\GENDER_WOMAN ? "Bisexuelle" : "Bisexuel(le)");
                 break;
             case User\ORIENTATION_PAN:
-                $colloquialOrient = $u["gender"] == \User\GENDER_MAN ? "Pansexuel" :
-                    ($u["gender"] == \User\GENDER_WOMAN ? "Pansexuelle" : "Pansexuel(le)");
+                $colloquialOrient = $u["gender"] == \User\GENDER_MAN ? "Pansexuel" : ($u["gender"] == \User\GENDER_WOMAN ? "Pansexuelle" : "Pansexuel(le)");
                 break;
             case User\ORIENTATION_OTHER:
                 $colloquialOrient = "Autre";
@@ -158,17 +156,17 @@ function profileCard(array $u, bool $full = false) {
     $smokeLabel = null;
     if (!empty($u["user_smoke"])) {
         $smokeLabel = "";
-        
+
         // On met le préfixe Non- si on ne fume pas.
         if ($u["user_smoke"] === "no") {
             $smokeLabel = "Non-";
         }
-        
+
         // Ajouter le "fumeur" ou "fumeuse" ou "fumeu·r·se"
         $smokeLabel .= $u["gender"] == \User\GENDER_MAN ? "Fumeur"
             : ($u["gender"] == \User\GENDER_WOMAN ? "Fumeuse" : "Fumeu·r·se");
     }
-    
+
     // Description physique
     $phys = !empty($u["desc"]) ? $u["desc"] : null;
 
@@ -192,55 +190,55 @@ function profileCard(array $u, bool $full = false) {
     $hasPrefs = $hasRelPref || $hasGenderPref || $hasSmokePref;
     ?>
 
-    <?php if ($full): ?>
+    <?php if ($full) : ?>
         <article class="full-profile<?= $supClass ?>">
             <aside class="-primary-infos">
                 <h1 class="-name"><?= htmlspecialchars($fn) ?></h1>
                 <span class="-gender-age"><?= $gender ?> | <?= $age ?> ans</span>
-                <?php if ($sup): ?> <img src="/assets/sup.svg" class="sup-icon" alt="Logo TTM Sup"> <?php endif ?>
+                <?php if ($sup) : ?> <img src="/assets/sup.svg" class="sup-icon" alt="Logo TTM Sup"> <?php endif ?>
             </aside>
             <aside class="-secondary-infos">
-                <?php if ($sit !== null): ?>
+                <?php if ($sit !== null) : ?>
                     <div class="pill -situation">
                         <span class="-label">Statut</span>
                         <span class="-value"><?= $sit ?></span>
                     </div>
                 <?php endif; ?>
 
-                <?php if ($colloquialOrient !== null): ?>
+                <?php if ($colloquialOrient !== null) : ?>
                     <div class="pill -orientation">
                         <span class="-label">Orientation</span>
                         <span class="-value"><?= $colloquialOrient ?></span>
                     </div>
                 <?php endif; ?>
 
-                <?php if (!empty($u["job"])): ?>
+                <?php if (!empty($u["job"])) : ?>
                     <div class="pill -job">
                         <span class="-label">Profession</span>
                         <span class="-value"><?= htmlspecialchars($u["job"]) ?></span>
                     </div>
                 <?php endif; ?>
 
-                <?php if (!empty($smokeLabel)): ?>
+                <?php if (!empty($smokeLabel)) : ?>
                     <div class="pill -smoke -label-only"><?= $smokeLabel ?></div>
                 <?php endif; ?>
 
-                <?php if ($hasPrefs): ?>
+                <?php if ($hasPrefs) : ?>
                     <hr>
-                    <?php if ($hasRelPref): ?>
+                    <?php if ($hasRelPref) : ?>
                         <h3>Je recherche</h3>
                         <ul class="-pref-list">
                             <?php foreach ($rls as $r) echo "<li>$r</li>"; ?>
                         </ul>
                     <?php endif; ?>
 
-                    <?php if ($hasGenderPref || $hasSmokePref): ?>
+                    <?php if ($hasGenderPref || $hasSmokePref) : ?>
                         <h3>Avec...</h3>
                         <ul class="-pref-list">
                             <?php foreach ($genderPref as $g) echo "<li>$g</li>"; ?>
-                            <?php if ($hasSmokePref):
+                            <?php if ($hasSmokePref) :
                                 $smokeClass = $u["search_smoke"] === "no" ? "-not" : ""; ?>
-                                <li class="<?= $smokeClass ?> ">une personne qui fume</li>
+                                <li class="<?= $smokeClass ?>">une personne qui fume</li>
                             <?php endif; ?>
                         </ul>
                     <?php endif; ?>
@@ -249,7 +247,7 @@ function profileCard(array $u, bool $full = false) {
             <section class="-main">
                 <h2>À propos de moi</h2>
                 <p class="-bio"><?= htmlspecialchars($bio) ?> </p>
-                <?php if ($phys !== null): ?>
+                <?php if ($phys !== null) : ?>
                     <h2>Ma description physique</h2>
                     <p class="-phys"><?= $phys ?></p>
                 <?php endif; ?>
@@ -257,28 +255,49 @@ function profileCard(array $u, bool $full = false) {
                 <p>Les valeurs propres, les problèmes en tête d'affiche...</p>
                 <button onclick="window.location.href = '<?= $convUrl ?>';">Démarrer une conversation</button>
             </section>
+            <?php if ($adminMode): ?>
+                <section class="-admin">
+                    <hr>
+                    <h2 class="-title">Contrôles admin</h2>
+
+                    <form action="/member-area/profile.php">
+                        <input type="hidden" name="id" value="<?= $u["id"] ?>">
+                        <button>Modifier le profil</button>
+                    </form>
+                    <form action="/admin-area/deleteUser.php">
+                        <input type="hidden" name="id" value="<?= $u["id"] ?>">
+                        <button class="dangerous-button">Supprimer/Bannir l'utilisateur</button>
+                    </form>
+                    <form action="/member-area/chat.php">
+                        <input type="hidden" name="impersonate" value="<?= $u["id"] ?>">
+                        <button>Voir toutes les conversations</button>
+                    </form>
+                </section>
+            <?php endif; ?>
         </article>
-    <?php else: ?>
+    <?php else : ?>
         <article class="profile-card" data-id="<?= $u["id"] ?>">
-            <div class="-name"><?= htmlspecialchars($fn) ?></div>
-            <div class="-bio"><?= htmlspecialchars($bio) ?> </div>
-            <div class="-details">
-                <div class="-gender"><?= $gender ?></div>
-                <div class="-age"><?= $age ?> ans</div>
+            <img class="-pfp" src="<?= htmlspecialchars($pfp) ?>"/>
+            <div class="-infos">
+                <div class="-name"><?= htmlspecialchars($fn) ?></div>
+                <div class="-bio"><?= htmlspecialchars($bio) ?> </div>
+                <div class="-details">
+                    <div class="-gender"><?= $gender ?></div>
+                    <div class="-age"><?= $age ?> ans</div>
 
-                <?php if ($sit !== null): ?>
-                    <div class="-situation"><?= $sit ?></div>
-                <?php endif; ?>
+                    <?php if ($sit !== null) : ?>
+                        <div class="-situation"><?= $sit ?></div>
+                    <?php endif; ?>
 
-                <?php if ($rls !== null): ?>
-                    <div class="-rel-search"><?= $rls ?></div>
-                <?php endif; ?>
+                    <?php if ($rls !== null) : ?>
+                        <div class="-rel-search"><?= $rls ?></div>
+                    <?php endif; ?>
 
-                <?php if (!empty($smokeLabel)): ?>
-                    <div class="-smoke"><?= $smokeLabel ?></div>
-                <?php endif; ?>
+                    <?php if (!empty($smokeLabel)) : ?>
+                        <div class="-smoke"><?= $smokeLabel ?></div>
+                    <?php endif; ?>
+                </div>
             </div>
         </article>
     <?php endif;
 } ?>
-

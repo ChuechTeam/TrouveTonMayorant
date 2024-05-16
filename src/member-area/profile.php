@@ -1,25 +1,114 @@
 <?php
 require "_common.php";
 
-UserSession\requireLevel(User\LEVEL_MEMBER);
-$u = UserSession\loggedUser();
+Templates\member("Votre profil");
 
+// Permettre de modifier un utilisateur de son choix si l'on est admin.
+$notMe = false;
+if (isset($_GET["id"]) && User\level(UserSession\loggedUserId()) >= User\LEVEL_ADMIN) {
+    $u = UserDB\findById($_GET["id"]);
+    $notMe = true;
+    if ($u === null) {
+        echo '<div class="not-found">Utilisateur introuvable !</div>';
+        http_response_code(404);
+        exit();
+    }
+} else {
+    $u = UserSession\loggedUser();
+}
 // -1 : formulaire non envoyé
 // 0  : profil mis à jour avec succès
 // >0 : échec de la màj (code d'erreur User)
 $submitCode = -1;
 
+function fileExistsInAnyExtension($fName, $dir){
+    $extensions = ['png', 'jpg', 'gif', 'jpeg'];
+
+    foreach($extensions as $ex){
+        if(file_exists($dir . $fName . '.' . $ex)){
+            return $dir . $fName . '.' . $ex;
+        }
+    }
+    return null;
+}
+
+function uploadImg($userid){
+    $target_dir = "../user-image-db/";
+
+    $fName = $_FILES["pfp"]["name"] ?? null;
+    if (empty($fName)) {
+        return null;
+    }
+
+    $uploadOk = 1;
+    $imageFileType = strtolower(pathinfo($fName,PATHINFO_EXTENSION));
+    $target_file = $target_dir . $userid . "." . $imageFileType;
+
+    // Check si c'est une image
+    if(isset($_POST["submit"])) {
+        $check = getimagesize($_FILES["pfp"]["tmp_name"]);
+        if($check !== false) {
+            $uploadOk = 1;
+        } else {
+            $uploadOk = 0;
+        }
+    }
+
+    // Check taille fichier
+    if ($_FILES["pfp"]["size"] > 1000000) {
+        echo '<script>alert("Le fichier est trop gros.")</script>';
+        $uploadOk = 0;
+    }
+
+    // Allow certain file formats
+    if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
+        echo '<script>alert("Seuls les formats JPG,JPEG,GIF,PNG sont acceptés.")</script>';
+        $uploadOk = 0;
+    }
+
+    if ($uploadOk == 1) {
+        $previousPfp = fileExistsInAnyExtension($userid, $target_dir);
+        if($previousPfp !== null){
+            unlink($previousPfp);
+        }
+        if (move_uploaded_file($_FILES["pfp"]["tmp_name"], $target_file)) {
+            $public_url = '/user-image-db' . '/' . $userid . "." . $imageFileType;
+            return $public_url;
+        } 
+        else {
+            echo '<script>alert("Une erreur est survenue.")</script>';
+        }
+    }
+    return null;
+}
+
+
 // Si l'utilisateur a envoyé le formulaire en cliquant sur "Enregistrer"
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!empty(($_POST['mail'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate']))) { //Si les champs ne sont pas vides
-
+    // cas spécial pour la suppression de compte
+    if (isset($_POST["delete"])) {
+        if (isset($_POST["password"])) {
+            $submitCode = User\deleteAccount($u["id"], $_POST["password"]);
+        } else {
+            $submitCode = User\ERR_INVALID_CREDENTIALS;
+        }
+        // bye...
+        if ($submitCode === 0) {
+            UserSession\signOut();
+            header("Location: /");
+            exit();
+        }
+    }
+    else if (!empty(($_POST['mail'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate'] && !empty($_POST['gender'])))) { //Si les champs ne sont pas vides
+        $pfp = uploadImg($u["id"]) ?? $u["pfp"];
         $ok = User\updateProfile($u["id"], array(
             "firstName" => $_POST['fname'],
             "lastName" => $_POST['name'],
             "email" => $_POST['mail'],
-            "bdate" => $_POST['bdate']
+            "bdate" => $_POST['bdate'],
+            "gender" => $_POST['gender'],
             ), array(
-                "gender" => (isset($_POST['gender'])) ? $_POST['gender'] : "",
+                "pfp" => ($pfp!== null) ? $pfp : "",
                 "orientation" => (isset($_POST['orientation'])) ? $_POST['orientation'] : "",
                 "job" => (isset($_POST['job'])) ? $_POST['job'] : "",
                 "situation" => (isset($_POST['situation'])) ? $_POST['situation'] : "",
@@ -29,6 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 "bio" => (isset($_POST['bio'])) ? $_POST['bio'] : "",
                 "mathField" => (isset($_POST['mathField'])) ? $_POST['mathField'] : "",
                 "eigenVal" => (isset($_POST['eigenVal'])) ? $_POST['eigenVal'] : "",
+                "equation" => (isset($_POST['equation'])) ? $_POST['equation'] : "",
                 "user_smoke" => (isset($_POST['user_smoke'])) ? $_POST['user_smoke'] : "",
                 "search_smoke" => (isset($_POST['search_smoke'])) ? $_POST['search_smoke'] : "",
                 "gender_search" => (isset($_POST['gender_search'])) ? $_POST['gender_search'] : [],
@@ -51,29 +141,49 @@ if ($submitCode > 0) {
     $errStr = User\errToString($submitCode);
 }
 
-Templates\member("Votre profil");
 $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement du fichier JSON
 ?>
 
-<h1 class="title">Profil</h1>
+
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+        }
+    };
+</script>
+<script src="/assets/mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
+
+
+<h1 class="title">Profil <?= $notMe ? "de {$u["firstName"]} {$u["lastName"]}" : "" ?></h1>
 
 <div class="profile-form-container">
     <div class="profile-form">
-        <form action="profile.php" method="post" id="" style="font-weight:800;">
-    
+        <form method="post" style="font-weight:800;" enctype="multipart/form-data">
             <h2 class="-title">Compte<hr></h2>
+
+            <div id="pfp">
+                <img src="<?=(empty($u['pfp'])) ? User\DEFAULT_PFP : $u['pfp']?>" id="img-preview">
+                <div class="pfp-inside">
+                    <label for="file-upload">Changer la photo</label>
+                    <input type="file" class="d-none" accept="image/*" id="file-upload" name="pfp">
+                </div>
+            </div>
+
             <div class="-grid-container">
                 <div class="-grid-item">Email</div>
                 <div class="-grid-item"><input type="email" value="<?= htmlspecialchars($u['email']) ?>" name="mail" id="" required></div>   
                 
                 <div class="-grid-item">Mot de Passe</div>
-                <div class="-grid-item"><input type="password" name="password" id=""></div>   
+                <div class="-grid-item"><input type="password" name="password" id="pass-input"></div>   
                 
                 <div class="-grid-item" >Date d'inscription</div>
                 <div class="-grid-item" style="font-weight:400;"><?= DateTime::createFromFormat('Y-m-d', $u['rdate'])->format('d/m/Y'); ?></div>
             </div>
 
-            <button class="-delete">Supprimer le compte</button>
+            <?php if (!$notMe): ?>
+                <input class="-delete" type="submit" name="delete" value="Supprimer le compte" id="delete-account">
+            <?php endif; ?>
             <br><br>
 
             <h2 class="-title">Informations personnelles<hr></h2>
@@ -89,8 +199,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 
                 <div class="-grid-item" >Genre</div>
                 <div class="-grid-item">
-                    <select id="gender" name="gender">
-                        <option disabled selected value></option>
+                    <select id="gender" name="gender" required>
                         <option value="m" <?= ($u['gender']=="m") ? "selected" : "" ?>  >Homme</option>
                         <option value="f" <?= ($u['gender']=="f") ? "selected" : "" ?> >Femme</option>
                         <option value="nb" <?= ($u['gender']=="nb") ? "selected" : "" ?> >Non-binaire</option>
@@ -140,7 +249,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 <div class="-grid-item">Bio</div>
                 <div class="-grid-item"><textarea name="bio" class="-bio-input" maxlength="1000" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"><?php echo htmlspecialchars($u['bio']) ?></textarea></div>
                 
-                <div class="-grid-item">Domaine préféré des Maths</div>
+                <div class="-grid-item">Domaine préféré des maths</div>
                 <div class="-grid-item"><input type="text" name="mathField" id="mathField" value="<?= htmlspecialchars($u['mathField']) ?>"></div>
 
                 <div class="-grid-item">Valeurs propres</div>
@@ -155,6 +264,11 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     </select>
                 </div>
 
+                <div class="-grid-item">Mon problème de maths favori</div>
+                <div class="-grid-item">
+                    <textarea name="equation" class="-bio-input" maxlength="1000" placeholder="Écrire une équation en notation TeX. Exemple : \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}"><?php echo htmlspecialchars($u['equation']) ?></textarea>
+                    $$ <?php echo htmlspecialchars($u['equation']) ?> $$
+                </div>
             </div>
             <br>
 
@@ -296,6 +410,25 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
             }
         });
 
+        const pfp_input = document.getElementById("img-preview");
+        pfp_input.addEventListener('change', function(){
+
+
+
+
+        });
+
     });
 
+    document.getElementById("delete-account").addEventListener("click", function(e) {
+        if (document.getElementById("pass-input").value == "") {
+            e.preventDefault();
+            alert("Veuillez entrer votre mot de passe pour supprimer votre compte.");
+            document.getElementById("pass-input").focus(); // user friendly ??
+        } else {
+            if (!confirm("Voulez vous vraiment supprimer votre compte ?")) {
+                e.preventDefault();
+            }
+        }
+    });
 </script>

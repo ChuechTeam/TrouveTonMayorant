@@ -4,6 +4,7 @@ namespace User;
 
 require_once __DIR__ . "/userDB.php";
 require_once __DIR__ . "/conversationDB.php";
+require_once __DIR__ . "/moderationDB.php";
 
 use DateTime;
 
@@ -14,6 +15,7 @@ const ERR_INVALID_CREDENTIALS = 3;
 const ERR_USER_NOT_FOUND = 4;
 const ERR_CONVERSATION_EXISTS = 5;
 const ERR_SAME_USER = 6;
+const ERR_EMAIL_BANNED = 7;
 
 // Liste des grades/rôles
 const LEVEL_GUEST = 1; // Visiteur non inscrit
@@ -51,11 +53,16 @@ const PREF_YES = "yes";
 const PREF_NO = "no";
 const PREF_WHATEVER = "w";
 
+const DEFAULT_PFP = "/assets/img/pfp_default.png";
+
 // 0 --> OK
 // >0 --> OH NOOO
-function register(string $firstname, string $lastname, string $email, string $password, $bdate, &$id): int {
+function register(string $firstname, string $lastname, string $email, string $password, $bdate, string $gender, &$id, bool $admin = false): int {
     if (\UserDB\findByEmail($email) != null) {
         return ERR_EMAIL_USED;
+    }
+    if (\ModerationDB\emailBanned($email)) {
+        return ERR_EMAIL_BANNED;
     }
 
     $valErr = validateProfile([
@@ -63,6 +70,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
         "lastName" => $lastname,
         "email" => $email,
         "bdate" => $bdate,
+        "gender" => $gender,
     ], null);
     if ($valErr !== 0) {
         return $valErr;
@@ -79,8 +87,9 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "firstName" => $firstname,
             "lastName" => $lastname,
             "bdate" => $bdate,
+            "gender" => $gender,
             "rdate" => date('Y-m-d'),
-            "gender" => "",
+            "pfp" => "../assets/img/pfp_default.png",
             "orientation" => "",
             "job" => "",
             "situation" => "",
@@ -90,8 +99,11 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "bio" => "",
             "mathField" => "",
             "eigenVal" => "",
+            "equation" => "",
             "user_smoke" => "",
             "search_smoke" => "",
+            "admin" => $admin,
+            "supExpire" => null,
             "gender_search" => [],
             "rel_search" => [],
             "conversations" => [],
@@ -118,8 +130,9 @@ function updateProfile(int $id, array $profile, ?array $profile_details = null, 
     $user["lastName"] = $profile["lastName"];
     $user["bdate"] = $profile["bdate"];
     $user["email"] = $profile["email"];
+    $user["gender"] = $profile["gender"];
 
-    $user["gender"] = $profile_details["gender"];
+    $user["pfp"] = $profile_details["pfp"];
     $user["orientation"] = $profile_details["orientation"];
     $user["job"] = $profile_details["job"];
     $user["situation"] = $profile_details["situation"];
@@ -129,6 +142,7 @@ function updateProfile(int $id, array $profile, ?array $profile_details = null, 
     $user["bio"] = $profile_details["bio"];
     $user["mathField"] = $profile_details["mathField"];
     $user["eigenVal"] = $profile_details["eigenVal"];
+    $user["equation"] = $profile_details["equation"];
     $user["user_smoke"] = $profile_details["user_smoke"];
     $user["search_smoke"] = $profile_details["search_smoke"];
     $user["gender_search"] = $profile_details["gender_search"];
@@ -162,6 +176,7 @@ function validateProfile(array $profile, ?int $existingId): int {
         || empty($profile["lastName"])
         || empty($profile["email"])
         || empty($profile["bdate"])
+        || empty($profile["gender"])
     ) {
         return ERR_FIELD_MISSING;
     }
@@ -183,6 +198,24 @@ function validateProfile(array $profile, ?int $existingId): int {
             && \UserDB\findByEmail($profile["email"]) != null) {
             return ERR_EMAIL_USED;
         }
+    }
+
+    return 0;
+}
+
+function deleteAccount(int $id, ?string $pass, bool $ban = false): int {
+    $user = \UserDB\findById($id);
+    if ($user == null) {
+        return ERR_USER_NOT_FOUND;
+    }
+
+    if ($pass !== null && !password_verify($pass, $user["pass"])) {
+        return ERR_INVALID_CREDENTIALS;
+    }
+
+    \UserDB\delete($id);
+    if ($ban) {
+        \ModerationDB\banEmail($user["email"]);
     }
 
     return 0;
@@ -250,6 +283,20 @@ function level(?int $id): int {
         return LEVEL_GUEST;
     }
 
+    if ($u["admin"]) {
+        return LEVEL_ADMIN;
+    }
+
+    if ($u["supExpire"] !== null) {
+        $date = new \DateTime($u["supExpire"]);
+        $now = new \DateTime();
+        $diff = $date->diff($now);
+        // Si l'intervalle n'est pas négatif : invert = 0
+        if ($diff !== false && $diff->invert == 0) {
+            return LEVEL_SUBSCRIBER;
+        }
+    }
+
     // Temporaire (mais réel)
     if (stristr(strtolower($u["firstName"]), "nico")) {
         return LEVEL_SUBSCRIBER;
@@ -263,6 +310,8 @@ function errToString(int $err): string {
     switch ($err) {
         case ERR_EMAIL_USED:
             return "Ce mail est deja utilisé";
+        case ERR_EMAIL_BANNED:
+            return "Cette adresse mail est bannie.";
         case ERR_FIELD_MISSING:
             return "Veuillez renseigner tous les champs";
         case ERR_INVALID_CREDENTIALS:
