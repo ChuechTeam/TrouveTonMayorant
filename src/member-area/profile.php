@@ -27,6 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 "city" => (isset($_POST['city'])) ? $_POST['city'] : "",
                 "desc" => (isset($_POST['desc'])) ? $_POST['desc'] : "",
                 "bio" => (isset($_POST['bio'])) ? $_POST['bio'] : "",
+                "mathField" => (isset($_POST['mathField'])) ? $_POST['mathField'] : "",
+                "eigenVal" => (isset($_POST['eigenVal'])) ? $_POST['eigenVal'] : "",
                 "user_smoke" => (isset($_POST['user_smoke'])) ? $_POST['user_smoke'] : "",
                 "search_smoke" => (isset($_POST['search_smoke'])) ? $_POST['search_smoke'] : "",
                 "gender_search" => (isset($_POST['gender_search'])) ? $_POST['gender_search'] : [],
@@ -52,7 +54,6 @@ if ($submitCode > 0) {
 Templates\member("Votre profil");
 $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement du fichier JSON
 ?>
-
 
 <h1 class="title">Profil</h1>
 
@@ -139,6 +140,12 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 <div class="-grid-item">Bio</div>
                 <div class="-grid-item"><textarea name="bio" class="-bio-input" maxlength="1000" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"><?php echo htmlspecialchars($u['bio']) ?></textarea></div>
                 
+                <div class="-grid-item">Domaine préféré des Maths</div>
+                <div class="-grid-item"><input type="text" name="mathField" id="mathField" value="<?= htmlspecialchars($u['mathField']) ?>"></div>
+
+                <div class="-grid-item">Valeurs propres</div>
+                <div class="-grid-item"><textarea name="eigenVal" class="-desc-input" placeholder="Des valeurs qui vous sont propres... Par exemple, entraide, empathie..." maxlength="200"><?php echo htmlspecialchars($u['eigenVal']) ?></textarea></div>
+
                 <div class="-grid-item">Fumeur(se) ?</div>
                 <div class="-grid-item">
                     <select id="user_smoke" name="user_smoke">
@@ -147,6 +154,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                         <option value="no" <?= ($u['user_smoke']=="no") ? "selected" : "" ?> >Non</option>
                     </select>
                 </div>
+
             </div>
             <br>
 

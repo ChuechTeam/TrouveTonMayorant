@@ -88,6 +88,8 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "city" => "",
             "desc" => "",
             "bio" => "",
+            "mathField" => "",
+            "eigenVal" => "",
             "user_smoke" => "",
             "search_smoke" => "",
             "gender_search" => [],
@@ -125,6 +127,8 @@ function updateProfile(int $id, array $profile, ?array $profile_details = null, 
     $user["city"] = $profile_details["city"];
     $user["desc"] = $profile_details["desc"];
     $user["bio"] = $profile_details["bio"];
+    $user["mathField"] = $profile_details["mathField"];
+    $user["eigenVal"] = $profile_details["eigenVal"];
     $user["user_smoke"] = $profile_details["user_smoke"];
     $user["search_smoke"] = $profile_details["search_smoke"];
     $user["gender_search"] = $profile_details["gender_search"];
