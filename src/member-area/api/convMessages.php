@@ -117,9 +117,9 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     if ($since !== null) {
         lastMessages($conv, $since);
     } else {
-        chatMessage($msgId, $user["id"], $content);
         header("First-Message-Id: " . $msgId);
         header("Last-Message-Id: " . $msgId);
+        chatMessage($msgId, $user["id"], $content);
     }
 } else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     if (!is_numeric($_GET["msgId"] ?? null)) {
