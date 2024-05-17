@@ -983,18 +983,21 @@ button {
     & > .-head {
         font-weight: bold;
         border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-        display: flex;
         justify-content: space-between;
 
-        padding-right: 4px;
-        padding-bottom: 2px;
+        padding-bottom: 4px;
 
+        display: flex;
         align-items: center;
 
         & > .-author {
             margin-right: 0.8em;
         }
 
+        & > .-controls { 
+            display: flex;
+        }
+        
         & .-delete, & .-report {
             border: 0;
             padding: 2px 4px;
@@ -1002,6 +1005,10 @@ button {
             border-radius: 4px;
             color: red;
             background-color: transparent;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
             &:hover {
                 background-color: #bd0000;
@@ -1075,7 +1082,7 @@ Signalements
     & > .-controls {
         grid-area: controls;
         padding: 4px;
-        align-self: left;
+        align-self: flex-start;
     }
 }
 

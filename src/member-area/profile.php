@@ -420,7 +420,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 
     });
 
-    document.getElementById("delete-account").addEventListener("click", function(e) {
+    document.getElementById("delete-account")?.addEventListener("click", function(e) {
         if (document.getElementById("pass-input").value == "") {
             e.preventDefault();
             alert("Veuillez entrer votre mot de passe pour supprimer votre compte.");

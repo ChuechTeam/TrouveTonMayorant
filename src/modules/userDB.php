@@ -33,7 +33,8 @@ const REV_MATHS_PREFS = 6; // Ajout des vecteurs propres
 const REV_SUP_ADMIN = 7; // Sup et admin (logique)
 const REV_EQUATION = 8; // Ajoute des équations
 const REV_PFP = 9; // Photos de profil
-const REV_LAST = REV_PFP; // Dernière version de la base de donnée
+const REV_LOC = 10; // Département / ville
+const REV_LAST = REV_LOC; // Dernière version de la base de donnée
 
 $usersFile = null; // Le fichier json chargé avec fopen
 $usersReadOnly = false; // Si la base de donnée est ouverte en lecture seule
@@ -352,14 +353,21 @@ function _upgrade(array &$data) {
                         $u["supExpire"] = null;
                         $u["admin"] = false;
                     }
+                    break;
                 case REV_EQUATION:
                     foreach ($data["users"] as &$u) {
-                        $u["equation"] = "";
+                        $u["equation"] = $u["equation"] ?? "";
                     }
                     break;
                 case REV_PFP:
                     foreach ($data["users"] as &$u) {
                         $u["pfp"] = $u["pfp"] ?? "";
+                    }
+                    break;
+                case REV_LOC:
+                    foreach ($data["users"] as &$u) {
+                        $u["dep"] = $u["dep"] ?? "";
+                        $u["city"] = $u["city"] ?? "";
                     }
                     break;
                 default:
