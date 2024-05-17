@@ -34,6 +34,7 @@ function fileExistsInAnyExtension($fName, $dir){
 
 function uploadImg($userid){
     $target_dir = "../user-image-db/";
+    @mkdir($target_dir, 0755, false);
 
     $fName = $_FILES["pfp"]["name"] ?? null;
     if (empty($fName)) {
@@ -113,7 +114,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 "job" => (isset($_POST['job'])) ? $_POST['job'] : "",
                 "situation" => (isset($_POST['situation'])) ? $_POST['situation'] : "",
                 "dep" => (isset($_POST['dep'])) ? $_POST['dep'] : "",
+                "depName" => (isset($_POST['depName'])) ? $_POST['depName'] : "",
                 "city" => (isset($_POST['city'])) ? $_POST['city'] : "",
+                "cityName" => (isset($_POST['cityName'])) ? $_POST['cityName'] : "",
                 "desc" => (isset($_POST['desc'])) ? $_POST['desc'] : "",
                 "bio" => (isset($_POST['bio'])) ? $_POST['bio'] : "",
                 "mathField" => (isset($_POST['mathField'])) ? $_POST['mathField'] : "",
@@ -144,17 +147,6 @@ if ($submitCode > 0) {
 $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement du fichier JSON
 ?>
 
-
-<script>
-    MathJax = {
-        tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']]
-        }
-    };
-</script>
-<script src="/assets/mathjax/es5/tex-chtml.js" id="MathJax-script" async></script>
-
-
 <h1 class="title">Profil <?= $notMe ? "de {$u["firstName"]} {$u["lastName"]}" : "" ?></h1>
 
 <div class="profile-form-container">
@@ -166,7 +158,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 <img src="<?=(empty($u['pfp'])) ? User\DEFAULT_PFP : $u['pfp']?>" id="img-preview">
                 <div class="pfp-inside">
                     <label for="file-upload">Changer la photo</label>
-                    <input type="file" class="d-none" accept="image/*" id="file-upload" name="pfp">
+                    <input type="file" class="d-none" accept="image/*" id="file-upload" name="pfp" onchange="loadFile()">
                 </div>
             </div>
 
@@ -203,7 +195,6 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                         <option value="m" <?= ($u['gender']=="m") ? "selected" : "" ?>  >Homme</option>
                         <option value="f" <?= ($u['gender']=="f") ? "selected" : "" ?> >Femme</option>
                         <option value="nb" <?= ($u['gender']=="nb") ? "selected" : "" ?> >Non-binaire</option>
-                        <option value="a" <?= ($u['gender']=="a") ? "selected" : "" ?> >Autre</option>
                     </select>
                 </div>
 
@@ -232,6 +223,8 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     <select id="citySelect" class="d-none" name="city">
                         <option disabled selected value> -- Ville -- </option>
                     </select>
+                    <input type="hidden" name="depName" id="depNameInput" value="<?= htmlspecialchars($u["depName"]) ?>">
+                    <input type="hidden" name="cityName" id="cityNameInput" value="<?= htmlspecialchars($u["cityName"]) ?>">
                 </div>
 
                 <div class="-grid-item">Situation</div>
@@ -266,8 +259,8 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 
                 <div class="-grid-item">Mon problème de maths favori</div>
                 <div class="-grid-item">
-                    <textarea name="equation" class="-bio-input" maxlength="1000" placeholder="Écrire une équation en notation TeX. Exemple : \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}"><?php echo htmlspecialchars($u['equation']) ?></textarea>
-                    $$ <?php echo htmlspecialchars($u['equation']) ?> $$
+                    <textarea name="equation" class="-bio-input" maxlength="1000" placeholder="Écrire une équation en notation TeX. Exemple : \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}" id="eq-input"><?php echo htmlspecialchars($u['equation']) ?></textarea>
+                    <div id="eq" class="has-math">$$ <?php echo htmlspecialchars($u['equation']) ?> $$</div>
                 </div>
             </div>
             <br>
@@ -338,7 +331,9 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 </style>
 
 
-<script>
+<script type="module">
+    import {typeset} from "/scripts/math.js";
+
     document.addEventListener("DOMContentLoaded", function() {
         const departmentSelect = document.getElementById('departmentSelect');
         const citySelect = document.getElementById('citySelect');
@@ -381,7 +376,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     if(item.department_number === selectedDep){
                         const option = document.createElement('option');
                         option.value = item.insee_code;
-                        var cityName = item.label.split(" ");
+                        var cityName = item.city_code.split(" ");
                         for (let i = 0; i < cityName.length; i++) {
                             cityName[i] = cityName[i][0].toUpperCase() + cityName[i].substr(1);
                         }
@@ -409,17 +404,9 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 citySelect.classList.remove('d-none');
             }
         });
-
-        const pfp_input = document.getElementById("img-preview");
-        pfp_input.addEventListener('change', function(){
-
-
-
-
-        });
-
     });
 
+    //bouton suppression du compte
     document.getElementById("delete-account")?.addEventListener("click", function(e) {
         if (document.getElementById("pass-input").value == "") {
             e.preventDefault();
@@ -431,4 +418,31 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
             }
         }
     });
+
+    //fonction pour prévisualiser la photo de profil chargée
+    function loadFile(){
+        var preview = document.getElementById('img-preview');
+        preview.src = URL.createObjectURL(event.target.files[0]);
+        preview.onload = function() {
+            URL.revokeObjectURL(preview.src) // free memory
+        }
+    }
+
+    //affichage de l'équation mathjax
+    const eq = document.getElementById("eq");
+    document.getElementById("eq-input").addEventListener("input", e => {
+        typeset(() => {
+            eq.innerHTML = "$$"+ e.target.value +"$$";
+            return [eq];
+        })
+    })
+
+    function regNameUpdate(dropdown, input) {
+        dropdown.addEventListener("change", e => {
+            const opt = dropdown.options[dropdown.selectedIndex];
+            input.value = opt.text;
+        })
+    }
+    regNameUpdate(document.getElementById("departmentSelect"), document.getElementById("depNameInput"));
+    regNameUpdate(document.getElementById("citySelect"), document.getElementById("cityNameInput"));
 </script>

@@ -31,6 +31,19 @@ function member(?string $title = null) {
     setParam("user", $user);
     setParam("userLevel", \User\level($user["id"]));
 
+    appendParam("head", <<<HTML
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$']]
+        },
+        loader: {load: ['ui/safe']},
+        startup: { elements: ['.has-math'] }
+    };
+</script>
+<script id="MathJax-script" async src="/assets/mathjax/es5/tex-mml-chtml.js"></script>
+HTML);
+
     register_shutdown_function(function($title) {
         $tmplArgs = _prepareArgs();
         base($title);

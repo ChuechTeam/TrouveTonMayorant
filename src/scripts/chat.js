@@ -1,4 +1,5 @@
-import {api} from "./api.js";
+import { api } from "./api.js";
+import { typeset } from "./math.js";
 
 const CONV_UPDATE_INTERVAL = 1000; // ms
 
@@ -147,6 +148,8 @@ export function initConversation(element) {
             this.updateHandle = setTimeout(this.updateTick.bind(this), CONV_UPDATE_INTERVAL);
 
             this.scrollToBottom();
+
+            typeset(() => [this.elems.root]);
         },
 
         postMessage() {
@@ -164,7 +167,7 @@ export function initConversation(element) {
                 .then(res => this.receiveMessages(res));
         },
 
-        receiveMessages({html, firstMsgId, lastMsgId}) {
+        receiveMessages({ html, firstMsgId, lastMsgId }) {
             console.log(`Receiving messages: [${firstMsgId}, ${lastMsgId}]`);
 
             // Pour savoir si on doit scroll tout en bas après ou non
@@ -172,23 +175,29 @@ export function initConversation(element) {
             // On met l'HTML reçu à la fin de la liste des messages
             this.elems.messages.insertAdjacentHTML("beforeend", html);
 
-            // Supprimer les doublons (peut arriver si on a les requêtes dans le désordre)
-            if (this.lastSeenMsgId !== null && firstMsgId <= this.lastSeenMsgId) {
-                for (let i = this.elems.messages.children.length - 1; i >= 0; i--) {
-                    const msg = this.elems.messages.children[i];
+            // Parcourir tous les messages envoyés par le serveur pour rafraîchir les équations.
+            // Et aussi upprimer les doublons (peut arriver si on a les requêtes dans le désordre)     
+            
+            const messages = [];
+            for (let i = this.elems.messages.children.length - 1; i >= 0; i--) {
+                const msg = this.elems.messages.children[i];
+                const msgId = msg.dataset.id;
 
-                    // Ancien message
-                    if (msg.dataset.id <= this.lastSeenMsgId) {
-                        msg.remove();
-                    }
+                // Ancien message, déjà vu, donc faut supprimer
+                if (this.lastSeenMsgId !== null && msgId <= this.lastSeenMsgId) {
+                    msg.remove();
+                } else {
+                    messages.push(msg);
+                }
 
-                    // Fin des messages envoyés par le serveur
-                    if (msg.dataset.id <= firstMsgId) {
-                        break;
-                    }
+                // Fin des messages envoyés par le serveur
+                if (msg.dataset.id <= firstMsgId) {
+                    break;
                 }
             }
-
+            // Rafraîchir mathJax
+            typeset(()=>messages);
+            
             this.lastSeenMsgId = lastMsgId
 
             // On envoie un événement pour mettre à jour le dernier message affiché sur la liste
@@ -209,10 +218,10 @@ export function initConversation(element) {
             api.deleteMessage(this.id, msgId)
                 .then(() => msgElement.remove());
         },
-        
+
         reportMessage(msgElement, reason) {
             const msgId = parseInt(msgElement.dataset.id);
-            api.reportMessage(this.id,  msgId, reason)
+            api.reportMessage(this.id, msgId, reason)
                 .then(() => alert("Signalement envoyé !"));
         },
 
@@ -343,7 +352,7 @@ convDialogTemplate.innerHTML = `
 export class ConversationDialog extends HTMLElement {
     constructor() {
         super();
-        this.dom = this.attachShadow({mode: "open"});
+        this.dom = this.attachShadow({ mode: "open" });
         this.dom.replaceChildren(convDialogTemplate.content.cloneNode(true));
         this.dialog = this.dom.getElementById("dialog");
         this.dialog.addEventListener("close", () => this.remove());

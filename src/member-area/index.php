@@ -22,21 +22,39 @@ Templates\member("Accueil");
 <div class="background" id="background"></div> <!-- c'est quoi ??? -->
 
 
-<div id="search" style="background: purple;">
-    <form id="search-form">
-        <ul style="display:inline-flex; gap: 32px; list-style: none;" >
-            <li><input type="checkbox" name="genre[]" value="f" ><label>Femme</label></li>
-            <li><input type="checkbox" name="genre[]" value="m"><label for="h">Homme</label></li>
-            <li><input type="checkbox" name="genre[]" value="nb"><label for="nb">Non-binaire</label></li>
-        </ul>
-        <br>
-        <ul style="display:inline-flex; list-style: none;" >
-            <li><input type="checkbox" name="fumeur" value="yes"><label>Fumeur</label></li>
-        </ul>
-        
-    </form>
+<div id="search" >
+    <div id="fields">
+        <form id="search-form">
+            <ul id="field">
+                <li><input type="checkbox" name="genre[]" value="f" ><label>Femme</label></li>
+                <li><input type="checkbox" name="genre[]" value="m"><label for="h">Homme</label></li>
+                <li><input type="checkbox" name="genre[]" value="nb"><label for="nb">Non-binaire</label></li>
+            </ul>
+            <ul id="field">
+                <li><input type="checkbox" name="fumeur" value="yes"><label>Fumeur</label></li>
+            </ul>
+            <!--<div id="slider">-->
+            <div class="wrapper">
+  <div class="values">
+    <span id="range1">
+      0
+    </span>
+    <span> &dash; </span>
+    <span id="range2">
+      100
+    </span>
+  </div>
+  <div class="container">
+    <div class="slider-track"></div>
+    <input type="range" min="0" max="100" value="30" id="slider-1" oninput="slideOne()">
+    <input type="range" min="0" max="100" value="70" id="slider-2" oninput="slideTwo()">
+  </div>
+</div>
 
-    <button class="sub" onclick="loadresults()">Recherche</button>
+        </form>
+        <button class="sub" id="search-entry" onclick="loadresults()">Recherche</button>
+    </div>
+    
     <div id="resultats">
 
     </div>
@@ -70,11 +88,43 @@ Templates\member("Accueil");
         const endpoint = new URL("newrecup.php", window.location.origin);
         const sp = new URLSearchParams(new FormData(document.getElementById("search-form")));
         for (const [key, value] of sp) {
-            endpoint.searchParams.append(key, value);
+            endpoint.searchParams.append(key, value); // recupere tout les param du champ : g=genre[]&fum=0 etc...
         }
         xhttp.open("GET", endpoint, true);
         xhttp.send();
     }
+    window.onload = function () {
+  slideOne();
+  slideTwo();
+};
+
+let sliderOne = document.getElementById("slider-1");
+let sliderTwo = document.getElementById("slider-2");
+let displayValOne = document.getElementById("range1");
+let displayValTwo = document.getElementById("range2");
+let minGap = 0;
+let sliderTrack = document.querySelector(".slider-track");
+let sliderMaxValue = document.getElementById("slider-1").max;
+
+function slideOne() {
+  if (parseInt(sliderTwo.value) - parseInt(sliderOne.value) <= minGap) {
+    sliderOne.value = parseInt(sliderTwo.value) - minGap;
+  }
+  displayValOne.textContent = sliderOne.value;
+  fillColor();
+}
+function slideTwo() {
+  if (parseInt(sliderTwo.value) - parseInt(sliderOne.value) <= minGap) {
+    sliderTwo.value = parseInt(sliderOne.value) + minGap;
+  }
+  displayValTwo.textContent = sliderTwo.value;
+  fillColor();
+}
+function fillColor() {
+  percent1 = (sliderOne.value / sliderMaxValue) * 100;
+  percent2 = (sliderTwo.value / sliderMaxValue) * 100;
+  sliderTrack.style.background = `linear-gradient(to right, #dadae5 ${percent1}% , #3264fe ${percent1}% , #3264fe ${percent2}%, #dadae5 ${percent2}%)`;
+}
 </script>
 
 

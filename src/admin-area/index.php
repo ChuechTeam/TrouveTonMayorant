@@ -63,7 +63,7 @@ Templates\appendParam("head", '<script src="/scripts/report.js" type="module" de
         <li class="report" data-id="<?= $r["id"] ?>" data-conv-id="<?= $r["convId"] ?>">
             <header>Signalement de <?= userLink($r["user"]) ?> sur un message de <?= userLink($r["msgAuthor"]) ?></header>
             <div class="-context">
-                <blockquote class="-reason"><?= $r["reason"] ?></blockquote>
+                <blockquote class="-reason"><?= htmlspecialchars($r["reason"]) ?></blockquote>
                 <?php if ($r["msgExists"]) : ?>
                     <?php chatMessage($r["msgId"], $r["msgAuthorId"], $r["msgContent"], true) ?>
                 <?php else : ?>

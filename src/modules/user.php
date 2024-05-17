@@ -27,7 +27,6 @@ const LEVEL_ADMIN = 4; // Administrateur
 const GENDER_MAN = "m";
 const GENDER_WOMAN = "f";
 const GENDER_NON_BINARY = "nb";
-const GENDER_OTHER = "a";
 
 // Liste des orientations (dans "orientation")
 const ORIENTATION_HETERO = "het";
@@ -94,7 +93,9 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "job" => "",
             "situation" => "",
             "dep" => "",
+            "depName" => "",
             "city" => "",
+            "cityName" => "",
             "desc" => "",
             "bio" => "",
             "mathField" => "",
@@ -137,7 +138,9 @@ function updateProfile(int $id, array $profile, ?array $profile_details = null, 
     $user["job"] = $profile_details["job"];
     $user["situation"] = $profile_details["situation"];
     $user["dep"] = $profile_details["dep"];
+    $user["depName"] = $profile_details["depName"];
     $user["city"] = $profile_details["city"];
+    $user["cityName"] = $profile_details["cityName"];
     $user["desc"] = $profile_details["desc"];
     $user["bio"] = $profile_details["bio"];
     $user["mathField"] = $profile_details["mathField"];

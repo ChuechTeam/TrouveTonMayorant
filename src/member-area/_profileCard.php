@@ -102,6 +102,11 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
             break;
     }
 
+    $location = null;
+    if (!empty($u["depName"]) && !empty($u["cityName"])) {
+        $location = "{$u["cityName"]}, {$u["depName"]}";
+    }
+
     // Profil complet uniquement
     if ($full) {
         // Label pour l'orientation sexuelle (s'adapte selon le genre)
@@ -142,12 +147,14 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                         $genderPref[] = "une femme";
                         break;
                     case User\GENDER_NON_BINARY:
-                    case User\GENDER_OTHER: // une personne d'autre genre ???
                         $genderPref[] = "une personne non-binaire";
                         break;
                 }
             }
         }
+
+        $eigenVal = $u["eigenVal"];
+        $equation = $u["equation"];
 
         $convUrl = "/member-area/chat.php?startNew=" . $u["id"];
     }
@@ -193,6 +200,9 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
     <?php if ($full) : ?>
         <article class="full-profile<?= $supClass ?>">
             <aside class="-primary-infos">
+                <div id="-pfp">
+                    <img src="<?=(empty($pfp)) ? User\DEFAULT_PFP : $pfp ?>" id="img-preview">
+                </div>
                 <h1 class="-name"><?= htmlspecialchars($fn) ?></h1>
                 <span class="-gender-age"><?= $gender ?> | <?= $age ?> ans</span>
                 <?php if ($sup) : ?> <img src="/assets/sup.svg" class="sup-icon" alt="Logo TTM Sup"> <?php endif ?>
@@ -212,6 +222,13 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                     </div>
                 <?php endif; ?>
 
+                <?php if(!empty($location)): ?>
+                    <div class="pill -city">
+                        <span class="-label">Ville</span>
+                        <span class="-value"><?= $location ?></span>
+                    </div>
+                <?php endif; ?>
+
                 <?php if (!empty($u["job"])) : ?>
                     <div class="pill -job">
                         <span class="-label">Profession</span>
@@ -222,6 +239,8 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                 <?php if (!empty($smokeLabel)) : ?>
                     <div class="pill -smoke -label-only"><?= $smokeLabel ?></div>
                 <?php endif; ?>
+
+                
 
                 <?php if ($hasPrefs) : ?>
                     <hr>
@@ -246,13 +265,19 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
             </aside>
             <section class="-main">
                 <h2>À propos de moi</h2>
-                <p class="-bio"><?= htmlspecialchars($bio) ?> </p>
+                <p class="-bio has-math"><?= htmlspecialchars($bio) ?> </p>
                 <?php if ($phys !== null) : ?>
                     <h2>Ma description physique</h2>
-                    <p class="-phys"><?= $phys ?></p>
+                    <p class="-phys"><?= htmlspecialchars($phys) ?></p>
                 <?php endif; ?>
-                <h2>Bientôt</h2>
-                <p>Les valeurs propres, les problèmes en tête d'affiche...</p>
+                <?php if (!empty($eigenVal)): ?>
+                    <h2>Mes valeurs propres</h2>
+                    <p class="has-math"><?= htmlspecialchars($eigenVal) ?></p>
+                <?php endif; ?>
+                <?php if (!empty($equation)): ?>
+                    <h2>Mon problème favori</h2>
+                    <p class="has-math"> $$ <?= $equation ?> $$ </p>
+                <?php endif; ?>
                 <button onclick="window.location.href = '<?= $convUrl ?>';">Démarrer une conversation</button>
             </section>
             <?php if ($adminMode): ?>
