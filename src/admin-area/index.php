@@ -5,6 +5,7 @@ require_once "../modules/moderationDB.php";
 require_once "../modules/conversationDB.php";
 require_once "../member-area/_chatMessage.php";
 Templates\member("Admin !!!");
+Templates\addStylesheet("/assets/style/report-page.css");
 
 ModerationDB\load(true); // Lecture seule pour les performances
 $reports = ModerationDB\queryReports();

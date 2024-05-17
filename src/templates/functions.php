@@ -51,6 +51,10 @@ HTML);
     }, $title);
 }
 
+function addStylesheet(string $href) {
+    appendParam("head", "<link rel=\"stylesheet\" href=\"$href\">");
+}
+
 function setParam(string $name, $val) {
     global $params;
     $params[$name] = $val;

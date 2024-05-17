@@ -1,0 +1,152 @@
+
+.profile-form-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.profile-form {
+    background-color: white;
+    color: rgb(82, 84, 110);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 960px;
+    margin: 0 16px;
+    height: 30%;
+    overflow: auto;
+    width: 90%;
+
+    box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.2);
+}
+
+.profile-form hr {
+    border: 1px solid rgb(160, 160, 160) !important;
+
+}
+
+.profile-form .-grid-container {
+    display: grid;
+    margin: 0 auto;
+    grid-template-columns: 0.5fr 1fr;
+    margin-bottom: 10px;
+
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.profile-form .-grid-item {
+    padding: 10px;
+    border-bottom: 1px solid rgb(192, 192, 192);
+
+    & > img {
+        object-fit: cover;
+        max-width: 80%;
+        max-height: 80%;
+    }
+
+    & > label {
+        border-radius: 4px;
+        background-color: rgb(49, 8, 88);
+        color: white;
+        padding: 6px 8px;
+        border: 1px solid transparent;
+        cursor: pointer;
+    }
+
+    & > label:hover {
+        background-color: rgb(37, 5, 67);
+        cursor: pointer;
+    }
+
+}
+
+.profile-form :is(.-desc-input, .-bio-input) {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .profile-form .-grid-item:nth-child(2n+1) {
+        padding: 2px;
+        font-weight: bold;
+        border: none;
+    }
+
+    .profile-form .-grid-item:nth-child(2n+1):not(:first-child) {
+        padding-top: 6px;
+    }
+
+    .profile-form .-grid-item {
+        text-align: left;
+    }
+
+    .profile-form .-grid-item:nth-child(2n) > :first-child {
+        width: 100%;
+        min-height: 1.75em;
+        box-sizing: border-box;
+    }
+}
+
+.profile-form .-desc-input {
+    min-height: 4em !important;
+}
+
+.profile-form .-bio-input {
+    min-height: 7em !important;
+}
+
+.profile-form .-title {
+    color: darkblue;
+
+    & > hr {
+        border-top: 2px solid black;
+        margin-top: -2px;
+    }
+}
+
+.profile-form :is(.-delete, .-public) {
+    background-color: red;
+
+    border-radius: 4px;
+    font-size: 14px;
+    color: white;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    font-family: inherit;
+}
+
+.profile-form .-public {
+    background-color: #0d1f5c;
+    font-weight: normal;
+
+    text-decoration: none;
+}
+
+.profile-form .-delete:hover {
+    background-color: rgb(222, 0, 0);
+    cursor: pointer;
+}
+
+.profile-form .-public:hover {
+    background-color: #070f2e;
+    cursor: pointer;
+}
+
+.profile-form > form > *:not(table) {
+    margin: 0 auto;
+}
+
+.profile-form ul {
+    margin: 0;
+    list-style: none;
+    float: left;
+    text-align: left;
+}
+
+.profile-form ul > li > label {
+    margin: 0;
+    list-style: none;
+}

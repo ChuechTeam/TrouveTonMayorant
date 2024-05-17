@@ -322,13 +322,16 @@ function unblockUser(int $blockerId, int $blockeeId): int {
 // Voir enum BLOCK STATUS (BS_XXX)
 // renvoie 0 si l'utilisateur n'est pas trouvé
 // si le blocage est mutuel (bizarre), le blocage de l'utilisateur cible sera priorisé.
-function blockStatus(int $viewerId, int $targetId): int {
+// Si $applyAdminIgnore est true, alors la fonction ne renvoie pas BS_THEM lorsque l'utillisateur cible
+// a bloqué l'administrateur.
+function blockStatus(int $viewerId, int $targetId, bool $adminIgnoreTargetBlock = true): int {
     $viewer = \UserDB\findById($viewerId);
     if ($viewer === null) {
         return 0;
     }
 
-    if (isset($viewer["blockedBy"][$targetId])) {
+    if (isset($viewer["blockedBy"][$targetId])
+        && (!$adminIgnoreTargetBlock || level($targetId) < LEVEL_ADMIN)) {
         return BS_THEM;
     } else if (isset($viewer["blockedUsers"][$targetId])) {
         return BS_ME;
@@ -366,7 +369,6 @@ function level(?int $id): int {
         return LEVEL_SUBSCRIBER;
     }
 
-    // TODO: Utilisateur abonné et admin
     return LEVEL_MEMBER;
 }
 

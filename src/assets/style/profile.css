@@ -1,0 +1,319 @@
+@charset "UTF-8";
+
+.profile-card {
+    border: 1px solid black;
+    cursor: pointer;
+
+    display: flex;
+    align-items: stretch;
+
+    min-height: 5.0em;
+
+    & .-name {
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+
+    & .-bio {
+        margin-bottom: 6px;
+        overflow-wrap: anywhere;
+    }
+
+    & .-details {
+        font-size: 0.8em;
+        display: flex;
+        flex-wrap: wrap;
+
+        & > :not(:last-child)::after {
+            content: "•";
+            margin: 0 5px;
+        }
+    }
+
+    & .-pfp {
+        width: 128px;
+        object-fit: cover;
+        aspect-ratio: 16/9;
+    }
+
+    & .-infos {
+        padding: 8px;
+        align-self: center;
+    }
+}
+
+.full-profile {
+    display: grid;
+
+    grid-template:
+        "primary   main"  auto
+        "secondary main"  1fr
+        "admin     admin" auto
+         / minmax(320px, 30fr) 70fr;
+
+    max-width: 1440px;
+    margin: 24px auto;
+
+    --gap: 16px;
+    gap: var(--gap);
+
+    background-color: white;
+    padding: 16px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 8px 2px var(--shadow-color);
+
+    & > .-primary-infos {
+        grid-area: primary;
+        text-align: center;
+
+        font-size: 1.33rem;
+        font-weight: bold;
+
+        & > .-name, & > .-name > .-shine {
+            font-size: 2.0rem;
+            margin: 0;
+        }
+
+        & > #-pfp {
+            margin : auto;
+            z-index: 1;
+            position: relative;
+            background-color: rgb(126, 126, 126);
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            border: 4px solid rgb(222, 222, 222);
+        }
+
+        & > #-pfp img {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 1;
+            transition: opacity .2s ease-in-out;
+        }
+
+        & > .sup-icon {
+            margin-left: 0.25em;
+        }
+    }
+
+    & > .-secondary-infos {
+        grid-area: secondary;
+
+        & > h3 {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-block: 0 0.2em;
+        }
+
+        & > .pill {
+            max-width: 100%; /* Éviter le dépassement */
+            margin-block: 0.25em;
+        }
+
+        & > .-situation {
+            --label-color: #ab12b5;
+        }
+
+        & > .-smoke {
+            --label-color: #222222;
+        }
+
+        & > .-orientation {
+            --label-color: #9a1040;
+        }
+
+        & > .-job {
+            --label-color: #85580b;
+        }
+
+        & > hr {
+            border: 0;
+            border-bottom: 1px solid rgba(40, 40, 40);
+            margin: 0.5em;
+        }
+
+        & > .-pref-list {
+            margin-block: 0.25em;
+            padding-inline-start: 3ch;
+
+            list-style-type: '✔️';
+
+            & > li.-not {
+                list-style-type: '❌';
+                color: rgba(255, 0, 0, 0.7)
+            }
+
+            & > li {
+                padding-inline-start: 0.25em;
+            }
+
+            & > li::marker {
+                color: black;
+            }
+        }
+    }
+
+    & > .-main {
+        grid-area: main;
+
+        overflow-wrap: anywhere;
+
+        & > h2 {
+            font-size: 1.2em;
+            margin-block: 0 0.5em;
+        }
+
+        & > p {
+            margin-block: 0 0.75em;
+        }
+
+        & > .-gallery{
+            display: flex;
+            gap: 5%;
+            width: 100%;
+            background-color: #333;
+            flex-wrap: wrap;
+        }
+
+        & > .-gallery img{
+            aspect-ratio : 16/9;
+            object-fit: cover;
+            max-width: 100%;
+            max-height: 60%;
+            border-radius: 10px;
+        }
+    }
+
+    & > .-admin {
+        grid-area: admin;
+        text-align: center;
+
+        & > .-title {
+            text-align: center;
+        }
+
+        & > form {
+            display: contents;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        grid-template:
+            "primary"
+            "main"
+            "secondary"
+            "admin"
+            / 100%;
+        max-width: unset;
+    }
+}
+
+.full-profile.-sup {
+    background: linear-gradient(160deg, rgb(243, 213, 44) 0%, rgb(255, 249, 167) 50%, rgb(255, 252, 202) 100%);
+    border-color: rgb(172, 152, 0);
+    --shadow-color: rgba(191, 168, 1, 0.3);
+
+    & > .-primary-infos > .-name {
+        position: relative;
+        color: transparent;
+        background-image: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 44%, rgba(233, 203, 25, 1) 50%, rgba(0, 0, 0, 1) 56%);
+        background-clip: text;
+
+        background-size: 200%;
+        background-repeat: no-repeat;
+        background-position-x: 0%;
+
+        animation: name-shine 6s infinite linear;
+        animation-delay: 1s;
+
+        text-shadow: 0 -1px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    & > .-primary-infos > #-pfp {
+        border: 4px solid white;
+        animation: glow 1s infinite alternate;
+
+    }
+}
+
+@keyframes name-shine {
+    0% {
+        background-position-x: 0%;
+    }
+    33% {
+        background-position-x: 100%;
+    }
+    33.001% {
+        background-position-x: 0%;
+    }
+    100% {
+        background-position-x: 0%;
+    }
+}
+
+@keyframes glow {
+    from {
+        -webkit-box-shadow: 0px 0px 15px 0px rgb(255, 251, 194);
+        box-shadow: 0px 0px 15px 0px rgb(255, 251, 194);
+    }
+    to {
+        -webkit-box-shadow: 0px 0px 15px 10px rgb(255, 251, 194);
+        box-shadow: 0px 0px 15px 10px rgb(255, 251, 194);
+    }
+}
+
+#pfp {
+    z-index: 1;
+    position: relative;
+    background-color: rgb(126, 126, 126);
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    border: 4px solid rgb(222, 222, 222);
+    overflow: hidden;
+}
+
+#pfp img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 1;
+    transition: opacity .2s ease-in-out;
+}
+
+#pfp .pfp-inside {
+    position: absolute;
+    transition: .5s ease;
+    opacity: 0;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity .2s ease-in-out;
+    cursor: pointer;
+}
+
+#pfp .pfp-inside label {
+    cursor: pointer;
+}
+
+#pfp:hover .pfp-inside {
+    opacity: 1;
+}
+
+#pfp:hover img {
+    opacity: .5;
+}

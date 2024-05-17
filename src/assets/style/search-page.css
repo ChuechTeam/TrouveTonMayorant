@@ -1,0 +1,141 @@
+#fields {
+    background: purple;
+    border-radius: 15px;
+    color: whitesmoke;
+    width: fit-content;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-inline: 10px;
+    margin-inline: auto;
+    margin-bottom: 10px;
+}
+
+#field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    border-style: solid;
+    border-radius: 12px;
+    border-color: black;
+    border-width: 1px;
+    padding: 5px;
+    list-style: none;
+
+}
+
+#search-entry {
+    display: block;
+    margin: auto;
+}
+
+.wrapper {
+    position: relative;
+    width: 80%;
+    height: 50px;
+    padding: 0px 0px 0px 10%;
+    display: inline-flex;
+}
+
+.container {
+    position: relative;
+    width: 90%;
+    height: 80px;
+    margin-bottom: 30px;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    outline: none;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    background-color: transparent;
+    pointer-events: none;
+}
+
+.slider-track {
+    width: 100%;
+    height: 5px;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    border-radius: 5px;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    height: 5px;
+}
+
+input[type="range"]::-moz-range-track {
+    -webkit-appearance: none;
+    height: 5px;
+}
+
+input[type="range"]::-ms-track {
+    -webkit-appearance: none;
+    height: 5px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    kit-appearance: none;
+    height: 1.7em;
+    width: 1.7em;
+    background-color: darkblue;
+    cursor: pointer;
+    margin-top: -9px;
+    pointer-events: auto;
+    border-radius: 50%;
+}
+
+input[type="range"]::-moz-range-thumb {
+    -webkit-appearance: none;
+    height: 1.7em;
+    width: 1.7em;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: darkblue;
+    pointer-events: auto;
+    border: none;
+}
+
+input[type="range"]::-ms-thumb {
+    -webkit-appearance: none;
+    height: 1.7em;
+    width: 1.7em;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: darkblue;
+    pointer-events: auto;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+    background-color: darkblue;
+    border: 1px solid darkblue;
+}
+
+.values {
+    background-color: darkblue;
+    width: 88px;
+    height: 20px;
+    margin-left: 30px;
+    margin-top: 10px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 15px;
+    color: #ffffff;
+}
+
+.search-results {
+    & > .profile-card:not(:last-child) {
+        margin-bottom: 8px;
+    }
+}

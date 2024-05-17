@@ -19,7 +19,7 @@ function chatMessage(int $msgId, int $userId, string $content, bool $externalVie
     $msgClass = $externalView || $author == null || $myId !== $author["id"] ? " -other" : " -me";
 
     $showDelete = !$externalView 
-        && ($author !== null && $myId === $author["id"]| \User\level($myId) >= \User\LEVEL_ADMIN);
+        && (($author !== null && $myId === $author["id"]) || \User\level($myId) >= \User\LEVEL_ADMIN);
     
     $showReport = !$externalView && $author !== null && $myId !== $author["id"]
         && (User\level($myId) < \User\LEVEL_ADMIN);

@@ -24,7 +24,15 @@ $bs = User\blockStatus($user["id"], $id);
     <div class="error">Utilisateur introuvable</div>
 <?php elseif ($bs !== User\BS_NO_BLOCK):
 ?>
-<p>ehh tu est bloqué ou tu as bloqué jsp</p>
+<div class="blocked-profile">
+    <h2>
+        <?php if ($bs === User\BS_ME): ?>
+            Vous avez bloqué cet utilisateur
+        <?php elseif ($bs === User\BS_THEM): ?>
+            Vous êtes bloqué par cet utilisateur
+        <?php endif; ?>
+    </h2>
+</div>
 <?php
 else:
     profileCard($prof, true, User\level($user["id"]) >= User\LEVEL_ADMIN);

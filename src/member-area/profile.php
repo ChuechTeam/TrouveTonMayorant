@@ -2,6 +2,7 @@
 require "_common.php";
 
 Templates\member("Votre profil");
+Templates\addStylesheet("/assets/style/profile-edit-page.css");
 
 // Permettre de modifier un utilisateur de son choix si l'on est admin.
 $notMe = false;
@@ -182,6 +183,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 
             <?php if (!$notMe): ?>
                 <input class="-delete" type="submit" name="delete" value="Supprimer le compte" id="delete-account">
+                <a class="-public" href="/member-area/userProfile.php?id=<?= $u["id"] ?>">Voir mon profil public</a>
             <?php endif; ?>
             <br><br>
 

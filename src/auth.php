@@ -57,6 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $erreur = $errCode !== -1 ? User\errToString($errCode) : null;
 
 Templates\base($page === "signIn" ? "Connexion" : "Inscription");
+Templates\addStylesheet("/assets/style/auth-page.css");
 ?>
 
 <h1 class="title">Bonyour, bienvenue sur TTM !</h1>
