@@ -32,22 +32,22 @@ function fileExistsInAnyExtension($fName, $dir){
     return null;
 }
 
-function uploadImg($userid){
-    $target_dir = "../user-image-db/";
-    @mkdir($target_dir, 0755, false);
+function uploadImg($field, $userid){
+    $target_dir = "../user-image-db/" . $userid . "/";
+    @mkdir($target_dir, 0755, true);
 
-    $fName = $_FILES["pfp"]["name"] ?? null;
+    $fName = $_FILES[$field]["name"] ?? null;
     if (empty($fName)) {
         return null;
     }
 
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($fName,PATHINFO_EXTENSION));
-    $target_file = $target_dir . $userid . "." . $imageFileType;
+    $target_file = $target_dir . $userid . $field . "." . $imageFileType;
 
     // Check si c'est une image
     if(isset($_POST["submit"])) {
-        $check = getimagesize($_FILES["pfp"]["tmp_name"]);
+        $check = getimagesize($_FILES[$field]["tmp_name"]);
         if($check !== false) {
             $uploadOk = 1;
         } else {
@@ -56,7 +56,7 @@ function uploadImg($userid){
     }
 
     // Check taille fichier
-    if ($_FILES["pfp"]["size"] > 1000000) {
+    if ($_FILES[$field]["size"] > 1000000) {
         echo '<script>alert("Le fichier est trop gros.")</script>';
         $uploadOk = 0;
     }
@@ -72,8 +72,8 @@ function uploadImg($userid){
         if($previousPfp !== null){
             unlink($previousPfp);
         }
-        if (move_uploaded_file($_FILES["pfp"]["tmp_name"], $target_file)) {
-            $public_url = '/user-image-db' . '/' . $userid . "." . $imageFileType;
+        if (move_uploaded_file($_FILES[$field]["tmp_name"], $target_file)) {
+            $public_url = '/user-image-db' . '/' . $userid . '/' . $userid . $field . "." . $imageFileType;
             return $public_url;
         } 
         else {
@@ -101,7 +101,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     else if (!empty(($_POST['mail'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate'] && !empty($_POST['gender'])))) { //Si les champs ne sont pas vides
-        $pfp = uploadImg($u["id"]) ?? $u["pfp"];
+
+        $pfp = uploadImg("pfp", $u["id"]) ?? $u["pfp"];
+        $pic1 = uploadImg("pic1", $u["id"]) ?? $u["pic1"];
+        $pic2 = uploadImg("pic2", $u["id"]) ?? $u["pic2"];
+        $pic3 = uploadImg("pfic3", $u["id"]) ?? $u["pfic3"];
+
         $ok = User\updateProfile($u["id"], array(
             "firstName" => $_POST['fname'],
             "lastName" => $_POST['name'],
@@ -126,7 +131,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 "search_smoke" => (isset($_POST['search_smoke'])) ? $_POST['search_smoke'] : "",
                 "gender_search" => (isset($_POST['gender_search'])) ? $_POST['gender_search'] : [],
                 "rel_search" => (isset($_POST['rel_search'])) ? $_POST['rel_search'] : [],
-
+                "pic1" => ($pic1!== null) ? $pic1 : "",
+                "pic2" => ($pic2!== null) ? $pic2 : "",
+                "pic3" => ($pic3!== null) ? $pic3 : "",
             ),$u);
 
         if (!empty($_POST["password"]) && $ok === 0) {
@@ -157,8 +164,8 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
             <div id="pfp">
                 <img src="<?=(empty($u['pfp'])) ? User\DEFAULT_PFP : $u['pfp']?>" id="img-preview">
                 <div class="pfp-inside">
-                    <label for="file-upload">Changer la photo</label>
-                    <input type="file" class="d-none" accept="image/*" id="file-upload" name="pfp" onchange="loadFile()">
+                    <label for="pfp-upload">Changer la photo</label>
+                    <input type="file" class="d-none" accept="image/*" id="pfp-upload" name="pfp" onchange="loadFile('img-preview')">
                 </div>
             </div>
 
@@ -299,7 +306,31 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 </div>
 
             </div>
-            
+            <br>
+            <h2 class="-title">Ma galerie<hr></h2>
+            <div class="-grid-container">
+                <div class="-grid-item" style="font-weight:400;">Image 1</div>
+                <div class="-grid-item" style="font-weight:400;">
+                    <img src="<?=(empty($u['pic1'])) ? '' : $u['pic']?>" id="img1-preview">
+                    <br><label for="pic1-upload" class="upload-label">Importer une photo</label>
+                    <input type="file" class="d-none" accept="image/*" id="pic1-upload" name="pic1" onchange="loadFile('img1-preview')">
+                </div>
+
+                <div class="-grid-item" style="font-weight:400;">Image 2</div>
+                <div class="-grid-item" style="font-weight:400;">
+                    <img src="<?=(empty($u['pic2'])) ? '' : $u['pic2']?>" id="img2-preview">
+                    <br><label for="pic2-upload" class="upload-label">Importer une photo</label>
+                    <input type="file" class="d-none" accept="image/*" id="pic2-upload" name="pic2" onchange="loadFile('img2-preview')">
+                </div>
+
+                <div class="-grid-item" style="font-weight:400;">Image 3</div>
+                <div class="-grid-item" style="font-weight:400;">
+                    <img src="<?=(empty($u['pic3'])) ? '' : $u['pic3']?>" id="img3-preview">
+                    <br><label for="pic3-upload" class="upload-label">Importer une photo</label>
+                    <input type="file" class="d-none" accept="image/*" id="pic3-upload" name="pic3" onchange="loadFile('img3-preview')">
+                </div>
+            </div>
+
             <br>
             <button type="submit" class="sub">Enregistrer</button>
         </form>
@@ -419,9 +450,9 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
         }
     });
 
-    //fonction pour prévisualiser la photo de profil chargée
-    function loadFile(){
-        var preview = document.getElementById('img-preview');
+    //fonction pour prévisualiser la photo chargée
+    window.loadFile = function loadFile(id){
+        var preview = document.getElementById(id);
         preview.src = URL.createObjectURL(event.target.files[0]);
         preview.onload = function() {
             URL.revokeObjectURL(preview.src) // free memory

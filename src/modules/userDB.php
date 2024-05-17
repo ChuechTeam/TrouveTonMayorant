@@ -35,7 +35,9 @@ const REV_EQUATION = 8; // Ajoute des équations
 const REV_PFP = 9; // Photos de profil
 const REV_LOC = 10; // Département / ville
 const REV_LOC_STR = 11; // Ajout des noms des départements et ville
-const REV_LAST = REV_LOC_STR; // Dernière version de la base de donnée
+const REV_PICS = 12; // Photos galerie
+const REV_PFP_RESET = 13;
+const REV_LAST = REV_PFP_RESET; // Dernière version de la base de donnée
 
 $usersFile = null; // Le fichier json chargé avec fopen
 $usersReadOnly = false; // Si la base de donnée est ouverte en lecture seule
@@ -371,11 +373,24 @@ function _upgrade(array &$data) {
                         $u["city"] = $u["city"] ?? "";
                     }
                     break;
+                case REV_PICS:
+                    foreach ($data["users"] as &$u) {
+                        $u["pic1"] = $u["pic1"] ?? "";
+                        $u["pic2"] = $u["pic2"] ?? "";
+                        $u["pic3"] = $u["pic3"] ?? "";
+                    }
+                    break;
                 case REV_LOC_STR:
                     foreach ($data["users"] as &$u) {
                         $u["depName"] = $u["depName"] ?? "";
                         $u["cityName"] = $u["cityName"] ?? "";
                     }
+                    break;
+                case REV_PFP_RESET:
+                    foreach ($data["users"] as &$u) {
+                        $u["pfp"] = "";
+                    }   
+                    break; 
                 default:
                     break;
             }

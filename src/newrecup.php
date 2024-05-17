@@ -9,11 +9,15 @@ UserDB\load(true);
 $first = true;
 $g = $_GET["genre"] ?? []; // Si pas set --> []
 $f = $_GET["fumeur"] ?? null;
+$a_min = intval($_GET["a_min"]);
+$a_max = intval($_GET["a_max"]);
 
-    
 foreach(UserDB\query() as $u){
+    $a = (new DateTime($u["bdate"]))->diff(new DateTime())->y;
     if ((empty($g) || in_array($u["gender"],$g)) && 
-        ($f == null || $u["user_smoke"]==$f)) {
+        ($f == null || $u["user_smoke"]==$f) &&
+        ($a <= $a_max && $a >=$a_min )
+        ) {
         if ($first) {
             echo '<div class="search-results">';
             $first = false;

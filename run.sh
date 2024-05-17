@@ -5,7 +5,7 @@
 PROJECT_DIR=$(realpath "$(dirname "$0")")
 
 if [ "${PUBLIC:-0}" -eq 1 ]; then   #public
-    IPOUT="$(nmcli --fields IP4.ADDRESS device show eno1 | grep -oP '(\d+\.?){4}')"
+    IPOUT="$(nmcli --fields IP4.ADDRESS device show | grep -oP -m 1 '(\d+\.?){4}')"
     HOST="$IPOUT:8080"
 else    #Local 
     HOST="${1:-localhost:8080}"

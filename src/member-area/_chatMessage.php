@@ -18,10 +18,12 @@ function chatMessage(int $msgId, int $userId, string $content, bool $externalVie
     $authorName = $author == null ? "Utilisateur supprimé" : ($author["firstName"] . ' ' . $author["lastName"]);
     $msgClass = $externalView || $author == null || $myId !== $author["id"] ? " -other" : " -me";
 
-    $showDelete = !$externalView && ($author !== null && $myId === $author["id"]
-        || \User\level($myId) >= \User\LEVEL_ADMIN);
+    $showDelete = !$externalView 
+        && ($author !== null && $myId === $author["id"]| \User\level($myId) >= \User\LEVEL_ADMIN);
     
     $showReport = !$externalView && $author !== null && $myId !== $author["id"]
+        && (User\level($myId) < \User\LEVEL_ADMIN);
+
     ?>
     <article class="chat-message<?= $msgClass ?>" data-id="<?= $msgId ?>">
         <header class="-head">

@@ -186,6 +186,13 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
     // Nom complet
     $fn = $u["firstName"] . " " . $u["lastName"];
 
+    //Photos
+    $pics = array($u["pic1"], $u["pic2"], $u["pic3"]);
+
+    $non_empty_pics = array_filter($pics, function($value) {
+        return is_string($value) && trim($value) !== '';
+    });
+
     // A des préférences de relations
     $hasRelPref = !empty($rls);
     // A des préférences de genre
@@ -223,7 +230,7 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                 <?php endif; ?>
 
                 <?php if(!empty($location)): ?>
-                    <div class="pill -city">
+                    <div class="pill -location">
                         <span class="-label">Ville</span>
                         <span class="-value"><?= $location ?></span>
                     </div>
@@ -278,7 +285,25 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                     <h2>Mon problème favori</h2>
                     <p class="has-math"> $$ <?= $equation ?> $$ </p>
                 <?php endif; ?>
-                <button onclick="window.location.href = '<?= $convUrl ?>';">Démarrer une conversation</button>
+                <?php if (!empty($non_empty_pics)) :?>
+                    <h2>Galerie</h2>
+                    <div class="-gallery">
+                        <?php foreach($non_empty_pics as $pic){
+                                echo '<img src="' . $pic . '">';
+                            }
+                        ?>
+                    </div>
+                <?php endif; ?>
+                
+                <div class="-actions">
+                    <button onclick="window.location.href = '<?= $convUrl ?>';">Démarrer une conversation</button>
+                    <form style="display: contents" method="POST">
+                        <input type="hidden" name="action" value="block">
+                        <input type="hidden" name="id" value="<?= $u["id"] ?>">
+                        <button class="dangerous-button" id="block-btn"><span class="icon -inl">block</span>
+                        Bloquer cet utilisateur</button>
+                    </form>
+                </div>
             </section>
             <?php if ($adminMode): ?>
                 <section class="-admin">

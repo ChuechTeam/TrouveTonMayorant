@@ -52,6 +52,11 @@ const PREF_YES = "yes";
 const PREF_NO = "no";
 const PREF_WHATEVER = "w";
 
+// Block status (si on est bloqué ou si on n'est pas bloqué)
+const BS_ME = 2; // J'ai bloqué
+const BS_THEM = 1; // On m'a bloqué
+const BS_NO_BLOCK = 0; // Y'a pas de souci
+
 const DEFAULT_PFP = "/assets/img/pfp_default.png";
 
 // 0 --> OK
@@ -88,7 +93,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "bdate" => $bdate,
             "gender" => $gender,
             "rdate" => date('Y-m-d'),
-            "pfp" => "../assets/img/pfp_default.png",
+            "pfp" => DEFAULT_PFP,
             "orientation" => "",
             "job" => "",
             "situation" => "",
@@ -103,6 +108,9 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "equation" => "",
             "user_smoke" => "",
             "search_smoke" => "",
+            "pic1" => "",
+            "pic2" => "",
+            "pic3" => "",
             "admin" => $admin,
             "supExpire" => null,
             "gender_search" => [],
@@ -147,6 +155,9 @@ function updateProfile(int $id, array $profile, ?array $profile_details = null, 
     $user["eigenVal"] = $profile_details["eigenVal"];
     $user["equation"] = $profile_details["equation"];
     $user["user_smoke"] = $profile_details["user_smoke"];
+    $user["pic1"] = $profile_details["pic1"];
+    $user["pic2"] = $profile_details["pic2"];
+    $user["pic3"] = $profile_details["pic3"];
     $user["search_smoke"] = $profile_details["search_smoke"];
     $user["gender_search"] = $profile_details["gender_search"];
     $user["rel_search"] = $profile_details["rel_search"];
@@ -276,6 +287,56 @@ function findConversation(int $userId, string $convId): ?array {
     }
 }
 
+function blockUser(int $blockerId, int $blockeeId): int {
+    $blocker = \UserDB\findById($blockerId);
+    $blockee = \UserDB\findById($blockeeId);
+    if ($blocker == null || $blockee == null) {
+        return ERR_USER_NOT_FOUND;
+    }
+
+    if (isset($blocker["blockedUsers"][$blockeeId])) {
+        return 0; // déjà fait
+    }
+
+    $blocker["blockedUsers"][$blockeeId] = 1;
+    \UserDB\put($blocker);
+
+    return 0;
+}
+
+function unblockUser(int $blockerId, int $blockeeId): int {
+    $blocker = \UserDB\findById($blockerId);
+    if ($blocker == null) {
+        return ERR_USER_NOT_FOUND;
+    }
+
+    if (isset($blocker["blockedUsers"][$blockeeId])) {
+        unset($blocker["blockedUsers"][$blockeeId]);
+        \UserDB\put($blocker);
+        return 0;
+    } else {
+        return 0; // rien fait
+    }
+}
+
+// Voir enum BLOCK STATUS (BS_XXX)
+// renvoie 0 si l'utilisateur n'est pas trouvé
+// si le blocage est mutuel (bizarre), le blocage de l'utilisateur cible sera priorisé.
+function blockStatus(int $viewerId, int $targetId): int {
+    $viewer = \UserDB\findById($viewerId);
+    if ($viewer === null) {
+        return 0;
+    }
+
+    if (isset($viewer["blockedBy"][$targetId])) {
+        return BS_THEM;
+    } else if (isset($viewer["blockedUsers"][$targetId])) {
+        return BS_ME;
+    }  else {
+        return BS_NO_BLOCK;
+    }
+}
+
 function level(?int $id): int {
     if ($id === null) {
         return LEVEL_GUEST;
@@ -307,6 +368,15 @@ function level(?int $id): int {
 
     // TODO: Utilisateur abonné et admin
     return LEVEL_MEMBER;
+}
+
+function age(int $id): int {
+    $u = \UserDB\findById($id);
+    if ($u === null) {
+        return 0;
+    }
+
+    return (new DateTime($u["bdate"]))->diff(new DateTime())->y;
 }
 
 function errToString(int $err): string {

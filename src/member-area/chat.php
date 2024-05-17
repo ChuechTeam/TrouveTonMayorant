@@ -46,7 +46,8 @@ foreach ($u["conversations"] as $convId) {
             "id" => $convId,
             "userName" => $otherUser !== null ? $otherUser["firstName"] . " " . $otherUser["lastName"] : "Utilisateur supprimé",
             "lastMsg" => !empty($conv["messages"]) ? $conv["messages"][count($conv["messages"]) - 1]["content"] : "",
-            "selectedClass" => $selectedConvId === $convId ? " -selected" : ""
+            "selectedClass" => $selectedConvId === $convId ? " -selected" : "",
+            "profileLink" => $otherUser !== null ? "/member-area/userProfile.php?id=$otherUserId" : null
         ];
     }
 }
@@ -63,6 +64,11 @@ foreach ($u["conversations"] as $convId) {
                 <li class="chat-person<?= $conv["selectedClass"] ?>" data-id="<?= $conv["id"] ?>">
                     <div class="-name"><?= htmlspecialchars($conv["userName"]) ?></div>
                     <div class="-last-msg"><?= htmlspecialchars($conv["lastMsg"]) ?></div>
+                    <?php if (!empty($conv["profileLink"])): ?>
+                        <a class="-profile-link" href="<?= $conv["profileLink"] ?>">
+                            <span class="material-symbols-rounded -icon">account_circle</span>
+                        </a>
+                    <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         </ul>
