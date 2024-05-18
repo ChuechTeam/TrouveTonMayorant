@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <h1 id="title">Suppression d'un utilisateur</h1>
 <p id="confirm-par">Êtes-vous sûr de vouloir supprimer cet utilisateur ?</p>
-<?php profileCard($u, false); ?>
+<?php povProfileCard($u); ?>
 <form method="post">
     <input type="hidden" name="id" value="<?= $u["id"] ?>">
     <div id="ban"><input type="checkbox" name="ban"> <label for="ban">Bannir l'email de l'utilisateur</label></div>

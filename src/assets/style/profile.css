@@ -8,6 +8,10 @@
     align-items: stretch;
 
     min-height: 5.0em;
+    border-radius: 4px;
+    overflow: hidden;
+
+    background-color: white;
 
     & .-name {
         font-weight: bold;
@@ -31,7 +35,6 @@
     }
 
     & .-pfp {
-        width: 128px;
         object-fit: cover;
         aspect-ratio: 16/9;
     }
@@ -39,6 +42,24 @@
     & .-infos {
         padding: 8px;
         align-self: center;
+    }
+
+    & .-pfp, & .-block-icon {
+        width: 128px;
+    }
+
+    & .-block-icon {
+        font-size: 80px;
+        align-self: center;
+
+        display: flex;
+        justify-content: center;
+    }
+
+    &.-blocked {
+        background-image: var(--block-bg-darker);
+        color: white;
+        opacity: 0.5;
     }
 }
 
@@ -130,6 +151,10 @@
 
         & > .-job {
             --label-color: #85580b;
+        }
+
+        & > .-field {
+            --label-color: #0b8558;
         }
 
         & > hr {
@@ -269,51 +294,103 @@
     }
 }
 
-#pfp {
-    z-index: 1;
-    position: relative;
-    background-color: rgb(126, 126, 126);
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    border: 4px solid rgb(222, 222, 222);
-    overflow: hidden;
-}
+.blocked-profile {
+    display: grid;
+    grid-template:
+        "side title title" auto
+        "side icon details" auto
+        / minmax(260px, auto) 30fr 70fr;
 
-#pfp img {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    opacity: 1;
-    transition: opacity .2s ease-in-out;
-}
+    max-width: 1440px;
+    margin: 24px auto;
+    border-radius: 3px;
 
-#pfp .pfp-inside {
-    position: absolute;
-    transition: .5s ease;
-    opacity: 0;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    text-align: center;
+    background-image: var(--block-bg);
     color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: opacity .2s ease-in-out;
-    cursor: pointer;
-}
 
-#pfp .pfp-inside label {
-    cursor: pointer;
-}
+    & > .-title {
+        grid-area: title;
+        text-align: center;
+        padding: 6px;
+        margin: 10px;
+    }
+    & > .icon {
+        grid-area: icon;
+        text-align: center;
+        font-size: min(15vw, 15vh);
+        align-self: center;
+        padding-bottom: 16px;
+    }
 
-#pfp:hover .pfp-inside {
-    opacity: 1;
-}
+    & > .-minimal-infos {
+        grid-area: side;
+        padding: 6px;
+        margin: 10px;
+        & > .-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+        }
 
-#pfp:hover img {
-    opacity: .5;
+        border: solid rgba(255, 255, 255, 0.2);
+        border-width: 0px 1px 0px 0px;
+    }
+
+    & > .-details {
+        grid-area: details;
+        padding: 0 24px;
+        padding-bottom: 16px;
+
+        align-self: center;
+    }
+
+    & .-unblock {
+        border: 0;
+        background-color: white;
+        color: black;
+
+        border-radius: 4px;
+        padding: 8px;
+        font-size: 1.25em;
+
+        display: block;
+        margin: 16px auto;
+
+        border: 1px solid #cfcfcf;
+
+        --shadow-spread: 1px;
+        --shadow-blur: 8px;
+        --shadow-alpha: .33;
+        --shadow-y: 2px;
+        box-shadow: 0 var(--shadow-y) var(--shadow-blur) var(--shadow-spread) rgba(255, 255, 255, var(--shadow-alpha));
+
+        transition: box-shadow .25s ease-in-out, background-color .1s linear;
+
+        &:hover, &:active {
+            --shadow-spread: 4px;
+            --shadow-blur: 16px;
+            --shadow-alpha: .5;
+            --shadow-y: 0px;
+        }
+        &:hover {
+            background-color: rgb(235, 235, 235);
+        }
+        &:active {
+            background-color: rgb(175, 175, 175);
+        }
+    }
+
+    @media (max-width: 768px) {
+        grid-template:
+            "side"
+            "title"
+            "icon"
+            "details"
+            / 100%;
+
+        & > .-minimal-infos {
+            border-width: 0px 0px 1px 0px;
+        }
+        & > .-details { padding-bottom: 0; }
+    }
 }

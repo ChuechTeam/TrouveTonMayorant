@@ -16,6 +16,8 @@ const ERR_USER_NOT_FOUND = 4;
 const ERR_CONVERSATION_EXISTS = 5;
 const ERR_SAME_USER = 6;
 const ERR_EMAIL_BANNED = 7;
+const ERR_BLOCKED = 8;
+const ERR_INVALID_FIELD = 9;
 
 // Liste des grades/rôles
 const LEVEL_GUEST = 1; // Visiteur non inscrit
@@ -69,13 +71,14 @@ function register(string $firstname, string $lastname, string $email, string $pa
         return ERR_EMAIL_BANNED;
     }
 
-    $valErr = validateProfile([
+    $prof = [
         "firstName" => $firstname,
         "lastName" => $lastname,
         "email" => $email,
         "bdate" => $bdate,
         "gender" => $gender,
-    ], null);
+    ];
+    $valErr = validateProfile($prof, null);
     if ($valErr !== 0) {
         return $valErr;
     }
@@ -141,26 +144,58 @@ function updateProfile(int $id, array $profile, ?array $profile_details = null, 
     $user["email"] = $profile["email"];
     $user["gender"] = $profile["gender"];
 
-    $user["pfp"] = $profile_details["pfp"];
-    $user["orientation"] = $profile_details["orientation"];
-    $user["job"] = $profile_details["job"];
-    $user["situation"] = $profile_details["situation"];
-    $user["dep"] = $profile_details["dep"];
-    $user["depName"] = $profile_details["depName"];
-    $user["city"] = $profile_details["city"];
-    $user["cityName"] = $profile_details["cityName"];
-    $user["desc"] = $profile_details["desc"];
-    $user["bio"] = $profile_details["bio"];
-    $user["mathField"] = $profile_details["mathField"];
-    $user["eigenVal"] = $profile_details["eigenVal"];
-    $user["equation"] = $profile_details["equation"];
-    $user["user_smoke"] = $profile_details["user_smoke"];
-    $user["pic1"] = $profile_details["pic1"];
-    $user["pic2"] = $profile_details["pic2"];
-    $user["pic3"] = $profile_details["pic3"];
-    $user["search_smoke"] = $profile_details["search_smoke"];
-    $user["gender_search"] = $profile_details["gender_search"];
-    $user["rel_search"] = $profile_details["rel_search"];
+    // Valider les champs de $profile_details
+    // Les fonctions validX autorisent les valeurs vide (empty) par défaut.
+    $valid = true;
+    validOrientation($profile_details["orientation"], $valid);
+    validPref($profile_details["search_smoke"], $valid);
+    validPref($profile_details["user_smoke"], $valid, false); // ne pas autoriser "peu importe"/"whatever"
+    validSituation($profile_details["situation"], $valid);
+
+    // Valider les tableaux rel_search et gender_search.
+    // On retire les éléments dupliqués et on restreint la taille du tableau à un petit nombre
+    // pour éviter les attaques DoS (array_unique est une fonction assez coûteuse).
+    $rs = &$profile_details["rel_search"];
+    if (is_array($rs) && count($rs) < 10) {
+        $rs = array_unique($rs);
+        foreach ($rs as $r) validRelType($r, $valid, false); // pas autoriser vide
+    } else {
+        $valid = false;
+    }
+
+    $gs = &$profile_details["gender_search"];
+    if (is_array($gs) && count($gs) < 10) {
+        $gs = array_unique($gs);
+        foreach ($gs as $g) validGender($g, $valid, false); // pas autoriser vide
+    } else {
+        $valid = false;
+    }
+
+    if (!$valid) {
+        return ERR_INVALID_FIELD;
+    }
+
+    // sanitize réduit la taille du string à x caractères (et retire les espaces inutiles)
+    $user["pfp"] = sanitize($profile_details["pfp"], 128);
+    $user["orientation"] = $profile_details["orientation"]; // déjà validé
+    $user["job"] = sanitize($profile_details["job"], 64);
+    $user["situation"] = $profile_details["situation"]; // déjà validé
+    $user["dep"] = sanitize($profile_details["dep"], 64);
+    $user["depName"] = sanitize($profile_details["depName"], 64);
+    $user["city"] = sanitize($profile_details["city"], 64);
+    $user["cityName"] = sanitize($profile_details["cityName"], 64);
+    $user["desc"] = sanitize($profile_details["desc"], 2000);
+    $user["bio"] = sanitize($profile_details["bio"], 2000);
+    $user["mathField"] = sanitize($profile_details["mathField"], 64);
+    $user["eigenVal"] = sanitize($profile_details["eigenVal"], 2000);
+    $user["equation"] = sanitize($profile_details["equation"], 2000);
+    $user["user_smoke"] = $profile_details["user_smoke"]; // déjà validé
+    $user["pic1"] = sanitize($profile_details["pic1"], 128);
+    $user["pic2"] = sanitize($profile_details["pic2"], 128);
+    $user["pic3"] = sanitize($profile_details["pic3"], 128);
+    $user["search_smoke"] = $profile_details["search_smoke"]; // déjà validé
+    $user["gender_search"] = $profile_details["gender_search"]; // déjà validé
+    $user["rel_search"] = $profile_details["rel_search"]; // déjà validé
 
     \UserDB\put($user);
     $updatedUser = $user;
@@ -185,7 +220,11 @@ function updatePassword(int $id, string $pass, ?array &$updatedUser = null): int
     return 0;
 }
 
-function validateProfile(array $profile, ?int $existingId): int {
+function validateProfile(array &$profile, ?int $existingId): int {
+    $profile["firstName"] = sanitize($profile["firstName"], 80);
+    $profile["lastName"] = sanitize($profile["lastName"], 80);
+    $profile["email"] = sanitize($profile["email"], 128);
+
     if (empty($profile["firstName"])
         || empty($profile["lastName"])
         || empty($profile["email"])
@@ -195,14 +234,22 @@ function validateProfile(array $profile, ?int $existingId): int {
         return ERR_FIELD_MISSING;
     }
 
+    if (!validGender($profile["gender"])) {
+        return ERR_INVALID_FIELD;
+    }
+
+    // S'assurer que la date est au bon format
+    $birthdate = DateTime::createFromFormat("Y-m-d", $profile["bdate"]);
+    if ($birthdate === false) {
+        return ERR_INVALID_FIELD;
+    }
 
     $today = new DateTime();
-    $birthdate = new DateTime($profile["bdate"]);
     $diff = $today->diff($birthdate);
     $age = $diff->y;
 
     if ($age < 18) {
-        return ERR_FIELD_MISSING; // pas le bon error type mais flemme
+        return ERR_INVALID_FIELD; // un error type un peu mieux
     }
 
     if ($existingId !== null) {
@@ -239,6 +286,7 @@ function deleteAccount(int $id, ?string $pass, bool $ban = false): int {
 // - ERR_SAME_USER
 // - ERR_USER_NOT_FOUND
 // - ERR_CONVERSATION_EXISTS
+// Remarque : id1 doit être l'id du créateur
 function startConversation(int    $id1,
                            int    $id2,
                            string &$convId = null,
@@ -258,6 +306,10 @@ function startConversation(int    $id1,
     $convId = \ConversationDB\existingId($id1, $id2);
     if ($convId !== null) {
         return ERR_CONVERSATION_EXISTS;
+    }
+
+    if (blockStatus($id1, $id2) !== BS_NO_BLOCK) {
+        return ERR_BLOCKED;
     }
 
     $convId = \ConversationDB\create($id1, $id2);
@@ -288,6 +340,10 @@ function findConversation(int $userId, string $convId): ?array {
 }
 
 function blockUser(int $blockerId, int $blockeeId): int {
+    if ($blockerId == $blockeeId) {
+        return ERR_SAME_USER;
+    }
+
     $blocker = \UserDB\findById($blockerId);
     $blockee = \UserDB\findById($blockeeId);
     if ($blocker == null || $blockee == null) {
@@ -321,8 +377,8 @@ function unblockUser(int $blockerId, int $blockeeId): int {
 
 // Voir enum BLOCK STATUS (BS_XXX)
 // renvoie 0 si l'utilisateur n'est pas trouvé
-// si le blocage est mutuel (bizarre), le blocage de l'utilisateur cible sera priorisé.
-// Si $applyAdminIgnore est true, alors la fonction ne renvoie pas BS_THEM lorsque l'utillisateur cible
+// si le blocage est mutuel (bizarre), le blocage du lecteur sera priorisé.
+// Si $adminIgnoreTargetBlock est true, alors la fonction ne renvoie pas BS_THEM lorsque l'utilisateur cible
 // a bloqué l'administrateur.
 function blockStatus(int $viewerId, int $targetId, bool $adminIgnoreTargetBlock = true): int {
     $viewer = \UserDB\findById($viewerId);
@@ -330,12 +386,12 @@ function blockStatus(int $viewerId, int $targetId, bool $adminIgnoreTargetBlock 
         return 0;
     }
 
-    if (isset($viewer["blockedBy"][$targetId])
-        && (!$adminIgnoreTargetBlock || level($targetId) < LEVEL_ADMIN)) {
-        return BS_THEM;
-    } else if (isset($viewer["blockedUsers"][$targetId])) {
+    if (isset($viewer["blockedUsers"][$targetId])) {
         return BS_ME;
-    }  else {
+    } else if (isset($viewer["blockedBy"][$targetId])
+        && (!$adminIgnoreTargetBlock || level($viewerId) < LEVEL_ADMIN)) {
+        return BS_THEM;
+    } else {
         return BS_NO_BLOCK;
     }
 }
@@ -355,10 +411,14 @@ function level(?int $id): int {
     }
 
     if ($u["supExpire"] !== null) {
-        $date = new \DateTime($u["supExpire"]);
+        $exp = new \DateTime($u["supExpire"]);
         $now = new \DateTime();
-        $diff = $date->diff($now);
-        // Si l'intervalle n'est pas négatif : invert = 0
+        $diff = $exp->diff($now); // $now - $date
+
+        // $now < $exp
+        // <==> $now - $exp < 0
+        // <==> $diff < 0
+        // <==> $diff->invert == 0
         if ($diff !== false && $diff->invert == 0) {
             return LEVEL_SUBSCRIBER;
         }
@@ -381,6 +441,56 @@ function age(int $id): int {
     return (new DateTime($u["bdate"]))->diff(new DateTime())->y;
 }
 
+/*
+ * Fonctions de validation
+ */
+
+function sanitize(?string $str, int $max): ?string {
+    if ($str === null) {
+        return null;
+    }
+    return substr(trim($str), 0, $max);
+}
+
+function validGender(?string $gend, bool &$valid = true, bool $allowEmpty = true): bool {
+    return $valid &= ($gend === GENDER_WOMAN
+        || $gend === GENDER_MAN
+        || $gend === GENDER_NON_BINARY
+        || ($allowEmpty && empty($gend)));
+}
+
+function validOrientation(?string $orient, bool &$valid = true, bool $allowEmpty = true): bool {
+    return $valid &= ($orient === ORIENTATION_HETERO
+        || $orient === ORIENTATION_HOMO
+        || $orient === ORIENTATION_BI
+        || $orient === ORIENTATION_PAN
+        || $orient === ORIENTATION_ASEXUAL
+        || $orient === ORIENTATION_OTHER
+        || ($allowEmpty && empty($orient)));
+}
+
+function validSituation(?string $situation, bool &$valid = true, bool $allowEmpty = true): bool {
+    return $valid &= ($situation === SITUATION_SINGLE
+        || $situation === SITUATION_OPEN
+        || ($allowEmpty && empty($situation)));
+}
+
+function validRelType(?string $relType, bool &$valid = true, bool $allowEmpty = true): bool {
+    return $valid &= ($relType === REL_OCCASIONAL
+        || $relType === REL_SERIOUS
+        || $relType === REL_NO_TOMORROW
+        || $relType === REL_TALK_AND_SEE
+        || $relType === REL_NON_EXCLUSIVE
+        || ($allowEmpty && empty($relType)));
+}
+
+function validPref(?string $pref, bool &$valid = true, bool $allowWhatever = true, bool $allowEmpty = true): bool {
+    return $valid &= ($pref === PREF_YES
+        || $pref === PREF_NO
+        || ($allowWhatever && $pref === PREF_WHATEVER)
+        || ($allowEmpty && empty($pref)));
+}
+
 function errToString(int $err): string {
     switch ($err) {
         case ERR_EMAIL_USED:
@@ -393,6 +503,10 @@ function errToString(int $err): string {
             return "Le mot de passe ou l'identifiant n'est pas le bon";
         case ERR_USER_NOT_FOUND:
             return "L'utilisateur n'existe pas";
+        case ERR_BLOCKED:
+            return "Un blocage existe entre ces deux utilisateurs.";
+        case ERR_INVALID_FIELD:
+            return "Un champ est invalide.";
         default:
             return "Erreur !";
     }

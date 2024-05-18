@@ -3,6 +3,7 @@
 require_once __DIR__ . "/../src/modules/userDB.php";
 require_once __DIR__ . "/../src/modules/conversationDB.php";
 require_once __DIR__ . "/../src/modules/moderationDB.php";
+require_once __DIR__ . "/../src/modules/viewDB.php";
 
 /*
  * Pour lancer le script : ./upgrade.sh OU php upgradeDatabases.php
@@ -19,3 +20,7 @@ printf("Conversation database complete!\n");
 printf("Initiating moderation database upgrade...\n");
 ModerationDB\load();
 printf("Moderation database upgrade complete!\n");
+
+printf("Initiating view database upgrade...\n");
+ViewDB\upgradeAll();
+printf("View database upgrade complete!\n");

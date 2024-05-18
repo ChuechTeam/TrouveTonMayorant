@@ -10,6 +10,8 @@ $content = $tmplArgs["content"] ?? "\$content is empty!";
 
 $homePath = "/member-area";
 $profilePath = "/member-area/profile.php";
+$profileVisitsPath = "/member-area/profileVisits.php";
+$userProfilePath = "/member-area/userProfile.php";
 $chatPath = "/member-area/chat.php";
 $adminPath = "/admin-area";
 
@@ -27,9 +29,14 @@ function isCurrentPage($path, bool $prefix=false): bool {
 }
 
 function linkAttribs($path, bool $prefix=false) {
-    printf('href="%s"', $path);
-    if (isCurrentPage($path, $prefix)) {
-        printf('class="-active"');
+    $array = is_array($path) ? $path : [$path];
+    printf('href="%s"', $array[0]);
+
+    foreach ($array as $p) {
+        if (isCurrentPage($p, $prefix)) {
+            printf('class="-active"');
+            return;
+        }
     }
 }
 
@@ -49,33 +56,33 @@ $isAdmin = $tmplArgs["userLevel"] >= User\LEVEL_ADMIN;
     <ul class="-links">
         <li>
             <a <?php linkAttribs($homePath); ?>>
-                <span class="material-symbols-rounded -inl -icon">home</span>
+                <span class="icon -inl">home</span>
                 <span class="-label">Accueil</span>
             </a>
         </li>
         <li>
-            <a <?php linkAttribs($profilePath); ?>>
-                <span class="material-symbols-rounded -inl -icon">account_circle</span>
+            <a <?php linkAttribs([$profilePath, $profileVisitsPath, $userProfilePath]); ?>>
+                <span class="icon -inl">account_circle</span>
                 <span class="-label">Profil</span>
             </a>
         </li>
         <li>
             <a <?php linkAttribs($chatPath); ?>>
-                <span class="material-symbols-rounded -inl -icon">chat</span>
+                <span class="icon -inl">chat</span>
                 <span class="-label">Chat</span>
             </a>
         </li>
         <?php if ($isAdmin): ?>
         <li>
             <a <?php linkAttribs($adminPath, true); ?>>
-                <span class="material-symbols-rounded -inl -icon">admin_panel_settings</span>
+                <span class="icon -inl">admin_panel_settings</span>
                 <span class="-label">Admin</span>
             </a>
         </li>
         <?php endif; ?>
         <li class="-sign-out">
             <a href="<?= "$root/redirect.php" ?>">
-                <span class="material-symbols-rounded -inl -icon">logout</span>
+                <span class="icon -inl">logout</span>
                 <span class="-label -mobile-hide">Déconnexion</span>
             </a>
         </li>

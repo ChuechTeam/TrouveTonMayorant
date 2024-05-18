@@ -65,16 +65,15 @@ foreach ($u["conversations"] as $convId) {
                     <div class="-name"><?= htmlspecialchars($conv["userName"]) ?></div>
                     <div class="-last-msg"><?= htmlspecialchars($conv["lastMsg"]) ?></div>
                     <?php if (!empty($conv["profileLink"])): ?>
-                        <a class="-profile-link" href="<?= $conv["profileLink"] ?>">
+                        <a class="-profile-link" href="<?= $conv["profileLink"] ?>" title="Voir le profil">
                             <span class="material-symbols-rounded -icon">account_circle</span>
                         </a>
                     <?php endif; ?>
                 </li>
             <?php endforeach; ?>
         </ul>
-        <?php if (!$impersonate): ?> <button id="create-conv">Commencer une conversation</button> <?php endif; ?>
     </aside>
     <section class="-conversation-slot">
-        <?php conversation($selectedConvId); ?>
+        <?php conversation($selectedConvId, $user["id"], empty($conversations)); ?>
     </section>
 </div>

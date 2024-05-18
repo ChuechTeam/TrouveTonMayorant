@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $pfp = uploadImg("pfp", $u["id"]) ?? $u["pfp"];
         $pic1 = uploadImg("pic1", $u["id"]) ?? $u["pic1"];
         $pic2 = uploadImg("pic2", $u["id"]) ?? $u["pic2"];
-        $pic3 = uploadImg("pfic3", $u["id"]) ?? $u["pfic3"];
+        $pic3 = uploadImg("pic3", $u["id"]) ?? $u["pic3"];
 
         $ok = User\updateProfile($u["id"], array(
             "firstName" => $_POST['fname'],
@@ -159,46 +159,47 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 
 <div class="profile-form-container">
     <div class="profile-form">
-        <form method="post" style="font-weight:800;" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data">
             <h2 class="-title">Compte<hr></h2>
 
             <div id="pfp">
                 <img src="<?=(empty($u['pfp'])) ? User\DEFAULT_PFP : $u['pfp']?>" id="img-preview">
-                <div class="pfp-inside">
-                    <label for="pfp-upload">Changer la photo</label>
+                <label for="pfp-upload" class="pfp-inside">
+                    Changer la photo
                     <input type="file" class="d-none" accept="image/*" id="pfp-upload" name="pfp" onchange="loadFile('img-preview')">
-                </div>
+                </label>
             </div>
 
             <div class="-grid-container">
-                <div class="-grid-item">Email</div>
-                <div class="-grid-item"><input type="email" value="<?= htmlspecialchars($u['email']) ?>" name="mail" id="" required></div>   
+                <label class="-grid-item" for="mail">Email</label>
+                <div class="-grid-item"><input type="email" value="<?= htmlspecialchars($u['email']) ?>" name="mail" id="mail" required></div>
                 
-                <div class="-grid-item">Mot de Passe</div>
+                <label class="-grid-item" for="pass-input">Mot de Passe</label>
                 <div class="-grid-item"><input type="password" name="password" id="pass-input"></div>   
                 
-                <div class="-grid-item" >Date d'inscription</div>
+                <label class="-grid-item">Date d'inscription</label>
                 <div class="-grid-item" style="font-weight:400;"><?= DateTime::createFromFormat('Y-m-d', $u['rdate'])->format('d/m/Y'); ?></div>
             </div>
 
             <?php if (!$notMe): ?>
-                <input class="-delete" type="submit" name="delete" value="Supprimer le compte" id="delete-account">
-                <a class="-public" href="/member-area/userProfile.php?id=<?= $u["id"] ?>">Voir mon profil public</a>
+                <input class="-form-btn -delete" type="submit" name="delete" value="Supprimer le compte" id="delete-account">
+                <a class="-form-btn -public" href="/member-area/userProfile.php?id=<?= $u["id"] ?>">Voir mon profil public</a>
+                <a class="-form-btn -visits" href="/member-area/profileVisits.php">Voir qui a visité mon profil</a>
             <?php endif; ?>
             <br><br>
 
             <h2 class="-title">Informations personnelles<hr></h2>
             <div class="-grid-container">
-                <div class="-grid-item">Nom</div>
-                <div class="-grid-item"><input type="text" value="<?= htmlspecialchars($u['lastName']) ?>" name="name" id="" required></div>   
+                <label class="-grid-item" for="name">Nom</label>
+                <div class="-grid-item"><input type="text" value="<?= htmlspecialchars($u['lastName']) ?>" name="name" id="name" required></div>
                 
-                <div class="-grid-item">Prénom</div>
-                <div class="-grid-item"><input type="text" value="<?= htmlspecialchars($u['firstName']) ?>" name="fname" id="" required></div>   
+                <label class="-grid-item" for="fname">Prénom</label>
+                <div class="-grid-item"><input type="text" value="<?= htmlspecialchars($u['firstName']) ?>" name="fname" id="fname" required></div>
                 
-                <div class="-grid-item">Date de naissance</div>
-                <div class="-grid-item"><input type="date" value="<?= htmlspecialchars($u['bdate']) ?>" name="bdate" id="" required></div>
+                <label class="-grid-item" for="bdate">Date de naissance</label>
+                <div class="-grid-item"><input type="date" value="<?= htmlspecialchars($u['bdate']) ?>" name="bdate" id="bdate" required></div>
 
-                <div class="-grid-item" >Genre</div>
+                <label class="-grid-item" for="gender">Genre</label>
                 <div class="-grid-item">
                     <select id="gender" name="gender" required>
                         <option value="m" <?= ($u['gender']=="m") ? "selected" : "" ?>  >Homme</option>
@@ -207,7 +208,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     </select>
                 </div>
 
-                <div class="-grid-item">Orientation</div>
+                <label class="-grid-item" for="orientation">Orientation</label>
                 <div class="-grid-item">
                     <select id="orientation" name="orientation">
                         <option disabled selected value></option>
@@ -220,10 +221,10 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     </select>
                 </div>
 
-                <div class="-grid-item">Profession</div>
+                <label class="-grid-item" for="job">Profession</label>
                 <div class="-grid-item"><input type="text" name="job" id="job" value="<?= htmlspecialchars($u['job']) ?>"></div>
                 
-                <div class="-grid-item">Lieu de résidence</div>
+                <label class="-grid-item" for="departmentSelect">Lieu de résidence</label>
                 <div class="-grid-item">
                     <select id="departmentSelect" name="dep">
                         <option disabled selected value> -- Département -- </option>
@@ -236,7 +237,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     <input type="hidden" name="cityName" id="cityNameInput" value="<?= htmlspecialchars($u["cityName"]) ?>">
                 </div>
 
-                <div class="-grid-item">Situation</div>
+                <label class="-grid-item" for="situation">Situation</label>
                 <div class="-grid-item">
                     <select id="situation" name="situation">
                         <option disabled selected value></option>
@@ -245,19 +246,19 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     </select>
                 </div>
 
-                <div class="-grid-item">Description physique</div>
-                <div class="-grid-item"><textarea name="desc" class="-desc-input" placeholder="brun, grand, yeux bruns..." maxlength="200"><?php echo htmlspecialchars($u['desc']) ?></textarea></div>
+                <label class="-grid-item" for="desc">Description physique</label>
+                <div class="-grid-item"><textarea name="desc" id="desc" class="-desc-input" placeholder="brun, grand, yeux bruns..." maxlength="200"><?php echo htmlspecialchars($u['desc']) ?></textarea></div>
 
-                <div class="-grid-item">Bio</div>
-                <div class="-grid-item"><textarea name="bio" class="-bio-input" maxlength="1000" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"><?php echo htmlspecialchars($u['bio']) ?></textarea></div>
+                <label class="-grid-item" for="bio">Bio</label>
+                <div class="-grid-item"><textarea name="bio" id="bio" class="-bio-input" maxlength="1000" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"><?php echo htmlspecialchars($u['bio']) ?></textarea></div>
                 
-                <div class="-grid-item">Domaine préféré des maths</div>
+                <label class="-grid-item" id="mathField">Domaine préféré des maths</label>
                 <div class="-grid-item"><input type="text" name="mathField" id="mathField" value="<?= htmlspecialchars($u['mathField']) ?>"></div>
 
-                <div class="-grid-item">Valeurs propres</div>
-                <div class="-grid-item"><textarea name="eigenVal" class="-desc-input" placeholder="Des valeurs qui vous sont propres... Par exemple, entraide, empathie..." maxlength="200"><?php echo htmlspecialchars($u['eigenVal']) ?></textarea></div>
+                <label class="-grid-item" id="eigenVal">Valeurs propres</label>
+                <div class="-grid-item"><textarea name="eigenVal" id="eigenVal" class="-desc-input" placeholder="Des valeurs qui vous sont propres... Par exemple, entraide, empathie..." maxlength="200"><?php echo htmlspecialchars($u['eigenVal']) ?></textarea></div>
 
-                <div class="-grid-item">Fumeur(se) ?</div>
+                <label class="-grid-item" for="user_smoke">Fumeur(se) ?</label>
                 <div class="-grid-item">
                     <select id="user_smoke" name="user_smoke">
                         <option disabled selected value></option>
@@ -266,7 +267,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     </select>
                 </div>
 
-                <div class="-grid-item">Mon problème de maths favori</div>
+                <label class="-grid-item" for="eq-input">Mon problème de maths favori</label>
                 <div class="-grid-item">
                     <textarea name="equation" class="-bio-input" maxlength="1000" placeholder="Écrire une équation en notation TeX. Exemple : \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}" id="eq-input"><?php echo htmlspecialchars($u['equation']) ?></textarea>
                     <div id="eq" class="has-math">$$ <?php echo htmlspecialchars($u['equation']) ?> $$</div>
@@ -276,17 +277,16 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 
             <h2 class="-title">Je recherche<hr></h2>
             <div class="-grid-container">
-                <div class="-grid-item">Genre</div>
+                <label class="-grid-item">Genre</label>
                 <div class="-grid-item" style="font-weight:400;">
                     <ul>
-                        <li><input type="checkbox" name="gender_search[]" id="m" value="m" <?= (in_array("h", $u['gender_search'])) ? "checked" : "" ?> ><label for="m">Homme</label></li>
-                        <li><input type="checkbox" name="gender_search[]" id="f" value="f" <?= (in_array("f", $u['gender_search'])) ? "checked" : "" ?> ><label for="f">Femme</label></li>
-                        <li><input type="checkbox" name="gender_search[]" id="nb" value="nb" <?= (in_array("nb", $u['gender_search'])) ? "checked" : "" ?> ><label for="nb">Non-binaire</label></li>
-                        <li><input type="checkbox" name="gender_search[]" id="a" value="a" <?= (in_array("a", $u['gender_search'])) ? "checked" : "" ?> ><label for="a">Autre</label></li>
+                        <li><input type="checkbox" name="gender_search[]" id="m" value="m" <?= (in_array(User\GENDER_MAN, $u['gender_search'])) ? "checked" : "" ?> ><label for="m">Homme</label></li>
+                        <li><input type="checkbox" name="gender_search[]" id="f" value="f" <?= (in_array(User\GENDER_WOMAN, $u['gender_search'])) ? "checked" : "" ?> ><label for="f">Femme</label></li>
+                        <li><input type="checkbox" name="gender_search[]" id="nb" value="nb" <?= (in_array(User\GENDER_NON_BINARY, $u['gender_search'])) ? "checked" : "" ?> ><label for="nb">Non-binaire</label></li>
                     </ul>
                 </div>
 
-                <div class="-grid-item">Type de relation</div>
+                <label class="-grid-item">Type de relation</label>
                 <div class="-grid-item" style="font-weight:400;">
                     <ul>
                         <li><input type="checkbox" name="rel_search[]" id="ro" value="ro" <?= (in_array("ro", $u['rel_search'])) ? "checked" : "" ?> ><label for="ro">Rencontres occasionnelles</label></li>
@@ -297,7 +297,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                     </ul>
                 </div>
 
-                <div class="-grid-item">Fumeur(se) ?</div>
+                <label class="-grid-item" for="search_smoke">Fumeur(se) ?</label>
                 <div class="-grid-item">
                     <select id="search_smoke" name="search_smoke">
                         <option disabled selected value></option>
@@ -311,21 +311,21 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
             <br>
             <h2 class="-title">Ma galerie<hr></h2>
             <div class="-grid-container">
-                <div class="-grid-item" style="font-weight:400;">Image 1</div>
+                <label class="-grid-item" for="pic1-upload" style="font-weight:400;">Image 1</label>
                 <div class="-grid-item" style="font-weight:400;">
                     <img src="<?=(empty($u['pic1'])) ? '' : $u['pic']?>" id="img1-preview">
                     <br><label for="pic1-upload" class="upload-label">Importer une photo</label>
                     <input type="file" class="d-none" accept="image/*" id="pic1-upload" name="pic1" onchange="loadFile('img1-preview')">
                 </div>
 
-                <div class="-grid-item" style="font-weight:400;">Image 2</div>
+                <label class="-grid-item" for="pic2-upload" style="font-weight:400;">Image 2</label>
                 <div class="-grid-item" style="font-weight:400;">
                     <img src="<?=(empty($u['pic2'])) ? '' : $u['pic2']?>" id="img2-preview">
                     <br><label for="pic2-upload" class="upload-label">Importer une photo</label>
                     <input type="file" class="d-none" accept="image/*" id="pic2-upload" name="pic2" onchange="loadFile('img2-preview')">
                 </div>
 
-                <div class="-grid-item" style="font-weight:400;">Image 3</div>
+                <label class="-grid-item" for="pic3-upload" style="font-weight:400;">Image 3</label>
                 <div class="-grid-item" style="font-weight:400;">
                     <img src="<?=(empty($u['pic3'])) ? '' : $u['pic3']?>" id="img3-preview">
                     <br><label for="pic3-upload" class="upload-label">Importer une photo</label>
@@ -345,24 +345,6 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 <?php elseif ($submitCode == 0): ?>
     <p id="all-good">Données enregistrées avec succès !</p>
 <?php endif ?>
-
-<style>
-    #err {
-        color: red;
-    }
-    #all-good {
-        color: white;
-        background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(37,173,44,1) 0%, rgba(54,207,9,1) 50%, rgba(37,173,44,1) 100%);        
-        border : 1px solid darkgreen;
-        border-radius : 7px;
-        position: fixed;
-        bottom: 0;
-        font-size: 15px;
-        padding : 1px 2px 1px 2px ;
-        font-weight: bolder;
-    }
-</style>
-
 
 <script type="module">
     import {typeset} from "/scripts/math.js";

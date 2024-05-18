@@ -2,6 +2,8 @@
 require_once "_common.php";
 Templates\member("Accueil");
 Templates\addStylesheet("/assets/style/search-page.css");
+
+require_once "../modules/viewDB.php";
 ?>
 
 <h1 class="title"><?php echo "Bonyour, ".$user["firstName"]." ".$user["lastName"]." !" ?></h1>

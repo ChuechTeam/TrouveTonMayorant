@@ -25,15 +25,15 @@ function initChatBox(element) {
 
             // Changer de conversation quand une personne de la liste est cliquée
             this.people.addEventListener("click", e => {
+                if (e.target.classList.contains("-profile-link")) {
+                    return;
+                }
+
                 const p = e.target.closest(".chat-person");
                 if (p !== null && p.dataset.id != null) {
                     // Alors on a cliqué sur une conversation
                     this.selectPerson(p, p.dataset.id);
                 }
-            })
-
-            element.querySelector("#create-conv")?.addEventListener("click", function () {
-                alert('C\'est pas implémenté... va dans profil et clique sur "Démarrer une discussion"');
             })
         },
 
@@ -196,7 +196,7 @@ export function initConversation(element) {
                 }
             }
             // Rafraîchir mathJax
-            typeset(()=>messages);
+            typeset(messages);
             
             this.lastSeenMsgId = lastMsgId
 

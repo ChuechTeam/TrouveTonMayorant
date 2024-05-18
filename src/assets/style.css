@@ -15,6 +15,9 @@
     --primary-color: hsl(225, 75%, 30%);
     --primary-color-d1: hsl(225, 75%, 25%);
     --primary-color-d2: hsl(225, 75%, 20%);
+
+    --block-bg: linear-gradient(140deg, rgb(65, 65, 65) 0%, rgb(0, 0, 0) 100%);
+    --block-bg-darker: linear-gradient(140deg, rgb(25, 25, 25) 0%, rgb(0, 0, 0) 100%);
 }
 
 .material-symbols-rounded, .icon {
@@ -31,6 +34,8 @@
     direction: ltr;
     -moz-font-feature-settings: 'liga';
     -moz-osx-font-smoothing: grayscale;
+
+    user-select: none;
 
     &.-inl {
         font-size: 1em !important;
@@ -69,6 +74,17 @@ body {
 button {
     font-family: "Computer Modern Sans";
     font-size: 1em;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary-color-l1);
+}
+a:hover {
+    text-decoration: underline;
+}
+a:visited {
+    color: var(--primary-color-l1);
 }
 
 .sub {
@@ -150,3 +166,14 @@ button {
     margin-bottom: -12px;
     font-size: 1.5em;
 }
+
+@supports selector(.x:has(y)) {
+    .has-math.-wait-mathjax {
+        transition: opacity .2s ease-out;
+    }
+
+    .has-math.-wait-mathjax:not(:has(mjx-container)) {
+        opacity: 0.0;
+    }
+}
+

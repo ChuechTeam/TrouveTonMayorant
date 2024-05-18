@@ -96,9 +96,26 @@ function lastMessages(array $conv, ?int $since)
     echo ob_get_clean();
 }
 
+// pour pouvoir plus tard implémenter la mise à jour du statut de blocage
+if ($user["id"] == $conv["userId1"]) {
+    $bs = \User\blockStatus($conv["userId1"], $conv["userId2"]);
+} else if ($conv["userId2"] == $user["id"]) {
+    $bs = \User\blockStatus($conv["userId2"], $conv["userId1"]);
+} else {
+    $bs = \User\BS_NO_BLOCK;
+}
+
+if ($bs !== \User\BS_NO_BLOCK) {
+    header("Is-Blocked: true");
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
     lastMessages($conv, $since);
 } else if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if ($bs != \User\BS_NO_BLOCK) {
+        bail(403); // Forbidden
+    }
+
     $data = json_decode(file_get_contents('php://input'), true);
     if (!is_array($data)) {
         bail(400);

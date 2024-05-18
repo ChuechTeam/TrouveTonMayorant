@@ -27,7 +27,7 @@ foreach(UserDB\query() as $u){
             $first = false;
         }   
 
-        profileCard($u);
+        povProfileCard($u);
     }
 }
 if ($first) {

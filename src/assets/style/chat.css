@@ -10,7 +10,7 @@
     border-radius: 4px;
     overflow: hidden;
 
-    --controls-height: 32px;
+    --controls-height: 36px;
 
     & .-people-slot {
         background-color: white;
@@ -30,15 +30,6 @@
 
             padding: 5px 10px;
             padding-top: 8px;
-        }
-
-        & > #create-conv {
-            justify-self: stretch;
-            min-height: var(--controls-height);
-            box-sizing: border-box;
-
-            margin: 0 10px;
-            margin-bottom: 5px;
         }
     }
 
@@ -114,7 +105,6 @@
         &:active {
             background-color: rgba(var(--profile-link-bg), 0.33);
         }
-    ;
 
         color: black;
         text-decoration: none;
@@ -122,6 +112,7 @@
 
         & > .-icon {
             font-size: 1.1em;
+            pointer-events: none;
         }
     }
 
@@ -173,7 +164,7 @@
     & > .-send {
         display: flex;
         gap: 12px;
-        height: var(--controls-height, 32px);
+        height: var(--controls-height);
         flex-shrink: 0;
 
         border: 0;
@@ -182,6 +173,9 @@
             flex-grow: 1;
             border: 1px solid rgba(0, 0, 0, 0.5);
             border-radius: 3px;
+
+            font-family: inherit;
+            font-size: 1em;
         }
 
         & > button {
@@ -191,6 +185,10 @@
             color: white;
             border-radius: 4px;
             overflow: hidden;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
             &:hover {
                 background-color: #143080;
@@ -208,11 +206,28 @@
         }
     }
 
+    & > .-send-blocked {
+        background-image: var(--block-bg-darker);
+        color: white;
+        padding: 6px;
+        border-radius: 4px;
+        height: var(--controls-height);
+
+        display: flex;
+        gap: 0.5em;
+        box-sizing: border-box;
+
+        justify-content: center;
+        align-items: center;
+    }
+
     &.-empty {
         background-color: lightgray;
         display: flex;
         align-items: center;
         justify-content: center;
+
+        padding: 16px;
     }
 }
 

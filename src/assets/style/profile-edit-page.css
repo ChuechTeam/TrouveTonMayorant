@@ -107,8 +107,9 @@
     }
 }
 
-.profile-form :is(.-delete, .-public) {
-    background-color: red;
+.profile-form .-form-btn {
+    --btn-bg: black;
+    background-color: var(--btn-bg);
 
     border-radius: 4px;
     font-size: 14px;
@@ -116,23 +117,27 @@
     padding: 6px 8px;
     border: 1px solid transparent;
     font-family: inherit;
-}
-
-.profile-form .-public {
-    background-color: #0d1f5c;
-    font-weight: normal;
 
     text-decoration: none;
+    display: inline-block;
 }
 
-.profile-form .-delete:hover {
-    background-color: rgb(222, 0, 0);
+.profile-form .-form-btn:hover {
+    background-color: color-mix(in srgb, var(--btn-bg) 80%, black 20%);
     cursor: pointer;
 }
 
-.profile-form .-public:hover {
-    background-color: #070f2e;
+.profile-form .-form-btn:active {
+    background-color: color-mix(in srgb, var(--btn-bg) 70%, black 30%);
     cursor: pointer;
+}
+
+.profile-form .-delete {
+    --btn-bg: red;
+}
+
+.profile-form :is(.-public, .-visits) {
+    --btn-bg: var(--primary-color);
 }
 
 .profile-form > form > *:not(table) {
@@ -149,4 +154,96 @@
 .profile-form ul > li > label {
     margin: 0;
     list-style: none;
+}
+
+.profile-form label {
+    font-weight: bold;
+}
+
+#pfp {
+    z-index: 1;
+    position: relative;
+    background-color: rgb(126, 126, 126);
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    border: 4px solid rgb(222, 222, 222);
+    overflow: hidden;
+}
+
+#pfp img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 1;
+    transition: opacity .2s ease-in-out;
+}
+
+#pfp .pfp-inside {
+    position: absolute;
+    transition: .5s ease;
+    opacity: 0;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity .2s ease-in-out;
+    cursor: pointer;
+}
+
+#pfp .pfp-inside label {
+    cursor: pointer;
+}
+
+#pfp:hover .pfp-inside {
+    opacity: 1;
+}
+
+#pfp:hover img {
+    opacity: .5;
+}
+
+#err {
+    color: red;
+}
+#all-good {
+    color: white;
+    --shine: 1%;
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(37,173,44,1) 0%, rgba(54,207,9,1) 50%, rgba(37,173,44,1) 100%);
+    background-size: 250% 100%;
+    background-position-x: 0;
+    border : 1px solid darkgreen;
+    border-radius : 7px;
+    position: fixed;
+    bottom: 0;
+    font-size: 15px;
+    padding : 4px 8px;
+    font-weight: bolder;
+
+    animation: all-good-shine 6.0s linear,
+    all-good-disappear 1.0s 5.0s forwards;
+}
+@keyframes all-good-shine {
+    0% {
+        background-position-x: 0;
+    }
+
+    100% {
+        background-position-x: 180%;
+    }
+}
+@keyframes all-good-disappear {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        display: none;
+    }
 }

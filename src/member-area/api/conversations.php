@@ -18,8 +18,8 @@ $convId = $_GET["id"];
 $conv = User\findConversation($user["id"], $convId);
 
 if ($conv === null) {
-    conversation(null);
+    conversation(null, null);
     bail(404);
 } else {
-    conversation($convId, false);
+    conversation($convId, $user["id"]);
 }

@@ -9,7 +9,7 @@ require_once __DIR__ . "/../modules/user.php";
  * @param bool $full si on doit afficher le profil complet
  * @return void
  */
-function profileCard(array $u, bool $full = false, bool $adminMode = false) {
+function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
     // Âge de l'utilisateur (> 18 ans normalement sauf si qqun fait des choses illégales)
     $age = (new DateTime($u["bdate"]))->diff(new DateTime())->y;
     switch ($u["gender"]) {
@@ -155,6 +155,7 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
 
         $eigenVal = $u["eigenVal"];
         $equation = $u["equation"];
+        $field = $u["mathField"];
 
         $convUrl = "/member-area/chat.php?startNew=" . $u["id"];
     }
@@ -189,7 +190,7 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
     //Photos
     $pics = array($u["pic1"], $u["pic2"], $u["pic3"]);
 
-    $non_empty_pics = array_filter($pics, function($value) {
+    $non_empty_pics = array_filter($pics, function ($value) {
         return is_string($value) && trim($value) !== '';
     });
 
@@ -208,7 +209,7 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
         <article class="full-profile<?= $supClass ?>">
             <aside class="-primary-infos">
                 <div id="-pfp">
-                    <img src="<?=(empty($pfp)) ? User\DEFAULT_PFP : $pfp ?>" id="img-preview">
+                    <img src="<?= (empty($pfp)) ? User\DEFAULT_PFP : $pfp ?>" id="img-preview">
                 </div>
                 <h1 class="-name"><?= htmlspecialchars($fn) ?></h1>
                 <span class="-gender-age"><?= $gender ?> | <?= $age ?> ans</span>
@@ -229,10 +230,10 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                     </div>
                 <?php endif; ?>
 
-                <?php if(!empty($location)): ?>
+                <?php if (!empty($location)): ?>
                     <div class="pill -location">
                         <span class="-label">Ville</span>
-                        <span class="-value"><?= $location ?></span>
+                        <span class="-value"><?= htmlspecialchars($location) ?></span>
                     </div>
                 <?php endif; ?>
 
@@ -243,11 +244,16 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                     </div>
                 <?php endif; ?>
 
+                <?php if (!empty($field)): ?>
+                    <div class="pill -field">
+                        <span class="-label">Maths <span class="icon -inl" style="margin: 0 0 0 0.3em;">favorite</span></span>
+                        <span class="-value"><?= htmlspecialchars($field) ?></span>
+                    </div>
+                <?php endif; ?>
+
                 <?php if (!empty($smokeLabel)) : ?>
                     <div class="pill -smoke -label-only"><?= $smokeLabel ?></div>
                 <?php endif; ?>
-
-                
 
                 <?php if ($hasPrefs) : ?>
                     <hr>
@@ -259,7 +265,7 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                     <?php endif; ?>
 
                     <?php if ($hasGenderPref || $hasSmokePref) : ?>
-                        <h3>Avec...</h3>
+                        <h3><?= $hasRelPref ? "Avec..." : "Je recherche une relation avec..." ?></h3>
                         <ul class="-pref-list">
                             <?php foreach ($genderPref as $g) echo "<li>$g</li>"; ?>
                             <?php if ($hasSmokePref) :
@@ -283,27 +289,30 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                 <?php endif; ?>
                 <?php if (!empty($equation)): ?>
                     <h2>Mon problème favori</h2>
-                    <p class="has-math"> $$ <?= $equation ?> $$ </p>
+                    <p class="has-math -wait-mathjax"> $$ <?= htmlspecialchars($equation) ?> $$ </p>
                 <?php endif; ?>
-                <?php if (!empty($non_empty_pics)) :?>
+                <?php if (!empty($non_empty_pics)) : ?>
                     <h2>Galerie</h2>
                     <div class="-gallery">
-                        <?php foreach($non_empty_pics as $pic){
-                                echo '<img src="' . $pic . '">';
-                            }
+                        <?php foreach ($non_empty_pics as $pic) {
+                            echo '<img src="' . $pic . '">';
+                        }
                         ?>
                     </div>
                 <?php endif; ?>
-                
-                <div class="-actions">
-                    <button onclick="window.location.href = '<?= $convUrl ?>';">Démarrer une conversation</button>
-                    <form style="display: contents" method="POST">
-                        <input type="hidden" name="action" value="block">
-                        <input type="hidden" name="id" value="<?= $u["id"] ?>">
-                        <button class="dangerous-button" id="block-btn"><span class="icon -inl">block</span>
-                        Bloquer cet utilisateur</button>
-                    </form>
-                </div>
+
+                <?php if ($showActions): ?>
+                    <div class="-actions">
+                        <button onclick="window.location.href = '<?= $convUrl ?>';">Démarrer une conversation</button>
+                        <form style="display: contents" action="/member-area/userProfile.php" method="POST">
+                            <input type="hidden" name="action" value="block">
+                            <input type="hidden" name="id" value="<?= $u["id"] ?>">
+                            <button class="dangerous-button" id="block-btn"><span class="icon -inl">block</span>
+                                Bloquer cet utilisateur
+                            </button>
+                        </form>
+                    </div>
+                <?php endif; ?>
             </section>
             <?php if ($adminMode): ?>
                 <section class="-admin">
@@ -335,6 +344,10 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
                     <div class="-gender"><?= $gender ?></div>
                     <div class="-age"><?= $age ?> ans</div>
 
+                    <?php if (!empty($location)) : ?>
+                        <div class="-loc"><?= htmlspecialchars($location) ?></div>
+                    <?php endif; ?>
+
                     <?php if ($sit !== null) : ?>
                         <div class="-situation"><?= $sit ?></div>
                     <?php endif; ?>
@@ -350,4 +363,70 @@ function profileCard(array $u, bool $full = false, bool $adminMode = false) {
             </div>
         </article>
     <?php endif;
-} ?>
+}
+
+function blockedCard(array $u, int $bs, bool $full) {
+    $fn = $u["firstName"] . " " . $u["lastName"];
+
+    if (!$full) { ?>
+        <article class="profile-card -blocked" data-id="<?= $u["id"] ?>">
+            <div class="-block-icon icon">lock</div>
+            <div class="-infos">
+                <div class="-name"><?= htmlspecialchars($fn) ?></div>
+            </div>
+        </article>
+        <?php
+    } else {
+        ?>
+        <article class="blocked-profile" >
+            <aside class="-minimal-infos">
+                <div class="-name"><?= htmlspecialchars($fn); ?></div>
+            </aside>
+            <h2 class="-title">
+                <?php if ($bs === User\BS_ME): ?>
+                    Vous avez bloqué cet utilisateur
+                <?php elseif ($bs === User\BS_THEM): ?>
+                    Vous êtes bloqué par cet utilisateur
+                <?php endif; ?>
+            </h2>
+            <div class="icon">lock</div>
+            <div class="-details">
+                <p>
+                    Il n'est plus possible de voir le profil de cet utilisateur, ni de communiquer avec lui sur la
+                    messagerie.
+                </p>
+                <?php if ($bs === User\BS_ME): ?>
+                    <p>
+                        Vous pouvez débloquer cet utilisateur à tout moment.
+                    </p>
+                    <form method="post" action="/member-area/userProfile.php">
+                        <input type="hidden" name="id" value="<?= $u["id"] ?>">
+                        <input type="hidden" name="action" value="unblock">
+                        <button type="submit" class="-unblock">
+                            <span class="icon -inl">lock_open</span>
+                            Débloquer
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        </article>
+        <?php
+    }
+}
+
+function povProfileCard(array $u, bool $full = false) {
+    $logged = \UserSession\loggedUser();
+    if ($logged === null) {
+        profileCard($u, $full, false, false);
+        return;
+    }
+
+    $bs = \User\blockStatus($logged["id"], $u["id"]);
+    if ($bs === \User\BS_NO_BLOCK) {
+        profileCard($u, $full, $u["id"] !== $logged["id"], \UserSession\level() >= \User\LEVEL_ADMIN);
+    } else {
+        blockedCard($u, $bs, $full);
+    }
+}
+
+?>

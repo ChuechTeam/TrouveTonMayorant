@@ -41,6 +41,7 @@ function member(?string $title = null) {
         startup: { elements: ['.has-math'] }
     };
 </script>
+<script async src="/scripts/math.js" type="module"></script>
 <script id="MathJax-script" async src="/assets/mathjax/es5/tex-mml-chtml.js"></script>
 HTML);
 
