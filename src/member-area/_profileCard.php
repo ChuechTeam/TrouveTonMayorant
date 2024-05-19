@@ -300,8 +300,10 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
                                 echo '<img class="slide-img" src="' . $pic . '">';
                                 echo '</div>';
                             }?>
-                            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-                            <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                            <?php if(count($non_empty_pics)>1): ?>
+                                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                                <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                            <?php endif; ?>
                         </div>
                         
                     </div>
