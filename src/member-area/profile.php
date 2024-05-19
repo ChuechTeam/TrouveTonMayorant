@@ -3,6 +3,7 @@ require "_common.php";
 
 Templates\member("Votre profil");
 Templates\addStylesheet("/assets/style/profile-edit-page.css");
+Templates\appendParam("head", '<script src="/scripts/location.js" type="module" defer></script>');
 
 // Permettre de modifier un utilisateur de son choix si l'on est admin.
 $notMe = false;
@@ -226,11 +227,11 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 
                 <label class="-grid-item" for="departmentSelect">Lieu de résidence</label>
                 <div class="-grid-item">
-                    <select id="departmentSelect" name="dep">
+                    <select id="departmentSelect" data-dep="<?= $u["dep"] ?>" name="dep">
                         <option disabled selected value> -- Département -- </option>
                     </select>
                     <br>
-                    <select id="citySelect" class="d-none" name="city">
+                    <select id="citySelect" class="d-none" data-city="<?= $u["city"] ?>" name="city">
                         <option disabled selected value> -- Ville -- </option>
                     </select>
                     <input type="hidden" name="depName" id="depNameInput" value="<?= htmlspecialchars($u["depName"]) ?>">
@@ -349,78 +350,6 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 <script type="module">
     import {typeset} from "/scripts/math.js";
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const departmentSelect = document.getElementById('departmentSelect');
-        const citySelect = document.getElementById('citySelect');
-        let previousDep = null;
-        let userDep = "<?= $u['dep'] ?>";
-        let userCity = "<?= $u['city'] ?>";
-
-        // Récupère les données du fichier JSON
-        fetch('departements-region.json')
-        .then(response => response.json())
-        .then(data => {
-            
-            
-            // Ajoute des options pour le menu déroulant des départements avec les départements du fichier JSON
-            data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.num_dep;
-                option.textContent = item.dep_name;
-                departmentSelect.appendChild(option);
-                if(userDep == option.value){
-                    option.selected = true;
-                    previousDep = userDep;
-                    filterCities(userDep);
-                    citySelect.classList.remove('d-none');
-                }
-            });
-        })
-        .catch(error => console.error('Error fetching JSON:', error));
-        
-        // Filtre les villes selon le département sélectionné
-        function filterCities(selectedDep){
-            citySelect.innerHTML = '<option disabled selected value> -- Ville -- </option>';
-
-            // Récupère les données du fichier JSON
-            fetch('cities.json')
-            .then(response => response.json())
-            .then(data => {
-                let dataCities = Array.from(new Set(data.cities.map(JSON.stringify))).map(JSON.parse); //nécessaire pour retirer les dupliqués (parce que le json officiel du gouvernement il est nul)
-                dataCities.forEach(item => {
-                    if(item.department_number === selectedDep){
-                        const option = document.createElement('option');
-                        option.value = item.insee_code;
-                        var cityName = item.city_code.split(" ");
-                        for (let i = 0; i < cityName.length; i++) {
-                            cityName[i] = cityName[i][0].toUpperCase() + cityName[i].substr(1);
-                        }
-
-                        cityName = cityName.join(" ");
-                        option.textContent = cityName;
-                        citySelect.appendChild(option);
-                        if(userCity == option.value){
-                            option.selected = true;
-                        }
-                    }
-                });
-            })
-            .catch(error => console.error('Error fetching JSON:', error));
-        }
-        
-        // Affiche le menu déroulant des villes lorsqu'une option de département est choisie
-        departmentSelect.addEventListener('change', function(){
-            const selectedDep = this.value;
-            if(selectedDep !== previousDep){
-                filterCities(selectedDep);
-                previousDep = selectedDep;
-            }
-            if(selectedDep){
-                citySelect.classList.remove('d-none');
-            }
-        });
-    });
-
     //bouton suppression du compte
     document.getElementById("delete-account")?.addEventListener("click", function(e) {
         if (document.getElementById("pass-input").value == "") {
@@ -455,7 +384,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
     function regNameUpdate(dropdown, input) {
         dropdown.addEventListener("change", e => {
             const opt = dropdown.options[dropdown.selectedIndex];
-            input.value = opt.text;
+            input.value = opt.dataset.publicVal;
         })
     }
     regNameUpdate(document.getElementById("departmentSelect"), document.getElementById("depNameInput"));

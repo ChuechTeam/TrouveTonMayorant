@@ -438,36 +438,3 @@ function povProfileCard(array $u, bool $full = false) {
 }
 
 ?>
-
-<script>
-
-var slide_id = 1;
-function plusSlides(n) {
-    showSlides(slide_id += n);
-}
-
-function currentSlide(n) {
-    showSlides(slide_id = n);
-}
-
-function showSlides(n) {
-    var i;
-    var slides = document.querySelectorAll('.custom-slider');
-    if(n > slides.length){
-        slide_id = 1;
-    }    
-    if(n < 1){
-        slide_id = slides.length;
-    }
-    for(i = 0; i < slides.length; i++){
-        slides[i].style.display = "none";  
-    }
-
-    slides[slide_id-1].style.display = "block";  
-}
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    showSlides(slide_id);
-});
-</script>

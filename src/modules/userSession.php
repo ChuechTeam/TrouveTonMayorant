@@ -29,7 +29,7 @@ function isLogged(): bool
     return loggedUserId() !== null;
 }
 
-function loggedUserId(): ?int {
+function  loggedUserId(): ?int {
     global $cachedId;
 
     start();

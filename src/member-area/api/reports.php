@@ -29,6 +29,8 @@ require_once "../../modules/moderationDB.php";
  * 200 OK
  */
 
+UserSession\requireLevel(User\LEVEL_SUBSCRIBER);
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $data = json_decode(file_get_contents('php://input'), true);
     if (!is_array($data)) {

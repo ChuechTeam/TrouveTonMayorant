@@ -50,7 +50,7 @@
 
     & > label {
         border-radius: 4px;
-        background-color: rgb(49, 8, 88);
+        background-color: rgb(19, 48, 134);
         color: white;
         padding: 6px 8px;
         border: 1px solid transparent;
@@ -58,7 +58,7 @@
     }
 
     & > label:hover {
-        background-color: rgb(37, 5, 67);
+        background-color: color-mix(in srgb, rgb(19, 48, 134) 80%, black 20%);
         cursor: pointer;
     }
 

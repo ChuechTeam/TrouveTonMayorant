@@ -1,7 +1,7 @@
 #fields {
-    background: purple;
+    background: white;
     border-radius: 15px;
-    color: whitesmoke;
+    color: rgb(82, 84, 110);
     width: fit-content;
     padding-bottom: 10px;
     padding-top: 10px;
@@ -10,23 +10,22 @@
     margin-bottom: 10px;
 }
 
-#field {
+.field {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 32px;
     border-style: solid;
     border-radius: 12px;
-    border-color: black;
+    border-color: rgb(192, 192, 192);
     border-width: 1px;
     padding: 5px;
     list-style: none;
-
 }
 
-#search-entry {
-    display: block;
-    margin: auto;
+.location{
+    flex-direction: column;
+    gap: 15px !important;
 }
 
 .wrapper {
@@ -87,7 +86,7 @@ input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     height: 1.5em;
     width: 1.5em;
-    background-color: darkblue;
+    background-color: hsl(225, 75%, 40%);;
     cursor: pointer;
     margin-top: -9px;
     pointer-events: auto;
@@ -100,7 +99,7 @@ input[type="range"]::-moz-range-thumb {
     width: 1.7em;
     cursor: pointer;
     border-radius: 50%;
-    background-color: darkblue;
+    background-color: hsl(225, 75%, 40%);;
     pointer-events: auto;
     border: none;
 }
@@ -111,17 +110,17 @@ input[type="range"]::-ms-thumb {
     width: 1.7em;
     cursor: pointer;
     border-radius: 50%;
-    background-color: darkblue;
+    background-color: hsl(225, 75%, 40%);;
     pointer-events: auto;
 }
 
 input[type="range"]:active::-webkit-slider-thumb {
-    background-color: darkblue;
-    border: 1px solid darkblue;
+    background-color: hsl(225, 75%, 40%);;
+    border: 1px solid hsl(225, 75%, 40%);;
 }
 
 .values {
-    background-color: darkblue;
+    background-color: hsl(225, 75%, 40%);;
     width: 88px;
     height: 20px;
     margin-left: 30px;
@@ -141,4 +140,17 @@ input[type="range"]:active::-webkit-slider-thumb {
     grid-auto-flow: row;
 
     gap: 8px;
+}
+
+#search-entry{
+    margin-left: 30px;
+    -webkit-box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FFE264, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0); 
+    box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FFE264, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0);
+}
+
+.buttons{
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 10px;
 }

@@ -14,6 +14,8 @@ require_once "../_conversation.php";
  * Retour : l'HTML complet de la conversation
  */
 
+UserSession\requireLevel(User\LEVEL_SUBSCRIBER);
+
 $convId = $_GET["id"];
 $conv = User\findConversation($user["id"], $convId);
 

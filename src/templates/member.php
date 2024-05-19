@@ -13,6 +13,7 @@ $profilePath = "/member-area/profile.php";
 $profileVisitsPath = "/member-area/profileVisits.php";
 $userProfilePath = "/member-area/userProfile.php";
 $chatPath = "/member-area/chat.php";
+$shopPath = "/member-area/shop.php";
 $adminPath = "/admin-area";
 
 global $curPath;
@@ -70,6 +71,12 @@ $isAdmin = $tmplArgs["userLevel"] >= User\LEVEL_ADMIN;
             <a <?php linkAttribs($chatPath); ?>>
                 <span class="icon -inl">chat</span>
                 <span class="-label">Chat</span>
+            </a>
+        </li>
+        <li>
+            <a <?php linkAttribs($shopPath); ?>>
+                <span class="icon -inl">shopping_cart</span>
+                <span class="-label">Boutique</span>
             </a>
         </li>
         <?php if ($isAdmin): ?>

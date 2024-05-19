@@ -18,6 +18,14 @@
 
     --block-bg: linear-gradient(140deg, rgb(65, 65, 65) 0%, rgb(0, 0, 0) 100%);
     --block-bg-darker: linear-gradient(140deg, rgb(25, 25, 25) 0%, rgb(0, 0, 0) 100%);
+
+    --sup-color-l4: hsl(51, 100%, 90%);
+    --sup-color-l3: hsl(51, 100%, 80%);
+    --sup-color-l2: hsl(51, 100%, 70%);
+    --sup-color-l1: hsl(51, 100%, 60%);
+    --sup-color: hsl(51, 100%, 50%);
+    --sup-color-d1: hsl(51, 100%, 40%);
+    --sup-color-d2: hsl(52, 100%, 30%);
 }
 
 .material-symbols-rounded, .icon {
@@ -89,14 +97,14 @@ a:visited {
 
 .sub {
     border-radius: 4px;
-    background-color: rgb(49, 8, 88);
+    background-color: rgb(19, 48, 134);
     color: white;
     padding: 6px 8px;
     border: 1px solid transparent;
 }
 
 .sub:hover {
-    background-color: rgb(37, 5, 67);
+    background-color: color-mix(in srgb, rgb(19, 48, 134) 80%, black 20%);
     cursor: pointer;
 }
 

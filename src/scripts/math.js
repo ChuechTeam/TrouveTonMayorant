@@ -15,7 +15,7 @@ if (window.MathJax != null && "typesetPromise" in window.MathJax) {
 }
 else {
     const mj = window.MathJax ?? (window.MathJax = {});
-    const startup = MathJax.startup ?? (MathJax.startup = {});
+    const startup = mj.startup ?? (mj.startup = {});
     startup.ready = function () {
         MathJax.startup.defaultReady();
         MathJax.startup.promise.then(readyResolve);

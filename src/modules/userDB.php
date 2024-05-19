@@ -13,6 +13,7 @@ namespace UserDB;
  * - "blockedUsers" : tableau associatif d'id d'utilisateurs bloqués : [id]=>1
  * - "blockedBy" : tableau associatif d'id des utilisateurs qui ont bloqué celui-ci : [id]=>1
  * - "supExpire" : date à laquelle l'abonnement sup expire
+ * - "supBought" : date à laquelle l'abonnement sup a été acheté
  * - "admin" : si l'utilisateur est admin : true
  */
 
@@ -37,7 +38,8 @@ const REV_LOC = 10; // Département / ville
 const REV_LOC_STR = 11; // Ajout des noms des départements et ville
 const REV_PICS = 12; // Photos galerie
 const REV_PFP_RESET = 13;
-const REV_LAST = REV_PFP_RESET; // Dernière version de la base de donnée
+const REV_SUP_BOUGHT = 14; // Date d'achat de l'abonnement sup
+const REV_LAST = REV_SUP_BOUGHT; // Dernière version de la base de donnée
 
 $usersFile = null; // Le fichier json chargé avec fopen
 $usersReadOnly = false; // Si la base de donnée est ouverte en lecture seule
@@ -390,7 +392,12 @@ function _upgrade(array &$data) {
                     foreach ($data["users"] as &$u) {
                         $u["pfp"] = "";
                     }   
-                    break; 
+                    break;
+                case REV_SUP_BOUGHT:
+                    foreach ($data["users"] as &$u) {
+                        $u["supBought"] = null;
+                    }
+                    break;
                 default:
                     break;
             }

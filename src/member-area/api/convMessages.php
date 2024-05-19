@@ -48,6 +48,8 @@ require_once "../_chatMessage.php";
  * 200 OK : le message a été supprimé
  */
 
+UserSession\requireLevel(User\LEVEL_SUBSCRIBER);
+
 if (empty($_GET["id"])) {
     bail(400);
 }

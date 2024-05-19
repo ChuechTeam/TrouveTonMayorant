@@ -377,6 +377,6 @@ Initialisation de la boîte de chat
 */
 
 const box = document.getElementById("chat-box")
-if (box) {
+if (box && !box.classList.contains("-not-sup")) {
     initChatBox(box);
 }

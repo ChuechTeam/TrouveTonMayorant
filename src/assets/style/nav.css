@@ -25,6 +25,7 @@
         flex-grow: 1;
 
         & a, & a:visited {
+            text-align: center;
             display: block;
             padding: 4px 12px;
             text-decoration: none;
@@ -43,7 +44,7 @@
         }
 
         & a.-active:hover {
-            background-color: #11296B;
+            background-color: var(--primary-color-d1);
         }
 
         & li:first-child {
@@ -76,14 +77,23 @@
         margin: 0 8px;
         bottom: 4px;
 
+        & li {
+            flex-grow: 1;
+        }
+
+        & a {
+            & > .-label { display: none; }
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
         & > .-ttm, & > .-sep {
             display: none;
         }
 
-        & .-icon {
+        & .icon {
             display: block;
-            text-align: center;
-            font-size: 1.33em !important;
+            font-size: calc(1.15em + 0.25vw) !important;
         }
 
         & .-mobile-hide {
@@ -92,7 +102,7 @@
 
         & .-label {
             display: block;
-            font-size: 0.8em;
+            font-size: 0.5em;
         }
     }
 }

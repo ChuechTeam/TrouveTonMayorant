@@ -1,0 +1,211 @@
+.subscription-card {
+    padding: 32px 16px;
+    border-radius: 4px;
+}
+
+.subscription-card.-subscribed {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    background: linear-gradient(45deg, var(--sup-color) 0%, var(--sup-color-l2) 100%);
+    border: 1px solid var(--sup-color-d2);
+
+    transition: transform 0.25s ease-out;
+
+    gap: 16px;
+
+    --shadow-x: 0;
+    --shadow-y: 0;
+    box-shadow: var(--shadow-x) var(--shadow-y) 27px 1px rgba(0, 0, 0, 0.2);
+
+    align-items: center;
+
+    user-select: none;
+    overflow-wrap: anywhere;
+
+    & > .-main {
+        flex: 60 1 250px;
+
+        & > .-sup-logo {
+            display: block;
+            width: calc(1em + 25%);
+            margin: 0 auto;
+        }
+
+        & > .-status {
+            font-size: 1.25em;
+            font-weight: bold;
+            text-align: center;
+
+            margin-top: 32px;
+        }
+    }
+
+    & > .-details {
+        flex: 40 1 250px;
+        display: flex;
+        flex-direction: column;
+
+        & h3 {
+            margin-block: 0.1em;
+            font-size: 1.1em;
+            font-weight: normal;
+        }
+
+        & > .-subscriber, & > .-bought {
+            font-weight: bold;
+            font-size: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        & > .-random-numbers {
+            font-family: monospace;
+            margin-top: auto;
+            font-size: 1.4em;
+            opacity: 0.33;
+        }
+    }
+}
+
+.subscription-card.-unsubscribed {
+    background: var(--block-bg-darker);
+    color: white;
+    text-align: center;
+
+    display: flex;
+    flex-wrap: wrap;
+
+    & h3 {
+        font-size: 1.5em;
+        margin-block: 0.5em;
+    }
+
+    & .-side {
+        flex: 30 0 auto;
+
+        font-size: 6em;
+    }
+
+    & .-main {
+        flex: 70 1 auto;
+
+        text-align: center;
+    }
+}
+
+#page-sub {
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+#offers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    justify-content: center;
+
+    & > .shop-offer {
+        flex: 1 1 250px;
+        max-width: 592px;
+    }
+}
+
+.shop-offer {
+    display: grid;
+    grid-template:
+        "logo duration"
+        "price price"
+        "buy buy"
+        / 1fr 1fr;
+
+    padding: 8px;
+    border-radius: 4px;
+    background-color: var(--sup-color-l3);
+    border: 1px solid var(--sup-color-d1);
+
+    gap: 8px;
+
+    & .-sup-logo {
+        grid-area: logo;
+        margin: 8px auto;
+        height: 2.5em;
+    }
+
+    & .-duration {
+        grid-area: duration;
+        border-left: 1px solid rgba(0, 0, 0, 0.5);
+    }
+
+    & .-price, & .-duration {
+        font-size: 1.8em;
+        align-self: center;
+        text-align: center;
+    }
+
+    & .-price {
+        grid-area: price;
+        font-weight: bold;
+    }
+
+    & .-buy {
+        grid-area: buy;
+        position: relative;
+
+        background-color: hsl(48, 95%, 32%);
+        border: none;
+        border-radius: 4px;
+        padding: 4px;
+        color: white;
+
+        box-shadow: 0px 2px 0px 0px var(--sup-color-d1);
+
+        &:hover {
+            background-color: hsl(48, 95%, 28%);
+        }
+        &:active {
+            background-color: hsl(48, 95%, 24%);
+            box-shadow: unset;
+            top: 1px;
+        }
+    }
+
+    & form {
+        display: contents;
+    }
+}
+
+#purchase-complete {
+    position: fixed;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    justify-content: center;
+
+    animation: pc-fade 1s 5s forwards;
+
+    & > div {
+        padding: 16px;
+        border-radius: 4px;
+        background-color: var(--sup-color);
+        border: 1px solid var(--sup-color-d2);
+    }
+
+    & .-sup {
+        height: 1em;
+        vertical-align: middle;
+    }
+}
+
+@keyframes pc-fade {
+    0% {
+        opacity: 1.0;
+    }
+    100% {
+        opacity: 0;
+        display: none;
+    }
+}

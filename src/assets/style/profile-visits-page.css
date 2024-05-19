@@ -67,6 +67,31 @@
     }
 }
 
+#stats > .-stat.-not-sup {
+    background: var(--block-bg-darker);
+    color: white;
+    & > .-value {
+        user-select: none;
+        position: relative;
+        & > span { filter: blur(15px); }
+
+        &::after {
+            position: absolute;
+            left: 0;
+            top: -8px;
+            right: 0;
+            bottom: 0;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            content: "lock";
+            font-family: "Material Symbols Rounded";
+        }
+    }
+}
+
 #people {
     display: grid;
     margin: 0 2vw;

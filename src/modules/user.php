@@ -18,6 +18,7 @@ const ERR_SAME_USER = 6;
 const ERR_EMAIL_BANNED = 7;
 const ERR_BLOCKED = 8;
 const ERR_INVALID_FIELD = 9;
+const ERR_NOT_SUBSCRIBED = 10;
 
 // Liste des grades/rôles
 const LEVEL_GUEST = 1; // Visiteur non inscrit
@@ -60,6 +61,7 @@ const BS_THEM = 1; // On m'a bloqué
 const BS_NO_BLOCK = 0; // Y'a pas de souci
 
 const DEFAULT_PFP = "/assets/img/pfp_default.png";
+const SUP_DATE_FMT = \DateTimeInterface::ATOM;
 
 // 0 --> OK
 // >0 --> OH NOOO
@@ -116,6 +118,7 @@ function register(string $firstname, string $lastname, string $email, string $pa
             "pic3" => "",
             "admin" => $admin,
             "supExpire" => null,
+            "supBought" => null,
             "gender_search" => [],
             "rel_search" => [],
             "conversations" => [],
@@ -296,6 +299,10 @@ function startConversation(int    $id1,
         return ERR_SAME_USER;
     }
 
+    if (level($id1) < LEVEL_SUBSCRIBER) {
+        return ERR_NOT_SUBSCRIBED;
+    }
+
     $user1 = \UserDB\findById($id1);
     $user2 = \UserDB\findById($id2);
 
@@ -375,6 +382,29 @@ function unblockUser(int $blockerId, int $blockeeId): int {
     }
 }
 
+function subscribe(int $id, \DateInterval $duration, array &$updatedUser = null): int {
+    $user = \UserDB\findById($id);
+    if ($user === null) {
+        return ERR_USER_NOT_FOUND;
+    }
+
+    if ($duration->invert) {
+        throw new \RuntimeException("Duration must be positive");
+    }
+
+    if (supActive($user, $exp)) {
+        $exp->add($duration);
+        $user["supExpire"] = $exp->format(SUP_DATE_FMT);
+    } else {
+        $user["supExpire"] = (new \DateTime())->add($duration)->format(SUP_DATE_FMT);
+        $user["supBought"] = (new \DateTime())->format(SUP_DATE_FMT);
+    }
+
+    \UserDB\put($user);
+    $updatedUser = $user;
+    return 0;
+}
+
 // Voir enum BLOCK STATUS (BS_XXX)
 // renvoie 0 si l'utilisateur n'est pas trouvé
 // si le blocage est mutuel (bizarre), le blocage du lecteur sera priorisé.
@@ -410,18 +440,8 @@ function level(?int $id): int {
         return LEVEL_ADMIN;
     }
 
-    if ($u["supExpire"] !== null) {
-        $exp = new \DateTime($u["supExpire"]);
-        $now = new \DateTime();
-        $diff = $exp->diff($now); // $now - $date
-
-        // $now < $exp
-        // <==> $now - $exp < 0
-        // <==> $diff < 0
-        // <==> $diff->invert == 0
-        if ($diff !== false && $diff->invert == 0) {
-            return LEVEL_SUBSCRIBER;
-        }
+    if (supActive($u)) {
+        return LEVEL_SUBSCRIBER;
     }
 
     // Temporaire (mais réel)
@@ -439,6 +459,32 @@ function age(int $id): int {
     }
 
     return (new DateTime($u["bdate"]))->diff(new DateTime())->y;
+}
+
+// $u : id ou tableau utilisateur
+function supActive($u, \DateTime &$exp = null): bool {
+    $u = is_int($u) ? \UserDB\findById($u) : $u;
+    if ($u === null || $u["supExpire"] === null) {
+        return false;
+    }
+
+    $exp = DateTime::createFromFormat(SUP_DATE_FMT, $u["supExpire"]);
+    if ($exp !== false) {
+        $now = new \DateTime();
+        $diff = $exp->diff($now); // $now - $date
+
+        // $now < $exp
+        // <==> $now - $exp < 0
+        // <==> $diff < 0
+        // <==> $diff->invert == 1
+        if ($diff !== false && $diff->invert == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    return false;
 }
 
 /*
