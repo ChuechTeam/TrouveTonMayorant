@@ -294,10 +294,16 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
                 <?php if (!empty($non_empty_pics)) : ?>
                     <h2>Galerie</h2>
                     <div class="-gallery">
-                        <?php foreach ($non_empty_pics as $pic) {
-                            echo '<img src="' . $pic . '">';
-                        }
-                        ?>
+                        <div class="slide-container">
+                            <?php foreach ($non_empty_pics as $pic) {
+                                echo '<div class="custom-slider fade">';
+                                echo '<img class="slide-img" src="' . $pic . '">';
+                                echo '</div>';
+                            }?>
+                            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                            <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                        </div>
+                        
                     </div>
                 <?php endif; ?>
 
@@ -430,3 +436,36 @@ function povProfileCard(array $u, bool $full = false) {
 }
 
 ?>
+
+<script>
+
+var slide_id = 1;
+function plusSlides(n) {
+    showSlides(slide_id += n);
+}
+
+function currentSlide(n) {
+    showSlides(slide_id = n);
+}
+
+function showSlides(n) {
+    var i;
+    var slides = document.querySelectorAll('.custom-slider');
+    if(n > slides.length){
+        slide_id = 1;
+    }    
+    if(n < 1){
+        slide_id = slides.length;
+    }
+    for(i = 0; i < slides.length; i++){
+        slides[i].style.display = "none";  
+    }
+
+    slides[slide_id-1].style.display = "block";  
+}
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    showSlides(slide_id);
+});
+</script>

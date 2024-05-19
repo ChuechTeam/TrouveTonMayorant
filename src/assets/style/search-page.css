@@ -84,9 +84,9 @@ input[type="range"]::-ms-track {
 }
 
 input[type="range"]::-webkit-slider-thumb {
-    kit-appearance: none;
-    height: 1.7em;
-    width: 1.7em;
+    -webkit-appearance: none;
+    height: 1.5em;
+    width: 1.5em;
     background-color: darkblue;
     cursor: pointer;
     margin-top: -9px;

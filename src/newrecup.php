@@ -6,6 +6,8 @@ require_once "modules/userSession.php";
 require_once "./member-area/_profileCard.php";
 require "./modules/url.php";
 
+UserSession\start();
+
 // Charger la base de données en lecture seule pour éviter de verrouiller le fichier pour rien
 UserDB\load(true);
 $first = true;

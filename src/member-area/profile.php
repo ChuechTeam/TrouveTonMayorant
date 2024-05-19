@@ -178,7 +178,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 <div class="-grid-item"><input type="password" name="password" id="pass-input"></div>   
                 
                 <label class="-grid-item">Date d'inscription</label>
-                <div class="-grid-item" style="font-weight:400;"><?= DateTime::createFromFormat('Y-m-d', $u['rdate'])->format('d/m/Y'); ?></div>
+                <div class="-grid-item"><?= DateTime::createFromFormat('Y-m-d', $u['rdate'])->format('d/m/Y'); ?></div>
             </div>
 
             <?php if (!$notMe): ?>
@@ -278,7 +278,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
             <h2 class="-title">Je recherche<hr></h2>
             <div class="-grid-container">
                 <label class="-grid-item">Genre</label>
-                <div class="-grid-item" style="font-weight:400;">
+                <div class="-grid-item" style="font-weight:bold;">
                     <ul>
                         <li><input type="checkbox" name="gender_search[]" id="m" value="m" <?= (in_array(User\GENDER_MAN, $u['gender_search'])) ? "checked" : "" ?> ><label for="m">Homme</label></li>
                         <li><input type="checkbox" name="gender_search[]" id="f" value="f" <?= (in_array(User\GENDER_WOMAN, $u['gender_search'])) ? "checked" : "" ?> ><label for="f">Femme</label></li>
@@ -287,7 +287,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 </div>
 
                 <label class="-grid-item">Type de relation</label>
-                <div class="-grid-item" style="font-weight:400;">
+                <div class="-grid-item" style="font-weight:bold;">
                     <ul>
                         <li><input type="checkbox" name="rel_search[]" id="ro" value="ro" <?= (in_array("ro", $u['rel_search'])) ? "checked" : "" ?> ><label for="ro">Rencontres occasionnelles</label></li>
                         <li><input type="checkbox" name="rel_search[]" id="rs" value="rs" <?= (in_array("rs", $u['rel_search'])) ? "checked" : "" ?> ><label for="rs">Relation sérieuse</label></li>
@@ -311,22 +311,22 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
             <br>
             <h2 class="-title">Ma galerie<hr></h2>
             <div class="-grid-container">
-                <label class="-grid-item" for="pic1-upload" style="font-weight:400;">Image 1</label>
-                <div class="-grid-item" style="font-weight:400;">
-                    <img src="<?=(empty($u['pic1'])) ? '' : $u['pic']?>" id="img1-preview">
+                <div class="-grid-item" style="font-weight:bold;">Image 1</div>
+                <div class="-grid-item">
+                    <img src="<?=(empty($u['pic1'])) ? '' : $u['pic1']?>" id="img1-preview">
                     <br><label for="pic1-upload" class="upload-label">Importer une photo</label>
                     <input type="file" class="d-none" accept="image/*" id="pic1-upload" name="pic1" onchange="loadFile('img1-preview')">
                 </div>
 
-                <label class="-grid-item" for="pic2-upload" style="font-weight:400;">Image 2</label>
-                <div class="-grid-item" style="font-weight:400;">
+                <div class="-grid-item" style="font-weight:bold;">Image 2</div>
+                <div class="-grid-item">
                     <img src="<?=(empty($u['pic2'])) ? '' : $u['pic2']?>" id="img2-preview">
                     <br><label for="pic2-upload" class="upload-label">Importer une photo</label>
                     <input type="file" class="d-none" accept="image/*" id="pic2-upload" name="pic2" onchange="loadFile('img2-preview')">
                 </div>
 
-                <label class="-grid-item" for="pic3-upload" style="font-weight:400;">Image 3</label>
-                <div class="-grid-item" style="font-weight:400;">
+                <div class="-grid-item" style="font-weight:bold;">Image 3</div>
+                <div class="-grid-item">
                     <img src="<?=(empty($u['pic3'])) ? '' : $u['pic3']?>" id="img3-preview">
                     <br><label for="pic3-upload" class="upload-label">Importer une photo</label>
                     <input type="file" class="d-none" accept="image/*" id="pic3-upload" name="pic3" onchange="loadFile('img3-preview')">
