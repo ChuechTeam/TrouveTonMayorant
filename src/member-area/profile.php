@@ -335,7 +335,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
             </div>
 
             <br>
-            <button type="submit" class="sub">Enregistrer</button>
+            <button type="submit" class="sub sticky-button">Enregistrer</button>
         </form>
     </div>
 </div>

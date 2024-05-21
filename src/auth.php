@@ -98,7 +98,6 @@ Templates\addStylesheet("/assets/style/auth-page.css");
                         <option value="m">Homme</option>
                         <option value="f">Femme</option>
                         <option value="nb">Non-binaire</option>
-                        <option value="a">Autre</option>
                     </select>
                 </div>
                 <div class="-grid-item -footer"><button type="submit" class="sub">S'inscrire</button></div>

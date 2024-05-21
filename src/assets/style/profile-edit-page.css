@@ -107,6 +107,13 @@
     }
 }
 
+.sticky-button{
+    position: fixed;
+    z-index: 99;
+    bottom: 5px;; 
+    right: 350px;
+}
+
 .profile-form .-form-btn {
     --btn-bg: black;
     background-color: var(--btn-bg);
