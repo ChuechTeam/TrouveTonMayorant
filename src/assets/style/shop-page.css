@@ -11,7 +11,7 @@
     background: linear-gradient(45deg, var(--sup-color) 0%, var(--sup-color-l2) 100%);
     border: 1px solid var(--sup-color-d2);
 
-    transition: transform 0.25s ease-out;
+
 
     gap: 16px;
 

@@ -7,7 +7,7 @@ const userDep = departmentSelect.dataset.dep;
 const userCity = citySelect.dataset.city;
 
 // Récupère les données du fichier JSON
-fetch("departements-region.json")
+fetch("/member-area/departements-region.json")
   .then((response) => response.json())
   .then((data) => {
     // Ajoute des options pour le menu déroulant des départements avec les départements du fichier JSON
@@ -32,7 +32,7 @@ function filterCities(selectedDep) {
   citySelect.innerHTML = "<option disabled selected value> -- Ville -- </option>";
 
   // Récupère les données du fichier JSON
-  fetch("cities.json")
+  fetch("/member-area/cities.json")
     .then((response) => response.json())
     .then((data) => {
       let dataCities = Array.from(new Set(data.cities.map(JSON.stringify)))

@@ -11,7 +11,7 @@ UserSession\start();
 // Charger la base de données en lecture seule pour éviter de verrouiller le fichier pour rien
 UserDB\load(true);
 $first = true;
-$g = $_GET["genre"] ?? []; // Si pas set --> []
+$g = $_GET["genre"] ?? []; // Si pas defini --> [], donc tout le monde sera trouvé
 $f = $_GET["fumeur"] ?? null;
 $a_min = intval($_GET["a_min"]);
 $a_max = intval($_GET["a_max"]);
