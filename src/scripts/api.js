@@ -1,14 +1,14 @@
 const root = new URL(window.location.origin);
 export const api = {
     /**
-     * Envoie un message
-     * @param {number} convId l'id de la conversation
-     * @param {string} content le contenu du message
-     * @param {number | null} since l'id du dernier message reçu
+     * Sends a message to a conversation
+     * @param {number} convId the conversation id
+     * @param {string} content contents of the message
+     * @param {number | null} since the id of the last received message, to filter out old messages
      */
     async sendMessage(convId, content, since) {
         const endpoint = new URL("member-area/api/convMessages.php", root);
-        // Ajouter les parametres ?id et ?since
+        // Fill URL parameters: ?id and ?since
         endpoint.searchParams.set("id", convId);
         if (since != null) {
             endpoint.searchParams.set("since", since);
@@ -26,6 +26,7 @@ export const api = {
             throw new Error("Failed to send message! Error code: " + res.status);
         }
 
+        // TODO: make use of the Is-Blocked header
         return {
             firstMsgId: parseInt(res.headers.get("First-Message-Id")),
             lastMsgId: parseInt(res.headers.get("Last-Message-Id")),

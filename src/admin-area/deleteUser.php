@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
-// Remarque : on met le style ici pour éviter de leak du CSS admin au commun des mortels.
+// Note: we're putting the style here so we don't leak too much admin CSS to non-admin users
 ?>
 
 <style>

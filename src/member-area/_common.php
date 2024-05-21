@@ -5,8 +5,8 @@ require_once __DIR__ . "/../modules/userSession.php";
 require __DIR__ . "/../modules/url.php";
 
 /*
- * Fichier à inclure dans chaque page de l'espace membre.
- * Si la page est action d'API (utilisée dans du AJAX), mettez $api à true avant de l'inclure.
+ * File to include in each page inside the member area
+ * If the page is an API action (used in AJAX), make sure to set $api to true before including this file.
  */
 
 function bail(int $code) {

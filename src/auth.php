@@ -6,14 +6,14 @@ require_once "modules/url.php";
 $register = isset($_GET["register"]);
 $page = $register ? "register" : "signIn";
 
-// -1 : formulaire non envoyé
-// >0 : échec de l'inscription/connexion (code d'erreur User)
+// -1 : form not sent
+// >0 : Registration/login failed (see User error codes)
 $errCode = -1;
 
-// si on a envoyé le formulaire
+// If the user has sent the form
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($page === "signIn") {
-        // Connexion
+        // Log in & check fields
         if (!empty(($_POST['mail'])) && !empty(($_POST['password']))) {
             $user_m = $_POST['mail'];
             $user_p = $_POST['password'];
@@ -30,9 +30,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $errCode = User\ERR_FIELD_MISSING;
         }
     } else {
-        // Inscription
+        // Register & check fields
         if (!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate'])) && !empty(($_POST['gender']))) { //Si les champs ne sont pas vides
-            //On recupere les infos importantes
+            // Gather all important infos
             $user_m = $_POST['mail'];
 
             $user_p = $_POST['password'];
@@ -44,6 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $id = 0;
             $errCode = User\register($user_fn, $user_n, $user_m, $user_p, $user_bd, $user_gender, $id);
             if ($errCode === 0) {
+                // Start a user session with our newly created user
                 \UserSession\signIn($id);
                 header("Location: $root/index.php");
                 exit();
@@ -54,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$erreur = $errCode !== -1 ? User\errToString($errCode) : null;
+$error = $errCode !== -1 ? User\errToString($errCode) : null;
 
 Templates\base($page === "signIn" ? "Connexion" : "Inscription");
 Templates\addStylesheet("/assets/style/auth-page.css");
@@ -109,7 +110,7 @@ Templates\addStylesheet("/assets/style/auth-page.css");
 
         </form>
         <p id="error">
-            <?= $erreur ?>
+            <?= $error ?>
         </p>
     </div>
 </div>

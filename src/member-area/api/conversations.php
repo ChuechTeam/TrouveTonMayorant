@@ -6,12 +6,12 @@ require_once "../_conversation.php";
 
 /*
  * GET /member-area/conversations.php
- * Renvoie l'HTML d'une conversation.  
+ * Sends the entire HTML of a conversation.
  * 
- * Paramètres (URL) :
- * ?id : l'identifiant de la conversation
+ * Parameters (URL) :
+ * ?id : the conversation id
  * 
- * Retour : l'HTML complet de la conversation
+ * Returns : the entire HTML of a conversation.
  */
 
 UserSession\requireLevel(User\LEVEL_SUBSCRIBER);

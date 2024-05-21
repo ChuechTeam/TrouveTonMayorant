@@ -8,11 +8,11 @@ require "./modules/url.php";
 
 UserSession\start();
 
-// Charger la base de données en lecture seule pour éviter de verrouiller le fichier pour rien
+// Load the database in read-only mode to avoid performance issues.
 UserDB\load(true);
 $first = true;
-$g = $_GET["genre"] ?? []; // Si pas defini --> [], donc tout le monde sera trouvé
-$f = $_GET["fumeur"] ?? null;
+$g = $_GET["gender"] ?? []; // If unset --> [], so no users will be filtered by gender
+$f = $_GET["smoker"] ?? null;
 $a_min = intval($_GET["a_min"]);
 $a_max = intval($_GET["a_max"]);
 $dep = $_GET["dep"] ?? null;
@@ -21,7 +21,7 @@ foreach(UserDB\query() as $u){
     $a = (new DateTime($u["bdate"]))->diff(new DateTime())->y;
     if ((empty($g) || in_array($u["gender"],$g)) && 
         ($f == null || $u["user_smoke"]==$f) &&
-        ($a <= $a_max && $a >=$a_min) &&// age autour de celui du user
+        ($a <= $a_max && $a >=$a_min) && // age check
         (User\blockStatus(userSession\loggedUserId(), $u["id"]) != 1 ) &&
         ($dep === null || $u["dep"] == $dep)
         ) {

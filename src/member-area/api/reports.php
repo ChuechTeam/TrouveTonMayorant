@@ -5,38 +5,40 @@ require "../_common.php";
 require_once "../_chatMessage.php";
 require_once "../../modules/moderationDB.php";
 
-/**
+/*
  * POST /member-area/api/reports.php
- * Ajoute un signalement d'un message dans une conversation
+ * Adds a report for a message in a conversation
  *
- * Entrée (JSON) :
+ * Input (JSON) :
  * {
- *     "convId": string, // L'id de conversation
- *     "msgId": int // L'id du message
- *     "reason": string // La justification du signalement
- * } 
- * 
- * Retour :
+ *    "convId": string, // The conversation id
+ *    "msgId": int // The message id
+ *    "reason": string // The reason for the report
+ * }
+ *
+ * Returns :
  * 200 OK
- * 
+ *
  * DELETE /member-area/api/reports.php
- * Supprime un signalement (admin uniquement)
- * 
- * Entrée :
- * ?id : l'id du signalement
- * 
- * Retour :
+ * Deletes a report (admin only)
+ *
+ * Parameters (URL) :
+ * ?id : the report id
+ *
+ * Returns :
  * 200 OK
  */
 
 UserSession\requireLevel(User\LEVEL_SUBSCRIBER);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Get the JSON
     $data = json_decode(file_get_contents('php://input'), true);
     if (!is_array($data)) {
         bail(400);
     }
 
+    // Do various parameter checks
     $convId = $data["convId"] ?? null;
     if (!is_string($convId)) {
         bail(400);
@@ -46,7 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!is_int($msgId)) {
         bail(400);
     }
-    
+
+    // Make sure that the reason isn't empty and not just a sequence of spaces
     $reason = trim($data["reason"] ?? "");
     if (empty($reason)) {
         bail(400);
@@ -70,6 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     
     bail(404);
 } else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
+    // Admin only!
     if (User\level($user["id"]) < User\LEVEL_ADMIN) {
         bail(400);
     }

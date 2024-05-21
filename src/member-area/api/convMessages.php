@@ -6,48 +6,48 @@ require_once "../_chatMessage.php";
 
 /*
  * GET /member-area/api/convMessages.php
- * Renvoie l'HTML des messages d'une conversation, envoyés après un message choisi.
- * 
- * Paramètres (URL) : 
- * ?id : l'identifiant de la conversation
- * ?since : l'identifiant du dernier message vu, les messages avec un identifiant identique
- *              ou antérieur ne seront pas renvoyés (si non spécifié, tous les messages seront envoyés)
- * 
- * Retour :
- * 200 OK : l'HTML des messages
- *          les headers First-Message-Id et Last-Message-Id sont remplis avec leurs identifiants respectifs
- * 204 No Content : réponse vide, aucun message trouvé
+ * Sends the HTML of a conversation's messages, sent after a chosen message.
+ *
+ * Parameters (URL):
+ * ?id: the conversation id
+ * ?since: the id of the last seen message, messages with an id equal to or lower than this will not be sent
+ *         (if not specified, all messages will be sent)
+ *
+ * Returns:
+ * 200 OK: the HTML of the messages
+ *         the headers First-Message-Id and Last-Message-Id are filled with their respective ids
+ * 204 No Content: empty response, no messages found
  *
  * ---
  *
  * POST /member-area/api/convMessages.php
- * Envoie un message dans la conversation, et renvoie tous les messages envoyés après un message choisi.
- * 
- * Paramètres (URL) :
- * ?id : l'identifiant de la conversation
- * ?since=int : voir la méthode GET
- * 
- * Paramètres (JSON) :
+ * Sends a message in the conversation, and sends all messages sent after a chosen message.
+ *
+ * Parameters (URL):
+ * ?id: the conversation id
+ * ?since=int: see the GET method
+ *
+ * Parameters (JSON):
  * {
- *     "content" : string // le contenu du message
+ *    "content": string // the message's content
  * }
- * 
- * Retour :
- * 200 OK : l'HTML des messages, incluant le nouveau message (voir GET)
+ *
+ * Returns:
+ * 200 OK: the HTML of the messages, including the new message (see GET)
  *
  * ---
  *
  * DELETE /member-area/api/convMessages.php
- * Supprime un message de la conversation.
+ * Deletes a message from the conversation.
  *
- * Paramètres (URL) :
- * ?id : l'identifiant de la conversation
- * ?msgId : le message à supprimer
+ * Parameters (URL):
+ * ?id: the conversation id
+ * ?msgId: the message to delete
  *
- * Retour :
- * 200 OK : le message a été supprimé
+ * Returns:
+ * 200 OK: the message has been deleted
+ *
  */
-
 UserSession\requireLevel(User\LEVEL_SUBSCRIBER);
 
 if (empty($_GET["id"])) {
@@ -61,7 +61,7 @@ if ($conv === null) {
     bail(404);
 }
 
-// Id du dernier message vu
+// Id of the last seen message
 $since = is_numeric($_GET["since"] ?? null) ? intval($_GET["since"]) : null;
 
 function lastMessages(array $conv, ?int $since)
@@ -69,8 +69,8 @@ function lastMessages(array $conv, ?int $since)
     $first = null;
     $last = null;
 
-    // Enregistrer l'HTML dans un string pour changer les headers
-    // sinon PHP se plaint de headers déjà envoyés
+    // Keep the chatMessage HTML inside a string
+    // so we can edit the headers afterward.
     ob_start();
 
     foreach ($conv["messages"] as $msg) {
@@ -98,7 +98,7 @@ function lastMessages(array $conv, ?int $since)
     echo ob_get_clean();
 }
 
-// pour pouvoir plus tard implémenter la mise à jour du statut de blocage
+// Send the block status to the client so it knows if it can send messages again
 if ($user["id"] == $conv["userId1"]) {
     $bs = \User\blockStatus($conv["userId1"], $conv["userId2"]);
 } else if ($conv["userId2"] == $user["id"]) {
@@ -106,7 +106,8 @@ if ($user["id"] == $conv["userId1"]) {
 } else {
     $bs = \User\BS_NO_BLOCK;
 }
-
+// Blocked --> header sent
+// Not blocked --> no header
 if ($bs !== \User\BS_NO_BLOCK) {
     header("Is-Blocked: true");
 }
@@ -147,8 +148,8 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     $msgId = intval($_GET["msgId"]);
 
-    // Vérifier si on a le droit de supprimer ce message
-    // (C'est un recherche O(n) mais bon)
+    // Make sure that we can delete this message
+    // (It's a O(n) operation but... no worries, everything's fine)
     if (User\level($user["id"]) < User\LEVEL_ADMIN) {
         foreach ($conv["messages"] as $msg) {
             if ($msg["id"] === $msgId) {

@@ -7,7 +7,8 @@ require_once "_conversation.php";
 Templates\member("Messagerie");
 Templates\appendParam("head", '<script src="/scripts/chat.js" type="module" defer></script>');
 
-// Pouvoir voir la messagerie de quelqu'un d'autre si l'on est admin uniquement
+// Allow viewing conversations of other users if the user is an admin.
+// That's by all means very unethical, but it's required sooo :))
 $u = null;
 $impersonate = false;
 if (isset($_GET["impersonate"]) && UserSession\level() >= \User\LEVEL_ADMIN) {
@@ -28,7 +29,8 @@ $selectedConvId = null;
 if (!empty($_GET["startNew"]) && $hasRights) {
     $otherId = intval($_GET["startNew"]);
     if ($otherId !== $u["id"]) {
-        // Si la conversation existe déjà, elle sera mise dans selectedConvId.
+        // If the conversation already exists, it will be put into $selectedConvId,
+        // so there's no need to check if the operation succeeded.
         User\startConversation($u["id"], $otherId, $selectedConvId, $u);
     }
 }

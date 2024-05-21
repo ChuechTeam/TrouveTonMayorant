@@ -14,7 +14,7 @@ if (!$hasRights):
     srand($user["id"]);
     ?>
     <div id="stats">
-        <!-- PS: C'est pas les vraies stats :) -->
+        <!-- BTW those aren't the real stats -->
         <div class="-stat -not-sup">
             <h2 class="-title">Visites</h2>
             <div class="-value"><span><?= rand(0, 500) ?></span></div>
@@ -67,10 +67,10 @@ $fProp = $n === 0 ? 0 : (int)round(((float)$f / $n) * 100);
 $avgAge = $n === 0 ? 0 : (int)round($ageSum / $n);
 
 usort($visitors, function ($a, $b) {
-    // valeur < 0 --> a < b --> premier dans le tableau,
-    // valeur > 0 --> a > b --> dernier dans le tableau,
-    // on veut que la date la plus grande soit premier dans le tableau.
-    // Donc, si a > b, alors on doit retourner une valeur négative
+    // value < 0 --> a < b --> first in the array,
+    // value > 0 --> a > b --> last in the array,
+    // We want the highest date to be first in the table.
+    // So, when a > b, we need to return a NEGATIVE value (counterintuitive, I know).
 
     // a - b
     $diff = $b[2]->diff($a[2]);

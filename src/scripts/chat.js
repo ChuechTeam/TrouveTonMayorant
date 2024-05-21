@@ -121,11 +121,11 @@ export function initConversation(element) {
                 this.lastSeenMsgId = this.elems.messages.lastElementChild.dataset.id;
             }
 
-            // Supprimer un message quand on clique sur le bouton "supprimer"
-            // Ou lancer un signalement si on clique sur "signaler"
+            // Delete a message when clicking on the "delete" button
+            // Or report it if we click on the "report" button
             this.elems.messages.addEventListener("click", e => {
                 if (e.target.classList.contains("-delete")) {
-                    // trouver le message parent
+                    // find the parent message element
                     const msg = e.target.closest(".chat-message");
                     if (msg != null) {
                         if (confirm("Voulez-vous vraiment supprimer ce message ?")) {
@@ -136,8 +136,8 @@ export function initConversation(element) {
                     const msg = e.target.closest(".chat-message");
                     if (msg != null) {
                         let r = prompt("Écrivez en quoi ce message est problématique afin de le signaler.")
-                        r = r?.trim(); // retirer les espaces en trop
-                        if (r) { // pas vide, pas null
+                        r = r?.trim(); // remove excess spaces (so we don't allow sending a message with only spaces)
+                        if (r) { // make sure it is not empty, and not null
                             this.reportMessage(msg, r);
                         }
                     }
@@ -152,115 +152,128 @@ export function initConversation(element) {
             typeset(() => [this.elems.root]);
         },
 
+        // Sends a message to the server.
+        // Called by the message send form and button.
         postMessage() {
             const content = this.elems.msgInput.value;
-            // On évite d'envoyer un message vide
+            // Dont allow sending empty messages
             if (content.trim() === "") {
                 return;
             }
 
-            // On retire le message de l'input
+            // Clear out the input field
             this.elems.msgInput.value = "";
 
-            // On envoie le message au serveur.
+            // And send the message to the server.
+            // The HTML of the message will be returned and appended to the conversation.
             api.sendMessage(this.id, content, this.lastSeenMsgId)
                 .then(res => this.receiveMessages(res));
         },
 
+        // Receives messages from the server and appends them to the conversation.
+        // Called by the periodic message update function, and when a message has successfully been sent.
         receiveMessages({ html, firstMsgId, lastMsgId }) {
             console.log(`Receiving messages: [${firstMsgId}, ${lastMsgId}]`);
 
-            // Pour savoir si on doit scroll tout en bas après ou non
+            // First know if we should scroll down or not, before adding HTML which will
+            // change the scrolling position
             const scrollDown = this.scrollCloseEnough();
-            // On met l'HTML reçu à la fin de la liste des messages
+
+            // Append the received HTML at the end of the message list.
             this.elems.messages.insertAdjacentHTML("beforeend", html);
 
-            // Parcourir tous les messages envoyés par le serveur pour rafraîchir les équations.
-            // Et aussi upprimer les doublons (peut arriver si on a les requêtes dans le désordre)     
-            
+            // Go through all messages sent by the server to refresh the equations.
+            // And also remove duplicates (can happen if we have requests out of order)
             const messages = [];
             for (let i = this.elems.messages.children.length - 1; i >= 0; i--) {
                 const msg = this.elems.messages.children[i];
                 const msgId = msg.dataset.id;
 
-                // Ancien message, déjà vu, donc faut supprimer
+                // This is an old message, we need to remove it
                 if (this.lastSeenMsgId !== null && msgId <= this.lastSeenMsgId) {
                     msg.remove();
                 } else {
+                    // Add it to the list of messages to be refreshed.
                     messages.push(msg);
                 }
 
-                // Fin des messages envoyés par le serveur
+                // This is the last message sent by the server, stop there.
                 if (msg.dataset.id <= firstMsgId) {
                     break;
                 }
             }
-            // Rafraîchir mathJax
+
+            // Refresh MathJax to render equations on newly added messages.
             typeset(messages);
             
             this.lastSeenMsgId = lastMsgId
 
-            // On envoie un événement pour mettre à jour le dernier message affiché sur la liste
-            // des personnes.
+            // Dispatch an event to update the last message on the people list (on the left)
             this.elems.root.dispatchEvent(new CustomEvent("lastMessageUpdated", {
                 detail: {
                     txt: this.elems.messages.lastElementChild.querySelector(".-content").textContent
                 }
             }))
 
+            // Remember when we did the scroll down check? Now it's time to do it,
+            // if the user had the scrollbar nearly at the bottom.
             if (scrollDown) {
                 this.scrollToBottom();
             }
         },
 
+        // Delete a message.
+        // Called when the user clicks on a message's delete button.
         deleteMessage(msgElement) {
             const msgId = parseInt(msgElement.dataset.id);
             api.deleteMessage(this.id, msgId)
                 .then(() => msgElement.remove());
         },
 
+        // Submits a report for a specified message, with a reason
+        // Called when the user clicks on a message's report button, and fills out the form.
         reportMessage(msgElement, reason) {
             const msgId = parseInt(msgElement.dataset.id);
             api.reportMessage(this.id, msgId, reason)
                 .then(() => alert("Signalement envoyé !"));
         },
 
-        // Renvoie true si le scroll est suffisamment proche de la fin des messages
+        // Returns true when the message list is scrolled close enough to the bottom
         scrollCloseEnough() {
             const m = this.elems.messages;
             return m.scrollHeight - m.clientHeight - m.scrollTop < 50;
         },
 
-        // Scrolle tout en bas des messages
+        // Scrolls at the very bottom of the message list
         scrollToBottom() {
             const m = this.elems.messages;
             m.scrollTo(0, m.scrollHeight);
         },
 
-        // Met à jour la liste des messages
+        // Asks the server for new messages, and schedules another update after we've got a response of the server.
         async updateTick() {
-            // Si on a été retiré de l'écran, on arrête de faire des requêtes
+            // If we've been removed from the DOM, stop sending requests to the server
             if (!this.alive) {
                 return;
             }
 
             try {
-                // Recevoir les messages de l'API (voir convMessages.php)
+                // Receive messages from the API (see member-area/api/convMessages.php)
                 const m = await api.getMessages(this.id, this.lastSeenMsgId);
                 if (m !== null && this.alive) {
-                    // Il y en a (et on est tjrs affiché), alors ajouter ces messages
+                    // There's some new messages, let's add them!
                     this.receiveMessages(m);
                 }
             } finally {
-                // On relance la mise à jour après un certain temps (si on est tjrs affiché)
+                // Schedule another update in CONV_UPDATE_INTERVAL milliseconds.
                 if (this.alive) {
                     this.updateHandle = setTimeout(() => this.updateTick(), CONV_UPDATE_INTERVAL);
                 }
             }
         },
 
-        // False si la conversation n'est plus affichée à l'écran
-        // (donc si on a changé de conversation)
+        // Returns false when the element is not in the DOM anymore, meaning that it is not displayed
+        // on screen, and has likely been "destroyed".
         get alive() {
             return this.elems.root.isConnected;
         }
@@ -271,8 +284,8 @@ export function initConversation(element) {
 }
 
 /**
- * Boîte de dialogue Conversation
- * Utilise un élément personnalisé (custom element) pour afficher une conversation dans une boîte de dialogue.
+ * Conversation Dialog
+ * Uses a custom element to display a conversation in a dialog box.
  */
 const convDialogTemplate = document.createElement("template");
 convDialogTemplate.innerHTML = `
@@ -373,9 +386,8 @@ export async function fetchAndOpenConv(convId) {
 }
 
 /*
-Initialisation de la boîte de chat
-*/
-
+ * Initialising the chat box of the chat.php page.
+ */
 const box = document.getElementById("chat-box")
 if (box && !box.classList.contains("-not-sup")) {
     initChatBox(box);

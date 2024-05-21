@@ -5,8 +5,14 @@ require_once __DIR__ . "/../modules/conversationDB.php";
 require_once __DIR__ . "/_chatMessage.php";
 
 /**
- * Print le HTML complet d'une conversation (avec les messages et le formulaire pour envoyer). 
- * @param string|null $convId l'identifiant de la conversation
+ * Prints the entire HTML for a given conversation.
+ * If the conversation id is null or couldn't be found, a message will be displayed.
+ * If `$listEmpty` is true, a "go create a conversation" message will be shown; else,
+ * the user will be invited to select a conversation.
+ *
+ * @param string|null $convId the conversation id, or null to get the default view
+ * @param int|null $viewerId the id of the user viewing the conversation
+ * @param bool $listEmpty whether to show a message if the conversation list is empty
  * @return void
  */
 function conversation(?string $convId, ?int $viewerId, bool $listEmpty = false) {
@@ -34,7 +40,7 @@ HTML;
         return;
     }
 
-    // Empêcher d'envoyer des messages si un blocage est effectué.
+    // Prevent sending messages when blocked.
     $bs = \User\BS_NO_BLOCK;
     if ($viewerId == $conv["userId1"]) {
         $bs = \User\blockStatus($viewerId, $conv["userId2"]);

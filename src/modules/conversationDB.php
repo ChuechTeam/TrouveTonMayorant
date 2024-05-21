@@ -3,17 +3,17 @@
 namespace ConversationDB;
 
 /*
- * Tableau assoc conversation :
+ * Structure of the database :
  * - id => string
  * - userId1 => int
  * - userId2 => int
- * - messages => tableau de
+ * - messages => array of
  *   [
  *       id => int
  *       user => int
  *       content => string
  *   ]
- * - deleteEvents => tableau de
+ * - deleteEvents => array of
  *   [
  *      deletedId => int
  *      lastMsgId => int

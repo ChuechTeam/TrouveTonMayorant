@@ -5,20 +5,20 @@ namespace ViewDB;
 require_once __DIR__ . "/db.php";
 
 const VIEW_DIR = __DIR__ . "/../../views";
-const DATE_FORMAT = \DateTimeInterface::ATOM;
+const DATE_FORMAT = \DateTimeInterface::ATOM; // date format for visits
 
 const REV_FIRST = 1;
 const REV_LAST = REV_FIRST;
 
 /*
- * Structure :
+ * Array structure of a view stats file:
  * "userId" => int
  * "viewCount" => int
- * "views" => tableau assoc de [
+ * "views" => associative array of [
  *   who => [
- *      "who" => int
- *      "date" => string
- *      "count" => int
+ *      "who" => int (user id)
+ *      "date" => string (last visit)
+ *      "count" => int (how many times)
  *   ]
  * ]
  * "revision" => int
@@ -28,19 +28,33 @@ function _path(int $uid): string {
     return VIEW_DIR . "/$uid.json";
 }
 
-// Crée le fichier s'il n'existe pas
+/**
+ * Reads view stats for a given user from the database.
+ *
+ * @param int $uid the user id
+ * @return array the view stats
+ */
 function read(int $uid): array {
     _read($uid, $handle, $view);
     \DB\close($handle);
     return $view;
 }
 
-// $minInterval est l'intervalle de temps minimal avant de pouvoir ajouter une autre vue
+/**
+ * Registers a profile view by a user to another user. Adding new views can be restricted
+ * using a minimum interval between views: if the last view happened too early, it won't be registered.
+ *
+ * @param int $uid the user whose profile is being visited
+ * @param int $who the person visiting the profile
+ * @param \DateInterval|null $minInterval the minimum interval between views, null has no restriction
+ * @param array|null $view the view stats, if provided, it will be updated
+ * @return void
+ */
 function registerView(int $uid, int $who, \DateInterval $minInterval = null, array &$view = null) {
     _read($uid, $handle, $view);
 
     if (!isset($view["views"][$who])) {
-        // Première vue
+        // Then this is out first view, no need to apply intervals
         $view["views"][$who] = [
             "who" => $who,
             "date" => (new \DateTime("now"))->format(DATE_FORMAT),
@@ -49,27 +63,28 @@ function registerView(int $uid, int $who, \DateInterval $minInterval = null, arr
         $view["viewCount"]++;
     }
     else {
-        // Vue supplémentaire
+        // This user has already visited this profile once, check if we can add a new view
         $v = &$view["views"][$who];
-
-        // Vérifier si on peut ajouter une vue
         if ($minInterval !== null) {
+            // Find the last time at which the visitor saw the profile
             $viewTime = \DateTimeImmutable::createFromFormat(DATE_FORMAT, $v["date"]);
+            // Calculate the next minimum date at which a view can be registered
             $nextViewTime = $viewTime->add($minInterval);
             $now = new \DateTime();
-            $dist = $nextViewTime->diff($now); //  = $now - $nextViewTime
-            // jsp pourquoi c'est inversé mais je trouve ça idiot
+            $dist = $nextViewTime->diff($now); // = $now - $nextViewTime
 
+            // Exit early if $now < $nextViewTime :
             // $now - $nextViewTime < 0
-            // ==> $now < $nextViewTime
-            // Alors c'est trop tôt...
-            if ($dist->invert) {
+            // <==> $now < $nextViewTime
+            // <==> $dist->inverse = 1
+            // If the difference is negative, then
+            if ($dist->invert === 1) {
                 \DB\close($handle);
                 return;
             }
         }
 
-        // Confirmer la vue
+        // We can now register the view
         $view["viewCount"]++;
         $v["date"] = (new \DateTime("now"))->format(DATE_FORMAT);
         $v["count"]++;
@@ -80,6 +95,10 @@ function registerView(int $uid, int $who, \DateInterval $minInterval = null, arr
     }
 }
 
+/**
+ * Upgrades all view stats files in the default directory to the latest revision.
+ * @return void
+ */
 function upgradeAll() {
     foreach (\DB\listFiles(VIEW_DIR) as $f) {
         \DB\read($f, 'ViewDB\_upgrade', $handle, $view);
@@ -111,7 +130,7 @@ function _upgrade(array &$conv): bool {
         return false;
     }
 
-    // étapes de migration à mettre ici
+    // add some migration steps if necessary
 
     $conv["revision"] = REV_LAST;
 

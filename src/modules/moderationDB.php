@@ -3,15 +3,15 @@
 namespace ModerationDB;
 
 /*
- * Structure :
- * reports => tableau assoc [id] => [
+ * Structure of the database :
+ * reports => associative array [id] => [
  *     id => int
  *     convId => string
  *     msgId => int
  *     userId => int
  *     reason => string
  * ]
- * bannedEmails => tableau assoc [
+ * bannedEmails => associative array [
  *     [email] => 1
  * ]
  * reportIdSeq => int
@@ -37,7 +37,7 @@ function &load(bool $ro = false): array {
     
     if ($modData === null) {
         if (!_read(PATH, $modHandle, $modData, $ro)) {
-            // On crée le fichier pour la première fois et on le relit juste après.
+            // We create the file once to read it afterward
             trigger_error("Creating moderation database for the first time.");
             $ok = file_put_contents(PATH, json_encode(
                 [
@@ -194,7 +194,7 @@ function emailBanned(string $email): bool {
 }
 
 /*
- * Copié de ConversationDB pour l'instant
+ * TODO: use db.php
  */
 
 function _upgrade(array &$db): bool {
@@ -207,7 +207,6 @@ function _upgrade(array &$db): bool {
     }
 
     while ($rev < REV_LAST) {
-        // mettre les actions de migration vers la nouvelle version ici
         $rev++;
     }
 

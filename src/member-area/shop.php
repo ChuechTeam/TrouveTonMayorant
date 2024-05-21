@@ -143,12 +143,11 @@ unset($_SESSION["purchased"]);
         };
     }
 
-    // Norme 3
+    // Norm 3
     function funkyNorm(x, y, w, h) {
         return Math.max(Math.abs(x / w), Math.abs(y / h));
     }
 
-    // c'est vraiment trop excessif, donc c'est bien
     if (ps.classList.contains("-subscribed")) {
         ps.style.transform = "rotate3d(0, 0, 1, 0.01deg)";
         document.addEventListener("pointermove", e => {
@@ -160,11 +159,11 @@ unset($_SESSION["purchased"]);
             const px = x + width / 2;
             const py = y + height / 2;
 
-            // élément --> souris
+            // element --> mouse ; vector
             const nx = mx - px
             const ny = my - py
 
-            // (0, 0, 1) est toujours perpendiculaire
+            // (0, 0, 1) is always perpendicular
             const cp = crossProduct(0, 0, 1, nx, ny, 0)
 
             const amplitudeMin = 0;

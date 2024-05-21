@@ -4,12 +4,12 @@ require_once __DIR__ . "/../modules/user.php";
 require_once __DIR__ . "/../modules/userSession.php";
 
 /**
- * Print le HTML d'un message de chat dans une conversation.
- * Requiert une session active et connectée (pour savoir si le message provient de soi).
- * @param int $msgId l'id du message
- * @param int $userId l'id de l'auteur
- * @param string $content le contenu du message
- * @param bool $externalView si le message est vu à l'extérieur de la conversation (exemple : depuis la liste de signalements)
+ * Prints the HTML of a chat message in a conversation.
+ * Requires an active and logged-in session (to know if the message comes from oneself).
+ * @param int $msgId the message id
+ * @param int $userId the author's id
+ * @param string $content the message content
+ * @param bool $externalView if the message is viewed outside the conversation (example: from the reports list)
  * @return void
  */
 function chatMessage(int $msgId, int $userId, string $content, bool $externalView = false) {

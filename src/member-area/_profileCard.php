@@ -3,15 +3,18 @@
 require_once __DIR__ . "/../modules/user.php";
 
 /**
- * Print l'HTML du profil d'un utilisateur `$u`. Si `$full` est `true`, alors le profil
- * complet sera affiché, sinon, une version abrégée sera utilisée.
- * @param array $u l'utilisateur
- * @param bool $full si on doit afficher le profil complet
+ * Prints the HTML of a user's profile `$u`. If `$full` is `true`, then the full profile
+ * will be displayed, otherwise, a shortened version will be used.
+ *
+ * @param array $u the complete user data
+ * @param bool $full whether to show the full profile
+ * @param bool $showActions whether to show actions in the full profile
+ * @param bool $adminMode whether to show admin controls in the full profile
  * @return void
  */
 function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
-    // Âge de l'utilisateur (> 18 ans normalement sauf si qqun fait des choses illégales)
-    $age = (new DateTime($u["bdate"]))->diff(new DateTime())->y;
+    // User age
+    $age = \User\age($u["id"]);
     switch ($u["gender"]) {
         case \User\GENDER_MAN:
             $gender = "Homme";
@@ -27,18 +30,18 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
             break;
     }
 
-    // Biographie tronquée si trop grande
+    // Truncate the biography if we're in a shortened profile card.
     $bio = $u["bio"];
     if (!$full && strlen($bio) > 80) {
         // abrège
         $bio = substr($bio, 0, 80) . "...";
     }
 
-    // URL vers l'image
+    // URL linking to the profile picture, relative to the src/ directory
     $pfp = empty($u["pfp"]) ? User\DEFAULT_PFP : $u["pfp"];
 
-    // profil complet : tableau des choix de relation
-    // profil abrégé : version raccourcie dans un string
+    // Full profile: array of relationship choices
+    // Short profile: shortened version in a string
     $rls = null;
     if ($full) {
         $rls = [];
@@ -91,7 +94,7 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
         }
     }
 
-    // Situation de couple
+    // Couple situation (SITUATION enum)
     $sit = null;
     switch ($u["situation"]) {
         case User\SITUATION_SINGLE:
@@ -107,9 +110,9 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
         $location = "{$u["cityName"]}, {$u["depName"]}";
     }
 
-    // Profil complet uniquement
+    // Variables only for the full profile!
     if ($full) {
-        // Label pour l'orientation sexuelle (s'adapte selon le genre)
+        // Sexual orientation, in a commonly used language (+ goes in hand with the gender of the person)
         $colloquialOrient = null;
         switch ($u["orientation"]) {
             case User\ORIENTATION_HETERO:
@@ -133,7 +136,7 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
                 break;
         }
 
-        // Préférences de genre
+        // Gender preferences
         $genderPref = [];
         if (count($u["gender_search"]) == 3) {
             $genderPref[] = "une personne de n'importe quel genre";
@@ -160,48 +163,50 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
         $convUrl = "/member-area/chat.php?startNew=" . $u["id"];
     }
 
-    // Label fumeur ou non fumeur
+    // Smoker or non-smoker label
     $smokeLabel = null;
     if (!empty($u["user_smoke"])) {
         $smokeLabel = "";
 
-        // On met le préfixe Non- si on ne fume pas.
+        // Add the "Non-" prefix if the user isn't smoking
         if ($u["user_smoke"] === "no") {
             $smokeLabel = "Non-";
         }
 
-        // Ajouter le "fumeur" ou "fumeuse" ou "fumeu·r·se"
+        // Add the main adjective
         $smokeLabel .= $u["gender"] == \User\GENDER_MAN ? "Fumeur"
             : ($u["gender"] == \User\GENDER_WOMAN ? "Fumeuse" : "Fumeu·r·se");
     }
 
-    // Description physique
+    // Physical description
     $phys = !empty($u["desc"]) ? $u["desc"] : null;
 
-    // Si l'utilisateur a l'abonnement TTM Sup
+    // If the is subscribed to TTM Sup
+    // Also true for admin users.
     $sup = \User\level($u["id"]) >= \User\LEVEL_SUBSCRIBER;
     if ($full) {
         $supClass = $sup ? " -sup" : "";
     }
 
-    // Nom complet
+    // Full name, with spaces
     $fn = $u["firstName"] . " " . $u["lastName"];
 
-    //Photos
+    // Array of pictures in the Gallery
     $pics = array($u["pic1"], $u["pic2"], $u["pic3"]);
 
+    // Filter out empty pictures
     $non_empty_pics = array_filter($pics, function ($value) {
         return is_string($value) && trim($value) !== '';
     });
 
-    // A des préférences de relations
+    // Does the user have relation preferences?
     $hasRelPref = !empty($rls);
-    // A des préférences de genre
+    // Does the user have gender preferences?
     $hasGenderPref = !empty($genderPref);
-    // A des préférences de fumeur/non-fumeur
+    // Does the user have smoking preferences?
     $hasSmokePref = $u["search_smoke"] === "yes" || $u["search_smoke"] === "no";
 
-    // A des préférences en général
+    // Does the user have ANY preference whatsoever?
     $hasPrefs = $hasRelPref || $hasGenderPref || $hasSmokePref;
     ?>
 
@@ -422,6 +427,16 @@ function blockedCard(array $u, int $bs, bool $full) {
     }
 }
 
+/**
+ * Prints a profile card as perceived by the logged user, with the correct buttons and information shown.
+ *
+ * If the user is blocked, the main information will not be shown and a reduced "blocked" profile will be displayed
+ * instead.
+ *
+ * @param array $u the entire user
+ * @param bool $full whether to show the full profile
+ * @return void
+ */
 function povProfileCard(array $u, bool $full = false) {
     $logged = \UserSession\loggedUser();
     if ($logged === null) {
@@ -431,7 +446,9 @@ function povProfileCard(array $u, bool $full = false) {
 
     $bs = \User\blockStatus($logged["id"], $u["id"]);
     if ($bs === \User\BS_NO_BLOCK) {
-        profileCard($u, $full, $u["id"] !== $logged["id"], \UserSession\level() >= \User\LEVEL_ADMIN);
+        $showActions = $u["id"] !== $logged["id"];
+        $adminMode = \UserSession\level() >= \User\LEVEL_ADMIN;
+        profileCard($u, $full, $showActions, $adminMode);
     } else {
         blockedCard($u, $bs, $full);
     }

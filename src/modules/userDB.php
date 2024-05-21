@@ -1,62 +1,55 @@
 <?php
 
+/**
+ * userDB.php
+ * ----------------
+ * Stores all user data in one big JSON file. The JSON file is present in a
+ * hardcoded path, and is locked when loaded in read-write mode.
+ */
+
 namespace UserDB;
 
 /*
- * Attributs du tableau associatif "user" :
- * - "id"
- * - "email"
- * - "pass" (hashé)
- * - "firstName"
- * - "lastName"
- * - "conversations" : tableau des id des conversations
- * - "blockedUsers" : tableau associatif d'id d'utilisateurs bloqués : [id]=>1
- * - "blockedBy" : tableau associatif d'id des utilisateurs qui ont bloqué celui-ci : [id]=>1
- * - "supExpire" : date à laquelle l'abonnement sup expire
- * - "supBought" : date à laquelle l'abonnement sup a été acheté
- * - "admin" : si l'utilisateur est admin : true
+ *  JSON structure :
+ *  "users" => associative array of users (see user.php for reference)
+ *  "byEmail" => associative array [ [email] => [user id] ]
+ *  "idSeq" => the id given to the next registered user, incremented on each registration
+ *  "revision" => database revision, used to add/remove fields after each update
  */
 
-/*
- *  "users" => tableau assoc des utilisateurs
- *  "byEmail" => tableau assoc [ [email] => [id utilisateur] ]
- *  "idSeq" => nombre de séquences d'identifiant
- *  "revision" => version de la base de donnée
- */
-
-// Liste des versions de la base de donnée, chaque version requiert des changements distincts.
+// List of all database versions, each version require changes to various fields.
 const REV_FIRST = 1;
-const REV_NEW_DB_LOADING = 2; // Retire le "_dict: 1" dans users et byEmail
-const REV_INTERACTION_UPDATE = 3; // Conversations et blocage
-const REV_PROFILE_DETAILS = 4; // La màj qui fait que c'est un site de rencontre
-const REV_REG_DATE = 5; // Ajout de la date d'inscription
-const REV_MATHS_PREFS = 6; // Ajout des vecteurs propres 
-const REV_SUP_ADMIN = 7; // Sup et admin (logique)
-const REV_EQUATION = 8; // Ajoute des équations
-const REV_PFP = 9; // Photos de profil
-const REV_LOC = 10; // Département / ville
-const REV_LOC_STR = 11; // Ajout des noms des départements et ville
-const REV_PICS = 12; // Photos galerie
+const REV_NEW_DB_LOADING = 2; // Removes legacy stuff
+const REV_INTERACTION_UPDATE = 3;
+const REV_PROFILE_DETAILS = 4;
+const REV_REG_DATE = 5;
+const REV_MATHS_PREFS = 6;
+const REV_SUP_ADMIN = 7;
+const REV_EQUATION = 8;
+const REV_PFP = 9;
+const REV_LOC = 10;
+const REV_LOC_STR = 11;
+const REV_PICS = 12;
 const REV_PFP_RESET = 13;
-const REV_SUP_BOUGHT = 14; // Date d'achat de l'abonnement sup
-const REV_LAST = REV_SUP_BOUGHT; // Dernière version de la base de donnée
+const REV_SUP_BOUGHT = 14;
+const REV_LAST = REV_SUP_BOUGHT; // Last revision of the database
 
-$usersFile = null; // Le fichier json chargé avec fopen
-$usersReadOnly = false; // Si la base de donnée est ouverte en lecture seule
-$usersData = null; // Le tableau associatif avec toutes les données du JSON
-$usersDirty = false; // Si des changements ont été effectués à la base de données.
-$usersFilePath = __DIR__ . "/../../users.json"; // Emplacement du fichier JSON
-$shutdownRegistered = false; // Pour éviter d'appeler unload() deux fois à la fin du script
+$usersFile = null; // The JSON file loaded using fopen
+$usersReadOnly = false; // If the database is opened in read-only mode
+$usersData = null; // The associative array containing all the JSON data
+$usersDirty = false; // If changes have been made to the database.
+$usersFilePath = __DIR__ . "/../../users.json"; // Location of the JSON file
+$shutdownRegistered = false; // To avoid calling unload() twice at the end of the script
 
 /**
- * Charge intégralement la base de donnée.
+ * Fully loads the database.
  *
- * Peut être chargée en lecture seule si `$readOnly = true`, ce qui permet de grandement
- * améliorer les performances lorsque le script ne fait que lire les données.
+ * Can be loaded in read-only mode if `$readOnly = true`,
+ * which greatly improves performance when the script only reads data while not writing anything.
  *
- * Si la base de donnée est déjà chargée, la fonction ne fait rien.
- * @param bool $readOnly si la base de donnée doit être chargée en lecture seule
- * @return array une référence vers l'intégralité des données
+ * If the database is already loaded, the function does nothing.
+ * @param bool $readOnly if the database should be loaded in read-only mode
+ * @return array a reference to the entire database data in an associative array
  */
 function &load(bool $readOnly = false): array {
     global $usersData;
@@ -66,24 +59,39 @@ function &load(bool $readOnly = false): array {
     global $shutdownRegistered;
 
     if ($usersData === null) {
+        // First, open the JSON file in the right mode
         $usersFile = @fopen($usersFilePath, $readOnly ? "r" : "r+");
         if ($usersFile !== false) {
+            // We got it, now let's lock it to prevent concurrent modifications.
             if (flock($usersFile, $readOnly ? LOCK_SH : LOCK_EX)) {
+                // Read the entirety of the file.
                 $json = fread($usersFile, _fSize($usersFile));
                 if ($json === false) {
                     throw new \RuntimeException("Failed to read the users database.");
                 }
+
+                // Make sure it's a valid JSON document.
                 $usersData = json_decode($json, true);
+                if (!is_array($usersData)) {
+                    throw new \RuntimeException("Failed to parse the users database.");
+                }
+
+                // Upgrade it to the latest revision
                 $usersReadOnly = $readOnly;
                 _upgrade($usersData);
             } else {
+                // Lock failed: that's unlikely.
                 fclose($usersFile);
                 $usersFile = null;
                 throw new \RuntimeException("Failed to lock the existing user database.");
             }
         } else if (!file_exists($usersFilePath)) {
+            // Create the file in write mode, make sure it was created properly, then lock it.
             trigger_error("Creating users database for the first time", E_USER_NOTICE);
             $usersFile = fopen($usersFilePath, "w");
+            if ($usersFile === false) {
+                throw new \RuntimeException("Failed to create the user database.");
+            }
             flock($usersFile, LOCK_EX);
 
             $usersData = [
@@ -93,11 +101,14 @@ function &load(bool $readOnly = false): array {
                 "revision" => REV_LAST,
             ];
 
-            fwrite($usersFile, json_encode($usersData));
+            if (!fwrite($usersFile, json_encode($usersData))) {
+                throw new \RuntimeException("Failed to write the initial user database.");
+            }
         } else {
             throw new \RuntimeException("Failed to read the existing user database.");
         }
 
+        // Save the database once the request ends. Don't register the function twice!
         if (!$shutdownRegistered) {
             register_shutdown_function(function () {
                 unload();
@@ -109,7 +120,11 @@ function &load(bool $readOnly = false): array {
     return $usersData;
 }
 
-// Renvoie false quand la base de donnée est ouverte en écriture, ou lorsqu'elle n'est pas chargée.
+/**
+ * Returns false when the database is opened in write mode, or when it's not loaded.
+ *
+ * @return bool true if read only, false if read-write
+ */
 function isReadOnly(): bool {
     global $usersReadOnly;
 
@@ -117,22 +132,19 @@ function isReadOnly(): bool {
 }
 
 /**
- * Ajoute ou met à jour un utilisateur (du tableau `$user`) dans la base de donnée.
- * Le tableau associatif `$user` doit contenir toutes les informations de l'utilisateur.
+ * Adds or updates a user (from the `$user` array) in the database.
+ * The associative array `$user` must contain all the user's information.
  *
- * Si l'id n'est pas spécifié, alors un nouvel utilisateur sera créé. La fonction renvoie l'id de
- * l'utilisateur créé ou mis à jour.
+ * If the id is not specified, then a new user will be created. The function returns the id of
+ * the created or updated user.
  *
- * La base de donnée ne doit pas être chargée en lecture seule, auquel cas une erreur surviendra.
- * (Si la base de donnée n'est pas chargée, elle sera chargée automatiquement en écriture.)
+ * The database must not be loaded in read-only mode, otherwise an error will occur.
+ * (If the database is not loaded, it will be loaded automatically in write mode.)
  *
- * @param array $user le tableau associatif qui contient les données de l'utilisateur.
- * @return int l'id de l'utilisateur créé ou mis à jour
+ * @param array $user the associative array that contains the user's data.
+ * @return int the id of the created or updated user
  */
 function put(array $user): int {
-    if ($user === null) {
-        throw new \InvalidArgumentException("User is null!");
-    }
     if (isReadOnly()) {
         throw new \RuntimeException("User database is opened in read-only mode!");
     }
@@ -156,22 +168,25 @@ function put(array $user): int {
         throw new \RuntimeException("Attempted to update an inexistant user (id={$user['id']})");
     }
 
+    // Give a new id if the user doesn't have one already
     $id = $user["id"] ?? nextId();
     $user["id"] = $id;
     $newEmail = $user["email"];
 
+    // Make sure we don't create a new user with the same email as another user
     if (isset($ud["byEmail"][$newEmail]) && $ud["byEmail"][$newEmail] !== $id) {
         throw new \RuntimeException("Attempted to create a user with the same email as another user.");
     }
 
     if ($existingUser !== null) {
-        // Effacer le lien entre l'utilisateur et l'email d'avant si l'email a changé
+        // Remove the previous email from the byEmail dictionary. We'll set the new one later.
         $prevEmail = $existingUser["email"];
         if ($prevEmail !== $newEmail) {
             unset($ud["byEmail"][$prevEmail]);
         }
     }
 
+    // Update block relationships (blockedUsers and blockedBy arrays)
     _updateUserBlocks($id, $existingUser["blockedUsers"] ?? [], $user["blockedUsers"]);
 
     $ud["byEmail"][$newEmail] = $id;
@@ -182,8 +197,11 @@ function put(array $user): int {
 }
 
 /**
- * Supprime un utilisateur de la base de donnée.
- * Les conversations restent intactes, la liste des utilisateurs bloqués n'est pas changée.
+ * Deletes a user from the database.
+ * Conversations remain intact, the list of blocked users is not changed.
+ *
+ * @param int $id the id of the user to delete
+ * @return bool true if the user was deleted, false if the user was not found
  */
 function delete(int $id): bool {
     if (isReadOnly()) {
@@ -206,6 +224,12 @@ function delete(int $id): bool {
     return true;
 }
 
+/**
+ * Finds a user using its email. Returns null if the user is not found.
+ *
+ * @param string $email the email
+ * @return array|null the user data, or null if not found
+ */
 function findByEmail(string $email): ?array {
     $ud = &load();
 
@@ -216,6 +240,13 @@ function findByEmail(string $email): ?array {
     }
 }
 
+/**
+ * Finds a user using its email and clear text password. Returns null if the user is not found.
+ *
+ * @param string $email the email
+ * @param string $pass the clear text password
+ * @return array|null the user data, or null if not found
+ */
 function findByEmailPassword(string $email, string $pass): ?array {
     $u = findByEmail($email);
     if ($u !== null && !password_verify($pass, $u["pass"])) {
@@ -224,12 +255,24 @@ function findByEmailPassword(string $email, string $pass): ?array {
     return $u;
 }
 
+/**
+ * Returns true if the user exists with the given id.
+ *
+ * @param int $id the user id
+ * @return bool true if the user exists
+ */
 function userExistsById(int $id): bool {
     $ud = &load();
 
     return isset($ud["users"][$id]);
 }
 
+/**
+ * Finds a user by its id. Returns null if the user is not found.
+ *
+ * @param int $id the user id
+ * @return array|null the user data, or null if not found
+ */
 function findById(int $id): ?array {
     $ud = &load();
 
@@ -241,16 +284,18 @@ function findById(int $id): ?array {
 }
 
 /**
- * Renvoie tous les utilisateurs présents dans la base de donnée.
- * (Plus tard il y aura des options pour chercher par nom, age, etc.)
+ * Returns all users present in the database.
+ * (Later there will be options to search by name, age, etc.)
  *
- * (Si la base de donnée n'est pas chargée, elle sera chargée automatiquement en écriture.)
+ * (If the database is not loaded, it will be loaded automatically in write mode.)
+ * @return array an array containing all the users
  */
 function query(): array {
     $ud = &load();
     return array_values($ud["users"]);
 }
 
+// Returns the next id for a user (internal)
 function nextId(): int {
     global $usersDirty;
 
@@ -262,23 +307,30 @@ function nextId(): int {
     return $id;
 }
 
+// Updates the block relationships between users.
+// Basically, it adds and removes entries in the blockedBy array for the (un-)blocked users.
 function _updateUserBlocks(int $blocker, array $oldBlocks, array &$newBlocks) {
     if ($oldBlocks == $newBlocks) {
         return;
     }
 
     $ud = &load();
+
+    // All the blocks that were lifted
     $removed = array_diff_key($oldBlocks, $newBlocks);
+    // All the new blocks
     $added = array_diff_key($newBlocks, $oldBlocks);
 
+    // Remove lifted blocks from the blockedBy array of the previously blocked users
     foreach ($removed as $unblockedId => $_) {
         if (isset($ud["users"][$unblockedId])) {
             $u = &$ud["users"][$unblockedId];
             unset($u["blockedBy"][$blocker]);
         }
-        // si l'id n'est pas trouvé c'est pas grave, l'utilisateur a été supprimé
+        // If the id is not found it's actually normal, the user has been deleted
     }
 
+    // Add new blocks to the blockedBy array of the newly blocked users
     foreach ($added as $blockedId => $_) {
         if (isset($ud["users"][$blockedId])) {
             $u = &$ud["users"][$blockedId];
@@ -291,6 +343,7 @@ function _updateUserBlocks(int $blocker, array $oldBlocks, array &$newBlocks) {
     }
 }
 
+// Upgrade the database to the latest revision
 function _upgrade(array &$data) {
     global $usersDirty;
     global $usersReadOnly;
@@ -391,7 +444,7 @@ function _upgrade(array &$data) {
                 case REV_PFP_RESET:
                     foreach ($data["users"] as &$u) {
                         $u["pfp"] = "";
-                    }   
+                    }
                     break;
                 case REV_SUP_BOUGHT:
                     foreach ($data["users"] as &$u) {
@@ -408,6 +461,11 @@ function _upgrade(array &$data) {
     }
 }
 
+/**
+ * Saves the database to the JSON file, if the data has changed (user added, removed, update).
+ *
+ * @return void
+ */
 function save() {
     global $usersData;
     global $usersFilePath;
@@ -432,6 +490,10 @@ function save() {
     $usersDirty = false;
 }
 
+/**
+ * Unloads the database and releases any file resource and lock.
+ * @return void
+ */
 function unload() {
     global $usersData;
     global $usersDirty;
@@ -454,12 +516,14 @@ function unload() {
     $usersReadOnly = false;
 }
 
+// Ensures that a property exists in a user array
 function _validateExist(array $user, string $prop) {
     if (!isset($user[$prop])) {
         throw new \InvalidArgumentException("User is invalid: $prop missing.");
     }
 }
 
+// Gets the file size of a handle
 function _fSize($handle) {
     $stat = fstat($handle);
     if ($stat === false) {

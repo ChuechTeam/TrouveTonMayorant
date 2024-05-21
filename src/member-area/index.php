@@ -13,12 +13,12 @@ require_once "../modules/viewDB.php";
     <div id="fields">
         <form id="search-form">
             <ul class="field">
-                <li><input type="checkbox" name="genre[]" value="f" ><label>Femme</label></li>
-                <li><input type="checkbox" name="genre[]" value="m"><label for="h">Homme</label></li>
-                <li><input type="checkbox" name="genre[]" value="nb"><label for="nb">Non-binaire</label></li>
+                <li><input type="checkbox" name="gender[]" value="f" ><label>Femme</label></li>
+                <li><input type="checkbox" name="gender[]" value="m"><label for="h">Homme</label></li>
+                <li><input type="checkbox" name="gender[]" value="nb"><label for="nb">Non-binaire</label></li>
             </ul>
             <ul class="field">
-                <li><input type="checkbox" name="fumeur" value="yes"><label>Fumeur</label></li>
+                <li><input type="checkbox" name="smoker" value="yes"><label>Fumeur</label></li>
             </ul>
             <ul class="field location">
               <select id="departmentSelect" name="dep">
@@ -71,15 +71,15 @@ require_once "../modules/viewDB.php";
                 document.getElementById("results").innerHTML = this.responseText ;
             }
         };
-        // window.location.origin = http://localhost:8080 (par exemple)
+        // window.location.origin = http://localhost:8080 (for exemple)
         const endpoint = new URL("research.php", window.location.origin);
-        //recup 
-        endpoint.searchParams.append("a_min",document.getElementById("range1").innerHTML);
-        endpoint.searchParams.append("a_max",document.getElementById("range2").innerHTML);
+        // register a_min and a_max fields using the min/max range values
+        endpoint.searchParams.append("a_min",document.getElementById("range1").innerText);
+        endpoint.searchParams.append("a_max",document.getElementById("range2").innerText);
         const sp = new URLSearchParams(new FormData(document.getElementById("search-form")));
         for (const [key, value] of sp) {
             endpoint.searchParams.append(key, value); 
-            // recupere tout les param du champ : g=genre[]&fum=0 etc...
+            // transfer all search parameters from sp to the endpoint : g=gender[]&smoker=0 etc...
         }
         
 
@@ -99,13 +99,14 @@ let sliderTrack = document.querySelector(".slider-track");
 let sliderMaxValue = document.getElementById("slider-1").max - document.getElementById("slider-1").min ;
 
 function slide() {
+  // Make sure we display the smallest value on the left, and the biggest on the right
   if (parseInt(sliderTwo.value) - parseInt(sliderOne.value) <= minGap) {
-    displayValOne.textContent = parseInt(sliderTwo.value);
-    displayValTwo.textContent = parseInt(sliderOne.value);
+    displayValOne.textContent = sliderTwo.value;
+    displayValTwo.textContent = sliderOne.value;
   }
   else{
-    displayValOne.textContent = parseInt(sliderOne.value);
-    displayValTwo.textContent = parseInt(sliderTwo.value);
+    displayValOne.textContent = sliderOne.value;
+    displayValTwo.textContent = sliderTwo.value;
   }
   fillColor();
 }

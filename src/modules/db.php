@@ -1,12 +1,13 @@
 <?php
 
-/*
- * Outils pour stocker des "bases de donnée" en JSON.
+/**
+ * Common functions for creating, reading, and writing to JSON database with (relatively) robust file locking.
  */
-
 namespace DB;
 
-//function _upgrade(array &$conv): bool {
+// Skeleton of an upgrade function
+//
+// function _upgrade(array &$conv): bool {
 //    $rev = $conv["revision"] ?? null;
 //    if ($rev === null) {
 //        throw new \RuntimeException("Revision not found in conversation, file is probably corrupted!");
@@ -33,9 +34,9 @@ const CREATE_EXISTS = 1;
 const CREATE_OK = 0;
 const CREATE_ERROR = -1;
 
-// 1 : existe
-// 0 : créé
-// -1 : erreur
+// 1 : exists
+// 0 : created
+// -1 : error
 function create(string $path, array $entry): int {
     $dir = dirname($path);
     if (!file_exists($dir)) {
@@ -60,10 +61,12 @@ function read(string    $path,
     $handle = @fopen($path, $readOnly ? "r" : ($defaultFunc === null ? "r+" : "c+"));
     if ($handle === false) {
         if ($defaultFunc === null || $readOnly) {
+            // We don't want to create files, give up.
             return false;
         }
         else {
-            // Réessayons en créant le dossier cette fois ci...
+            // That didn't work? Then it's likely that the file is just not there.
+            // Let's create it.
             $dn = dirname($path);
             if (!file_exists($dn)) {
                 if (!mkdir($dn, 0755, true)) {
@@ -76,6 +79,7 @@ function read(string    $path,
         }
     }
 
+    // Lock the file for reading or writing
     $lockOk = flock($handle, $readOnly ? LOCK_SH : LOCK_EX);
     if ($lockOk === false) {
         fclose($handle);
@@ -84,7 +88,8 @@ function read(string    $path,
 
     $size = fSize($handle);
 
-    // Si une valeur par défaut est donnée et que le fichier est vide, alors on crée une nouvelle entrée.
+    // If the file is empty, and we have specified a default value function, treat the file as a new entry,
+    // and initialize it.
     if ($size === 0 && $defaultFunc !== null) {
         $entry = $defaultFunc();
         return save($handle, $entry);
@@ -97,6 +102,10 @@ function read(string    $path,
     }
 
     $entry = json_decode($data, true);
+    if ($entry === false) {
+        return false;
+    }
+
     if ($upgradeFunc !== null && $upgradeFunc($entry)) {
         if ($readOnly) {
             throw new \RuntimeException("Cannot upgrade database entry in read-only mode.");

@@ -1,12 +1,11 @@
 <?php
     /*
-     * Tuto :
+     * To use:
      *
      * require_once templates/functions.php
      * Templates\base();
      *
-     *
-     * Pour changer le head :
+     * To change the head
      * <?php Templates\paramStart("head") ?>
      *      <meta name="coucou">
      * <?php Templates\paramEnd(); ?>

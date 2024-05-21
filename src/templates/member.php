@@ -5,7 +5,7 @@ require_once __DIR__ . "/../modules/user.php";
 $content = $tmplArgs["content"] ?? "\$content is empty!";
 
 /*
- * Liens en tout genre
+ * (Not so) Random links
  */
 
 $homePath = "/member-area";
@@ -41,10 +41,6 @@ function linkAttribs($path, bool $prefix=false) {
     }
 }
 
-/**
- * (À utiliser pour afficher le nom/prénom du profil après)
- * @var array $user
- */
 $user = $tmplArgs["user"] ?? die("The member template requires a logged user!");
 $isAdmin = $tmplArgs["userLevel"] >= User\LEVEL_ADMIN;
 ?>

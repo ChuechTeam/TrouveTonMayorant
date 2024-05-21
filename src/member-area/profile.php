@@ -5,7 +5,7 @@ Templates\member("Votre profil");
 Templates\addStylesheet("/assets/style/profile-edit-page.css");
 Templates\appendParam("head", '<script src="/scripts/location.js" type="module" defer></script>');
 
-// Permettre de modifier un utilisateur de son choix si l'on est admin.
+// Allow modification of any user profile if we're an admin.
 $notMe = false;
 if (isset($_GET["id"]) && User\level(UserSession\loggedUserId()) >= User\LEVEL_ADMIN) {
     $u = UserDB\findById($_GET["id"]);
@@ -18,9 +18,9 @@ if (isset($_GET["id"]) && User\level(UserSession\loggedUserId()) >= User\LEVEL_A
 } else {
     $u = UserSession\loggedUser();
 }
-// -1 : formulaire non envoyé
-// 0  : profil mis à jour avec succès
-// >0 : échec de la màj (code d'erreur User)
+// -1 : form not sent (GET request)
+// 0  : profile updated no problemo
+// >0 : update failed with an error code
 $submitCode = -1;
 
 function fileExistsInAnyExtension($fName, $dir){
@@ -47,7 +47,7 @@ function uploadImg($field, $userid){
     $imageFileType = strtolower(pathinfo($fName,PATHINFO_EXTENSION));
     $target_file = $target_dir . $userid . $field . "." . $imageFileType;
 
-    // Check si c'est une image
+    // Make sure that it is an image
     if(isset($_POST["submit"])) {
         $check = getimagesize($_FILES[$field]["tmp_name"]);
         if($check !== false) {
@@ -57,7 +57,7 @@ function uploadImg($field, $userid){
         }
     }
 
-    // Check taille fichier
+    // Make sure that the image isn't too large (1MB right now)
     if ($_FILES[$field]["size"] > 1000000) {
         echo '<script>alert("Le fichier est trop gros.")</script>';
         $uploadOk = 0;
@@ -86,9 +86,9 @@ function uploadImg($field, $userid){
 }
 
 
-// Si l'utilisateur a envoyé le formulaire en cliquant sur "Enregistrer"
+// If the user submitted the form by clicking on "Send"
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // cas spécial pour la suppression de compte
+    // Special case when deleting the account, make sure that the user gave their password correctly.
     if (isset($_POST["delete"])) {
         if (isset($_POST["password"])) {
             $submitCode = User\deleteAccount($u["id"], $_POST["password"]);
@@ -350,7 +350,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 <script type="module">
     import {typeset} from "/scripts/math.js";
 
-    //bouton suppression du compte
+    // Button to delete the account
     document.getElementById("delete-account")?.addEventListener("click", function(e) {
         if (document.getElementById("pass-input").value == "") {
             e.preventDefault();
@@ -363,7 +363,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
         }
     });
 
-    //fonction pour prévisualiser la photo chargée
+    // Function to get a preview of the uploaded image
     window.loadFile = function loadFile(id){
         var preview = document.getElementById(id);
         preview.src = URL.createObjectURL(event.target.files[0]);
@@ -372,7 +372,7 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
         }
     }
 
-    //affichage de l'équation mathjax
+    // Update the MathJax equation when editing the preferred equation
     const eq = document.getElementById("eq");
     document.getElementById("eq-input").addEventListener("input", e => {
         typeset(() => {
@@ -381,6 +381,8 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
         })
     })
 
+    // Update the depName and cityName hidden inputs when the user selects a department and a city,
+    // so we don't just put the zip code.
     function regNameUpdate(dropdown, input) {
         dropdown.addEventListener("change", e => {
             const opt = dropdown.options[dropdown.selectedIndex];

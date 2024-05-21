@@ -2,16 +2,16 @@
 require_once __DIR__ . "/../src/modules/user.php";
 
 /*
-Argument 1 : Chemin vers un fichier JSON contenant les informations requises pour créer l'utilisateur
+    Argument 1 : Path to a JSON file with user infos
 */
 
-/* Contenu du JSON :
+/* JSON contents :
 {
-    "firstName": string, (par défaut : Mister)
-    "lastName": string, (par défaut : Egg)
-    "email": string, (par défaut : admin@ttm.fr)
-    "password": string (par défaut : admin)
-    "birthDate": string (par défaut : 01/01/2000)
+    "firstName": string, (default : Mister)
+    "lastName": string, (default : Egg)
+    "email": string, (default : admin@ttm.fr)
+    "password": string (default : admin)
+    "birthDate": string (default : 01/01/2000)
 }
 */
 
@@ -19,9 +19,9 @@ $json = [];
 if ($argc >= 2) {
     $path = $argv[1];
     $cont = @file_get_contents($path);
-    $parsed = $cont === null ? false : json_decode($cont, true);
-    if ($parsed === false) {
-        echo "Failed to read file $path.";
+    $json = $cont === null ? false : json_decode($cont, true);
+    if (!is_array($json)) {
+        echo "Failed to read or parse file $path. Make sure it is a valid JSON file.";
         die(1);
     }
 }
@@ -39,6 +39,13 @@ if ($res !== 0) {
 }
 
 UserDB\save();
-echo "Admin account created with ID $id.";
+echo "Admin account created with ID $id:\n";
+print_r([
+    "firstName" => $firstName,
+    "lastName" => $lastName,
+    "email" => $email,
+    "password" => $password,
+    "birthDate" => $birthDate
+]);
 
 exit(0);

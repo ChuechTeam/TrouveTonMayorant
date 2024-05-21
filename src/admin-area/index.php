@@ -7,7 +7,7 @@ require_once "../member-area/_chatMessage.php";
 Templates\member("Admin !!!");
 Templates\addStylesheet("/assets/style/report-page.css");
 
-ModerationDB\load(true); // Lecture seule pour les performances
+ModerationDB\load(true); // Read-only mode for (slightly) better performance
 $reports = ModerationDB\queryReports();
 
 $completeReports = [];
