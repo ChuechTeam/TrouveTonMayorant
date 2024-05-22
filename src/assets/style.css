@@ -150,6 +150,10 @@ a:visited {
 .sup-icon {
     height: 1em;
     vertical-align: middle;
+
+    &.-white {
+        filter: invert(1.0);
+    }
 }
 
 .dangerous-button {

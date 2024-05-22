@@ -161,7 +161,8 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 <div class="profile-form-container">
     <div class="profile-form">
         <form method="post" enctype="multipart/form-data">
-            <h2 class="-title">Compte<hr></h2>
+            <h2 class="-title -main-title"><span>Compte</span><button class="-save icon">save</button></h2>
+            <hr style="margin-bottom: 1em;">
 
             <div id="pfp">
                 <img src="<?=(empty($u['pfp'])) ? User\DEFAULT_PFP : $u['pfp']?>" id="img-preview">

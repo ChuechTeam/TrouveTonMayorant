@@ -32,7 +32,8 @@ if (!$hasRights):
             <div class="-value"><span><?= rand(18, 100) ?> ans</span></div>
         </div>
     </div>
-    <p>Découvrez qui a visité votre profil en achetant un abonnement TTM sup !</p>
+    <p id="not-subscribed"><span class="icon">lock</span> Découvrez qui a visité votre profil en achetant un abonnement
+        TTM <img class="sup-icon -white" src="/assets/sup.svg"> !</p>
     <?php
     exit;
 endif;
@@ -55,6 +56,7 @@ foreach ($view["views"] as $v) {
         }
         $ageSum += \User\age($u["id"]);
 
+        // Only display users not blocking the user, and not blocked by the user.
         if (\User\blockStatus($user["id"], $u["id"]) === \User\BS_NO_BLOCK) {
             $date = DateTimeImmutable::createFromFormat(\ViewDB\DATE_FORMAT, $v["date"]);
             $visitors[] = [$u, $v, $date];

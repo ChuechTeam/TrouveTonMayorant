@@ -134,3 +134,21 @@
     max-width: 1440px;
     margin: 0 auto;
 }
+
+#not-subscribed {
+    padding: 16px;
+    margin: 1em 2vw;
+    background: var(--block-bg-darker);
+    color: white;
+
+    border-radius: 4px;
+    text-align: center;
+
+    font-size: 1.2em;
+
+    & > .icon {
+        display: block;
+        font-size: 4em;
+        margin-block: 0 0.25em;
+    }
+}

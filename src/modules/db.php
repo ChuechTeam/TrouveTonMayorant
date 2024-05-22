@@ -19,8 +19,8 @@ namespace DB;
 //    while ($rev < REV_LAST) {
 //        $rev++;
 //        switch ($rev) {
-//            case REV_DELETE_EVENTS:
-//                $conv["deleteEvents"] = [];
+//            case REV_X:
+//                // do stuff!
 //                break;
 //        }
 //    }

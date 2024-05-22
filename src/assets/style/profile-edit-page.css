@@ -13,8 +13,6 @@
     text-align: center;
     max-width: 960px;
     margin: 0 16px;
-    height: 30%;
-    overflow: auto;
     width: 90%;
 
     box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.2);
@@ -22,7 +20,6 @@
 
 .profile-form hr {
     border: 1px solid rgb(160, 160, 160) !important;
-
 }
 
 .profile-form .-grid-container {
@@ -107,11 +104,62 @@
     }
 }
 
-.sticky-button{
-    position: fixed;
-    z-index: 99;
-    bottom: 5px;; 
-    right: 350px;
+/* PC */
+@media (min-width: 769px) {
+    .sticky-button {
+        position: fixed;
+        z-index: 99;
+        bottom: 5px;;
+        right: 350px;
+    }
+
+    .profile-form .-main-title button {
+        display: none;
+    }
+}
+/* Mobile */
+@media (max-width: 768px) {
+    .profile-form .-main-title {
+        position: sticky;
+        top: 0;
+        background-color: white;
+        z-index: 999;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+        padding: 2px 0;
+
+        margin-inline: -12px;
+        margin-bottom: 1em;
+
+        text-align: center;
+
+        clip-path: polygon(0 0, 100% 0, 100% 200%, 0 200%);
+        box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-form .-main-title span {
+        flex: 1 0;
+        margin-top: 4px;
+    }
+
+    .profile-form .-main-title button {
+        background-color: white;
+        border: none;
+        color: black;
+        font-size: 1.2em;
+        padding: 0;
+        margin-right: 8px;
+        cursor: pointer;
+    }
+
+    .profile-form .-main-title + hr {
+        display: none;
+    }
+
 }
 
 .profile-form .-form-btn {

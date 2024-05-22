@@ -8,6 +8,8 @@
     padding-inline: 10px;
     margin-inline: auto;
     margin-bottom: 10px;
+
+    box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.2);
 }
 
 .field {
@@ -33,14 +35,17 @@
     width: 80%;
     height: 50px;
     padding: 0px 0px 0px 10%;
-    display: inline-flex;
+    display: flex;
+
+    gap: 16px;
+    margin: 1em 0;
+
+    align-items: center;
 }
 
 .container {
     position: relative;
-    width: 90%;
-    height: 80px;
-    margin-bottom: 30px;
+    flex: 1 1; /* Make it take all the available space, let it shrink */
 }
 
 input[type="range"] {
@@ -120,17 +125,18 @@ input[type="range"]:active::-webkit-slider-thumb {
 }
 
 .values {
-    background-color: hsl(225, 75%, 40%);;
-    width: 88px;
-    height: 20px;
-    margin-left: 30px;
-    margin-top: 10px;
+    background-color: hsl(225, 75%, 40%);
     padding: 2px 8px;
     border-radius: 5px;
     text-align: center;
     font-weight: 500;
     font-size: 15px;
     color: #ffffff;
+
+    flex: 0 0 auto; /* Let it grow, don't let it shrink, allocate the width of the element (auto) */
+    min-width: 4em; /* Around 4 characters */
+
+    box-sizing: content-box;
 }
 
 .search-results {
