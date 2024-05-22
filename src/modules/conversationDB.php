@@ -119,7 +119,7 @@ function deleteMessage(string $convId, int $msgId, array &$conv = null): bool {
         $lastMsgId = null;
         for ($i = 0; $i < count($list); $i++) {
             if ($list[$i]["id"] == $msgId) {
-                $lastMsgId = $list[$i - 1]["id"] ?? null;
+                $lastMsgId = $list[count($list) - 1]["id"] ?? null;
                 array_splice($list, $i, 1);
                 $del = true;
                 break;

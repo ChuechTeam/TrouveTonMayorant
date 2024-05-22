@@ -101,6 +101,7 @@ export function initConversation(element) {
     const state = {
         id,
         lastSeenMsgId: null,
+        deletedMessagesIds: new Set(),
         updateHandle: null,
         elems: {
             root: element,
@@ -167,7 +168,12 @@ export function initConversation(element) {
             // And send the message to the server.
             // The HTML of the message will be returned and appended to the conversation.
             api.sendMessage(this.id, content, this.lastSeenMsgId)
-                .then(res => this.receiveMessages(res));
+                .then(res => {
+                    // Add the messages to the DOM
+                    this.receiveMessages(res);
+                    // Remove any deleted messages from the DOM (the array is empty by default)
+                    this.receiveMessageDeletion(res.deletedMessages);
+                });
         },
 
         // Receives messages from the server and appends them to the conversation.
@@ -183,14 +189,20 @@ export function initConversation(element) {
             this.elems.messages.insertAdjacentHTML("beforeend", html);
 
             // Go through all messages sent by the server to refresh the equations.
-            // And also remove duplicates (can happen if we have requests out of order)
+            // And also remove duplicates and deleted messages (can happen if we have requests out of order)
             const messages = [];
             for (let i = this.elems.messages.children.length - 1; i >= 0; i--) {
                 const msg = this.elems.messages.children[i];
-                const msgId = msg.dataset.id;
+                const msgId = parseInt(msg.dataset.id);
 
-                // This is an old message, we need to remove it
-                if (this.lastSeenMsgId !== null && msgId <= this.lastSeenMsgId) {
+                let remove = false;
+                // Remove it if we've already seen this message.
+                remove ||= this.lastSeenMsgId !== null && msgId <= this.lastSeenMsgId;
+                // Remove it if we know that this message has been deleted.
+                remove ||= this.deletedMessagesIds.has(msgId);
+
+                if (remove) {
+                    // Remove it from the DOM.
                     msg.remove();
                 } else {
                     // Add it to the list of messages to be refreshed.
@@ -227,7 +239,44 @@ export function initConversation(element) {
         deleteMessage(msgElement) {
             const msgId = parseInt(msgElement.dataset.id);
             api.deleteMessage(this.id, msgId)
-                .then(() => msgElement.remove());
+                .then(() => this.receiveMessageDeletion([msgId]));
+        },
+
+        // Acknowledges that messages in the ids array have been deleted,
+        // and removes them from the conversation if they exist.
+        receiveMessageDeletion(ids) {
+            for (const id of ids) {
+                if (this.deletedMessagesIds.has(id)) {
+                    // We already know that this one is deleted, don't do anything.
+                    continue;
+                }
+
+                // Register this id as a deleted message.
+                this.deletedMessagesIds.add(id);
+
+                // Find the message element, from the bottom up (since it's more likely),
+                // and remove it from the DOM.
+                const c = this.elems.messages.children;
+                for (let i = c.length - 1; i >= 0; i--) {
+                    if (c[i].dataset.id == id) { // == to allow for string comparison
+                        c[i].remove();
+
+                        // Let's profit from this situation to update the last seen message id,
+                        // ONLY IF the last message is the one which has been deleted.
+                        // In that case, we need to take the last non-deleted element.
+                        if (this.lastSeenMsgId == id) {
+                            if (c[i-1] != null) {
+                                this.lastSeenMsgId = parseInt(c[i-1].dataset.id);
+                            } else {
+                                // no more messages!
+                                this.lastSeenMsgId = null;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
         },
 
         // Submits a report for a specified message, with a reason
@@ -260,9 +309,14 @@ export function initConversation(element) {
             try {
                 // Receive messages from the API (see member-area/api/convMessages.php)
                 const m = await api.getMessages(this.id, this.lastSeenMsgId);
-                if (m !== null && this.alive) {
+                if (this.alive) {
                     // There's some new messages, let's add them!
-                    this.receiveMessages(m);
+                    if (m.hasContent) {
+                        this.receiveMessages(m);
+                    }
+
+                    // Make sure to delete any messages that have been deleted.
+                    this.receiveMessageDeletion(m.deletedMessages);
                 }
             } finally {
                 // Schedule another update in CONV_UPDATE_INTERVAL milliseconds.

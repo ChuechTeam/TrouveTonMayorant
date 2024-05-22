@@ -1,4 +1,14 @@
 const root = new URL(window.location.origin);
+
+// Convert a Deleted-Messages header (1,8,15) to an array of numbers
+function parseDelMsgHeader(header) {
+    if (header == null) {
+        return [];
+    }
+
+    return header.split(",").map(Number);
+}
+
 export const api = {
     /**
      * Sends a message to a conversation
@@ -30,6 +40,7 @@ export const api = {
         return {
             firstMsgId: parseInt(res.headers.get("First-Message-Id")),
             lastMsgId: parseInt(res.headers.get("Last-Message-Id")),
+            deletedMessages: parseDelMsgHeader(res.headers.get("Deleted-Messages")),
             html: await res.text()
         };
     },
@@ -42,19 +53,19 @@ export const api = {
         }
 
         const res = await fetch(endpoint);
-        if (res.status === 204) {
-            // no content
-            return null;
-        }
-
-        if (res.status !== 200) {
+        if (!res.ok) {
             throw new Error("Failed to send message! Error code: " + res.status);
         }
 
+        const hasContent = res.status === 200; // 204
         return {
-            firstMsgId: parseInt(res.headers.get("First-Message-Id")),
-            lastMsgId: parseInt(res.headers.get("Last-Message-Id")),
-            html: await res.text()
+            // Content variables
+            hasContent,
+            firstMsgId: hasContent ?  parseInt(res.headers.get("First-Message-Id")) : null,
+            lastMsgId: hasContent ? parseInt(res.headers.get("Last-Message-Id")) : null,
+            html: hasContent ? await res.text() : null,
+            // Deleted messages
+            deletedMessages: parseDelMsgHeader(res.headers.get("Deleted-Messages"))
         };
     },
 
@@ -79,7 +90,7 @@ export const api = {
         const res = await fetch(endpoint);
         return await res.text();
     },
-    
+
     async reportMessage(convId, msgId, reason) {
         const endpoint = new URL("member-area/api/reports.php", root);
 
@@ -90,7 +101,7 @@ export const api = {
                 "Content-Type": "application/json"
             }
         });
-        
+
         if (res.status !== 200) {
             throw new Error("Failed to report message! Error code: " + res.status);
         }

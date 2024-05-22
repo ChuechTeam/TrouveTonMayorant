@@ -64,6 +64,28 @@ if ($conv === null) {
 // Id of the last seen message
 $since = is_numeric($_GET["since"] ?? null) ? intval($_GET["since"]) : null;
 
+// Fills the Deleted-Messages header with a comma-separated list of the last deleted messages.
+// The list only contains messages deleted AT THE SAME TIME OR AFTER the $since message.
+// Already deleted messages can be sent when no messages have been deleted after the last deletion.
+function fillDeletedMessagesHeader(array $conv, ?int $since) {
+    if ($since != null) {
+        $delMessagesIds = [];
+        $ev = &$conv["deleteEvents"];
+        for ($i = count($ev) - 1; $i >= 0; $i--) {
+            // Stop there, this event is too old.
+            if ($ev[$i]["lastMsgId"] < $since) {
+                break;
+            }
+
+            $delMessagesIds[] = $ev[$i]["deletedId"];
+        }
+
+        if (!empty($delMessagesIds)) {
+            $delStr = implode(",", $delMessagesIds);
+            header("Deleted-Messages: " . $delStr);
+        }
+    }
+}
 function lastMessages(array $conv, ?int $since)
 {
     $first = null;
@@ -113,6 +135,7 @@ if ($bs !== \User\BS_NO_BLOCK) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    fillDeletedMessagesHeader($conv, $since);
     lastMessages($conv, $since);
 } else if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($bs != \User\BS_NO_BLOCK) {
@@ -135,10 +158,13 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     }
 
     if ($since !== null) {
+        fillDeletedMessagesHeader($conv, $since);
         lastMessages($conv, $since);
     } else {
         header("First-Message-Id: " . $msgId);
         header("Last-Message-Id: " . $msgId);
+        fillDeletedMessagesHeader($conv, $since);
+
         chatMessage($msgId, $user["id"], $content);
     }
 } else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
