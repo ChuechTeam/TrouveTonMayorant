@@ -1,29 +1,33 @@
-import { api } from "./api.js";
-import { typeset } from "./math.js";
+import {api} from "./api.js";
+import {typeset} from "./math.js";
 
+/** Interval at which the conversation will poll the server for new messages. */
 const CONV_UPDATE_INTERVAL = 1000; // ms
 
-/** @param {HTMLElement} element */
+/**
+ * Initializes the chat box, making its people list interactive.
+ * @param {HTMLElement} element
+ * */
 function initChatBox(element) {
     const state = {
         people: element.querySelector(".chat-people"),
         conversationSlot: element.querySelector(".-conversation-slot"),
-        // L'élement HTML de la personne choisie (la partie de gauche)
+        // The HTML element of the selected person (the left part)
         selectedPerson: null,
-        // L'élément HTML de la conversation sélectionnée
+        // The HTML element of the selected conversation
         conversation: null,
-        // Identifiant pour éviter de charger une conversation qu'on doit plus charger
-        // (Par exemple quand on clique sur une conversation, puis une autre,
-        // et que la requête de la 1ere est complétée après la 2e) 
+        // English: Identifier to avoid loading a conversation that we shouldn't load anymore
+        // (For example when we click on a conversation, then another,
+        // and the request of the first one is completed after the second one)
         curConvLoadId: 0,
 
         init() {
             this.selectedPerson = this.people.querySelector(".chat-person.-selected");
 
-            this.updatePersonLastMsgListen = this.updatePersonLastMsg.bind(this);
+            this.updatePersonLastMsgListener = this.updatePersonLastMsg.bind(this);
             this.updateConvFromSlot();
 
-            // Changer de conversation quand une personne de la liste est cliquée
+            // Change the displayede conversation when clicking on a person
             this.people.addEventListener("click", e => {
                 if (e.target.classList.contains("-profile-link")) {
                     return;
@@ -31,19 +35,20 @@ function initChatBox(element) {
 
                 const p = e.target.closest(".chat-person");
                 if (p !== null && p.dataset.id != null) {
-                    // Alors on a cliqué sur une conversation
+                    // Then we actually have clicked on a conversation.
                     this.selectPerson(p, p.dataset.id);
                 }
             })
         },
 
-        // Change de personne sélectionnée et charge la nouvelle conversation dans le slot
+        // Change the selected person, and update the conversation slot
         selectPerson(element, id) {
             if (this.selectedPerson !== null && this.selectedPerson.dataset.id === id) {
-                // Même conversation sélectionnée, ne rien faire
+                // We've selected the same one, no need to do anything
                 return;
             }
 
+            // Move the "-selected" class from the previously selected person to the new one.
             this.selectedPerson?.classList.remove("-selected");
             this.selectedPerson = element;
             element.classList.add("-selected");
@@ -51,7 +56,7 @@ function initChatBox(element) {
             this.loadConv(id);
         },
 
-        // Charge une conversation depuis le serveur, qui renvoie l'HTML de la conversation
+        // Loads a conversation from the server and puts it in the conversation slot
         async loadConv(id) {
             const loadId = ++this.curConvLoadId;
             const html = await api.getConversation(id)
@@ -61,26 +66,27 @@ function initChatBox(element) {
             }
         },
 
-        // Initialise la conversation qui est dans le slot et ajoute/retire les listeners. 
+        // Initializes the conversation from the conversation slot, and manages the listeners
         updateConvFromSlot() {
             const newConv = this.conversationSlot.firstElementChild;
             if (this.conversation === newConv) {
                 return;
             } else if (this.conversation !== null) {
-                // Retirer le listener de la conversation précédente
-                this.conversation.removeEventListener("lastMessageUpdated", this.updatePersonLastMsgListen);
+                // Remove the listener from the previous conversation
+                this.conversation.removeEventListener("lastMessageUpdated", this.updatePersonLastMsgListener);
             }
 
             this.conversation = this.conversationSlot.firstElementChild;
             if (this.conversation != null) {
                 initConversation(this.conversation);
-                this.conversation.addEventListener("lastMessageUpdated", this.updatePersonLastMsgListen);
+                this.conversation.addEventListener("lastMessageUpdated", this.updatePersonLastMsgListener);
             }
         },
 
-        // fonction qui est appelée quand la conversation reçoit un message
-        // (on a besoin de deux variables sinon impossible de retirer le listener)
-        updatePersonLastMsgListen: null,
+        // Function called when a the conversation's last message has been updated.
+        // We need to use this weird updatePersonLastMsgListener variable to be able to remove
+        // a listener from the old conversation.
+        updatePersonLastMsgListener: null,
         updatePersonLastMsg(e) {
             const txt = e.detail.txt;
             this.selectedPerson.querySelector(".-last-msg").textContent = txt;
@@ -91,17 +97,36 @@ function initChatBox(element) {
     element.chatState = state;
 }
 
-/** @param {HTMLElement} element */
+/**
+ * Initializes a conversation element, making it ready to receive and post messages.
+ * @param {HTMLElement} element
+ **/
 export function initConversation(element) {
+    // Retrieve the id from the data-id="" attribute.
     const id = element.dataset.id;
     if (id == null) {
+        // No need to initialise this conversation, it's empty!
         return;
     }
 
+    // Convert it to a number, and make sure it actually is correct.
+    const nid = parseInt(id);
+    if (isNaN(nid)) {
+        throw new Error("Invalid conversation id found in data-id attribute: " + id);
+    }
+
     const state = {
-        id,
+        /** @type {number} ID of the conversation */
+        id: nid,
+        /** @type {number|null}
+         * ID of the last seen message; when the last message is deleted,
+         * this should change to the last non-deleted message id (null if the conversation is empty)  */
         lastSeenMsgId: null,
+        /** @type {Set<number>} IDs of messages that the server has told us are deleted */
         deletedMessagesIds: new Set(),
+        /** @type {number|null}
+         * Timeout handle for the updateTick function, used to stop updating the conversation
+         * when the DOM node has been destroyed */
         updateHandle: null,
         elems: {
             root: element,
@@ -111,6 +136,8 @@ export function initConversation(element) {
         },
 
         init() {
+            // Make the message submit form post a message asynchonously,
+            // instead of reloading the page.
             if (this.elems.msgForm !== null) {
                 this.elems.msgForm.addEventListener("submit", e => {
                     e.preventDefault();
@@ -118,8 +145,9 @@ export function initConversation(element) {
                 });
             }
 
+            // Find the last message id by taking the last message in the DOM
             if (this.elems.messages.children.length > 0) {
-                this.lastSeenMsgId = this.elems.messages.lastElementChild.dataset.id;
+                this.lastSeenMsgId = parseInt(this.elems.messages.lastElementChild.dataset.id);
             }
 
             // Delete a message when clicking on the "delete" button
@@ -145,17 +173,20 @@ export function initConversation(element) {
                 }
             })
 
-            // Planifier la maj 
+            // Schedule a conversation update (to gather new messages) every CONV_UPDATE_INTERVAL ms.
             this.updateHandle = setTimeout(this.updateTick.bind(this), CONV_UPDATE_INTERVAL);
 
+            // Make sure we're at the bottom of the message list
             this.scrollToBottom();
 
+            // Refresh MathJax typesetting for all messages.
             typeset(() => [this.elems.root]);
         },
 
         // Sends a message to the server.
         // Called by the message send form and button.
         postMessage() {
+            // Retrieve the message content from the input field.
             const content = this.elems.msgInput.value;
             // Dont allow sending empty messages
             if (content.trim() === "") {
@@ -178,7 +209,7 @@ export function initConversation(element) {
 
         // Receives messages from the server and appends them to the conversation.
         // Called by the periodic message update function, and when a message has successfully been sent.
-        receiveMessages({ html, firstMsgId, lastMsgId }) {
+        receiveMessages({html, firstMsgId, lastMsgId}) {
             console.log(`Receiving messages: [${firstMsgId}, ${lastMsgId}]`);
 
             // First know if we should scroll down or not, before adding HTML which will
@@ -217,10 +248,12 @@ export function initConversation(element) {
 
             // Refresh MathJax to render equations on newly added messages.
             typeset(messages);
-            
+
+            // Update the last seen message id.
             this.lastSeenMsgId = lastMsgId
 
             // Dispatch an event to update the last message on the people list (on the left)
+            // This event will be handled by the chat box.
             this.elems.root.dispatchEvent(new CustomEvent("lastMessageUpdated", {
                 detail: {
                     txt: this.elems.messages.lastElementChild.querySelector(".-content").textContent
@@ -265,8 +298,8 @@ export function initConversation(element) {
                         // ONLY IF the last message is the one which has been deleted.
                         // In that case, we need to take the last non-deleted element.
                         if (this.lastSeenMsgId == id) {
-                            if (c[i-1] != null) {
-                                this.lastSeenMsgId = parseInt(c[i-1].dataset.id);
+                            if (c[i - 1] != null) {
+                                this.lastSeenMsgId = parseInt(c[i - 1].dataset.id);
                             } else {
                                 // no more messages!
                                 this.lastSeenMsgId = null;
@@ -284,7 +317,8 @@ export function initConversation(element) {
         reportMessage(msgElement, reason) {
             const msgId = parseInt(msgElement.dataset.id);
             api.reportMessage(this.id, msgId, reason)
-                .then(() => alert("Signalement envoyé !"));
+                .then(() => alert("Signalement envoyé !"))
+                .catch(() => alert("Échec de l'envoi du signalement !"));
         },
 
         // Returns true when the message list is scrolled close enough to the bottom
@@ -306,9 +340,11 @@ export function initConversation(element) {
                 return;
             }
 
+            // Use a try/finally block to still update messages after getMessages fails.
             try {
                 // Receive messages from the API (see member-area/api/convMessages.php)
                 const m = await api.getMessages(this.id, this.lastSeenMsgId);
+                // Are we still displayed on screen?
                 if (this.alive) {
                     // There's some new messages, let's add them!
                     if (m.hasContent) {
@@ -416,10 +452,11 @@ convDialogTemplate.innerHTML = `
     <slot></slot>
 </dialog>
 `;
+
 export class ConversationDialog extends HTMLElement {
     constructor() {
         super();
-        this.dom = this.attachShadow({ mode: "open" });
+        this.dom = this.attachShadow({mode: "open"});
         this.dom.replaceChildren(convDialogTemplate.content.cloneNode(true));
         this.dialog = this.dom.getElementById("dialog");
         this.dialog.addEventListener("close", () => this.remove());
@@ -431,6 +468,7 @@ export class ConversationDialog extends HTMLElement {
         initConversation(this.querySelector(".chat-conversation"));
     }
 }
+
 customElements.define("conversation-dialog", ConversationDialog);
 
 export async function fetchAndOpenConv(convId) {

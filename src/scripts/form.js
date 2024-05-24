@@ -11,7 +11,7 @@ export function preventPostRefresh() {
     }
 }
 
-// When true, prevents post refresh on all pages.
+// When true, prevents post refresh by default on all pages.
 const defaultBehavior = true;
 if ((!("disablePostRefresh" in window) && defaultBehavior) ||
     window.disablePostRefresh === true) {

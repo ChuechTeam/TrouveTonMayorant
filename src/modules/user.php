@@ -7,7 +7,7 @@
  * This is also where user roles are determined, according to their subscription status.
  *
  * The User is represented as an associative array with a consequent amount of fields:
- * --- INTERNAL FIELDS
+ * ## INTERNAL FIELDS
  * - id (int)
  * - conversations (array): list of conversation ids where the user is involved
  * - blockedUsers (array): associative array of all blocked users: [id]=>1
@@ -15,13 +15,13 @@
  * - supExpire: date at which the TTM sup subscription will expire (in the SUP_DATE_FMT format)
  * - supBought: date at which the TTM sup subscription was last bought, while it was expired (in the SUP_DATE_FMT format)
  * - admin: true if the user is an admin
- * --- REQUIRED PROFILE FIELDS
- * - firstName (string)
- * - lastName (string)
- * - email (string)
- * - bdate (string, Y-m-d format)
- * - gender (string, GENDER enum)
- * --- OPTIONAL PROFILE FIELDS
+ * ## REQUIRED PROFILE FIELDS
+ * - firstName (string): their first name
+ * - lastName (string): their last name
+ * - email (string): their e-mail address
+ * - bdate (string, Y-m-d format): their birth date
+ * - gender (string, GENDER enum): their gender
+ * ## OPTIONAL PROFILE FIELDS
  * - pfp (string): their profile picture as an URL to the profile picture relative to src
  * - orientation (string, ORIENTATION enum): their sexual orientation
  * - job (string): their professional job

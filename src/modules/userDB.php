@@ -59,53 +59,9 @@ function &load(bool $readOnly = false): array {
     global $shutdownRegistered;
 
     if ($usersData === null) {
-        // First, open the JSON file in the right mode
-        $usersFile = @fopen($usersFilePath, $readOnly ? "r" : "r+");
-        if ($usersFile !== false) {
-            // We got it, now let's lock it to prevent concurrent modifications.
-            if (flock($usersFile, $readOnly ? LOCK_SH : LOCK_EX)) {
-                // Read the entirety of the file.
-                $json = fread($usersFile, _fSize($usersFile));
-                if ($json === false) {
-                    throw new \RuntimeException("Failed to read the users database.");
-                }
-
-                // Make sure it's a valid JSON document.
-                $usersData = json_decode($json, true);
-                if (!is_array($usersData)) {
-                    throw new \RuntimeException("Failed to parse the users database.");
-                }
-
-                // Upgrade it to the latest revision
-                $usersReadOnly = $readOnly;
-                _upgrade($usersData);
-            } else {
-                // Lock failed: that's unlikely.
-                fclose($usersFile);
-                $usersFile = null;
-                throw new \RuntimeException("Failed to lock the existing user database.");
-            }
-        } else if (!file_exists($usersFilePath)) {
-            // Create the file in write mode, make sure it was created properly, then lock it.
-            trigger_error("Creating users database for the first time", E_USER_NOTICE);
-            $usersFile = fopen($usersFilePath, "w");
-            if ($usersFile === false) {
-                throw new \RuntimeException("Failed to create the user database.");
-            }
-            flock($usersFile, LOCK_EX);
-
-            $usersData = [
-                "users" => [],
-                "byEmail" => [],
-                "idSeq" => 1,
-                "revision" => REV_LAST,
-            ];
-
-            if (!fwrite($usersFile, json_encode($usersData))) {
-                throw new \RuntimeException("Failed to write the initial user database.");
-            }
-        } else {
-            throw new \RuntimeException("Failed to read the existing user database.");
+        // This function will read the user database, apply any upgrade, and create the database if it doesn't exist yet.
+        if (!_read($usersFilePath, $usersFile, $usersData, $readOnly)) {
+            throw new \RuntimeException("Failed to load the user database.");
         }
 
         // Save the database once the request ends. Don't register the function twice!
@@ -477,14 +433,8 @@ function save() {
         return;
     }
 
-    $newJson = json_encode($usersData);
-    $ok = true;
-    $ok &= fseek($usersFile, 0) === 0;
-    $ok &= ftruncate($usersFile, strlen($newJson)) !== false;
-    $ok &= fwrite($usersFile, $newJson) !== false;
-
-    if (!$ok) {
-        throw new \RuntimeException("Couldn't write to users file: $usersFilePath");
+    if (!\DB\save($usersFile, $usersData)) {
+        throw new \RuntimeException("Failed to save the user database!");
     }
 
     $usersDirty = false;
@@ -508,8 +458,7 @@ function unload() {
         save();
     }
 
-    flock($usersFile, LOCK_UN);
-    fclose($usersFile);
+    \DB\close($usersFile);
 
     $usersData = null;
     $usersFile = null;
@@ -530,4 +479,17 @@ function _fSize($handle) {
         throw new \RuntimeException("Failed to gather the file size!");
     }
     return $stat['size'];
+}
+
+function _default(): array {
+    return [
+        "users" => [],
+        "byEmail" => [],
+        "idSeq" => 1,
+        "revision" => REV_LAST,
+    ];
+}
+
+function _read(string $path, &$handle, &$data, bool $readOnly = false): bool {
+    return \DB\read($path, "UserDB\_upgrade", $handle, $data, "UserDB\_default", $readOnly);
 }

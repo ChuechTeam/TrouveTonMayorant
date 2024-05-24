@@ -2,7 +2,7 @@
 
 /**
  * To use :
- * $monUrl = "$root/auth.php"
+ * $myUrl = "$root/auth.php"
  *
  * Can be included using require instead of require_once
  */

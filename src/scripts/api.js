@@ -15,6 +15,10 @@ export const api = {
      * @param {number} convId the conversation id
      * @param {string} content contents of the message
      * @param {number | null} since the id of the last received message, to filter out old messages
+     *
+     * @return {Promise<{firstMsgId: number, lastMsgId: number, deletedMessages: number[], html: string}>}
+     *  a promise that, when completed, has the html of all messages posted after the "since" parameter,
+     *  along with the first and last message ids, and the ids of deleted messages
      */
     async sendMessage(convId, content, since) {
         const endpoint = new URL("member-area/api/convMessages.php", root);
@@ -45,6 +49,21 @@ export const api = {
         };
     },
 
+    /**
+     * Fetches all messages from a conversation posted after a specified message id (`since`).
+     * If not specified, fetches all messages.
+     * @param convId the conversation id
+     * @param since the id of the last received message, to filter out old messages
+     * @return {Promise<{firstMsgId: (number|null), lastMsgId: (number|null), hasContent: boolean, html: (string|null), deletedMessages: number[]}>}
+     * a promise with an object, with a list of deleted messages after `since`, that has two "forms":
+     * - When `hasContent` is true:
+     *   - `firstMsgId`, `lastMsgId` contain respectively the first and last message ids
+     *   - `html` contains the HTML of all messages posted after the `since` parameter
+     * - When `hasContent` is false:
+     *   - There are no messages posted after `since`!
+     *   - `firstMsgId`, `lastMsgId`, and `html` are null
+     *   - `deletedMessages` might still have some information
+     */
     async getMessages(convId, since) {
         const endpoint = new URL("member-area/api/convMessages.php", root);
         endpoint.searchParams.set("id", convId);
@@ -61,7 +80,7 @@ export const api = {
         return {
             // Content variables
             hasContent,
-            firstMsgId: hasContent ?  parseInt(res.headers.get("First-Message-Id")) : null,
+            firstMsgId: hasContent ? parseInt(res.headers.get("First-Message-Id")) : null,
             lastMsgId: hasContent ? parseInt(res.headers.get("Last-Message-Id")) : null,
             html: hasContent ? await res.text() : null,
             // Deleted messages

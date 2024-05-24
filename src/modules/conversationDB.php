@@ -10,7 +10,7 @@ namespace ConversationDB;
  * - messages => array of
  *   [
  *       id => int
- *       user => int
+ *       author => int
  *       content => string
  *   ]
  * - deleteEvents => array of
@@ -21,6 +21,8 @@ namespace ConversationDB;
  * - msgIdSeq => int
  * - revision => int
  */
+
+require_once __DIR__ . "/db.php";
 
 const CONV_DIR = __DIR__ . "/../../conversations";
 
@@ -50,8 +52,9 @@ function create(int $u1, int $u2): string {
 
     $id = id($u1, $u2);
     $path = _path($id);
+
     if (!file_exists($path)) {
-        $data = [
+        $res = \DB\create($path, [
             "id" => $id,
             "userId1" => $u1,
             "userId2" => $u2,
@@ -59,8 +62,11 @@ function create(int $u1, int $u2): string {
             "deleteEvents" => [],
             "msgIdSeq" => 1,
             "revision" => REV_LAST
-        ];
-        file_put_contents($path, json_encode($data), LOCK_EX);
+        ]);
+
+        if ($res === \DB\CREATE_ERROR) {
+            throw new \RuntimeException("Failed to create conversation file!");
+        }
     }
 
     return id($u1, $u2);
@@ -71,7 +77,7 @@ function find(string $id): ?array {
     $handle = null;
 
     if (_read(_path($id), $handle, $conv, true)) {
-        _close($handle);
+        \DB\close($handle);
     }
 
     return $conv;
@@ -100,7 +106,7 @@ function addMessage(string $id, int $author, string $content, array &$conv = nul
             "content" => $content,
         ];
 
-        if (_close($handle, $conv)) {
+        if (\DB\close($handle, $conv)) {
             return $id;
         } else {
             return false;
@@ -132,9 +138,9 @@ function deleteMessage(string $convId, int $msgId, array &$conv = null): bool {
                 "lastMsgId" => $lastMsgId
             ];
             trigger_error("bégué");
-            return _close($handle, $conv);
+            return \DB\close($handle, $conv);
         } else {
-            return _close($handle);
+            return \DB\close($handle);
         }
     } else {
         return false;
@@ -143,17 +149,11 @@ function deleteMessage(string $convId, int $msgId, array &$conv = null): bool {
 
 function upgradeAll() {
     $ok = true;
-
-    $dirs = @scandir(CONV_DIR);
-    if ($dirs === false) {
-        return;
-    }
-    
-    foreach ($dirs as $file) {
+    foreach (\DB\listFiles(CONV_DIR) as $file) {
         $fp = rtrim(CONV_DIR, "/\\") . "/$file";
         if (is_file($fp) && pathinfo($fp, PATHINFO_EXTENSION) == "json") {
             $ok &= _read($fp, $handle, $conv);
-            $ok &= _close($handle);
+            $ok &= \DB\close($handle);
 
             if (!$ok) {
                 trigger_error("Upgrade failed for file $file!", E_USER_ERROR);
@@ -186,61 +186,5 @@ function _upgrade(array &$conv): bool {
 }
 
 function _read(string $path, &$handle, ?array &$conv = null, bool $readOnly = false): bool {
-    $handle = @fopen($path, $readOnly ? "r" : "r+");
-    if ($handle === false) {
-        return false;
-    }
-
-    $lockOk = flock($handle, $readOnly ? LOCK_SH : LOCK_EX);
-    if ($lockOk === false) {
-        fclose($handle);
-        return false;
-    }
-
-    $data = fread($handle, _fSize($handle));
-    if ($data === false) {
-        _close($handle);
-        return false;
-    }
-
-    $conv = json_decode($data, true);
-    if (_upgrade($conv)) {
-        if ($readOnly) {
-            throw new \RuntimeException("Cannot upgrade conversation in read-only mode.");
-        }
-
-        return _save($handle, $conv);
-    }
-
-    return true;
-}
-
-function _save($handle, array $conv): bool {
-    $json = json_encode($conv);
-    $ok = true;
-    $ok &= fseek($handle, 0) === 0;
-    $ok &= ftruncate($handle, strlen($json)) !== false;
-    $ok &= fwrite($handle, $json) !== false;
-
-    return $ok;
-}
-
-function _close($handle, ?array $conv = null): bool {
-    $ok = true;
-    if ($conv !== null) {
-        $ok = _save($handle, $conv);
-    }
-
-    $ok &= flock($handle, LOCK_UN);
-    $ok &= fclose($handle);
-
-    return $ok;
-}
-
-function _fSize($handle) {
-    $stat = fstat($handle);
-    if ($stat === false) {
-        throw new \RuntimeException("Failed to gather the file size!");
-    }
-    return $stat['size'];
+    return \DB\read($path, "ConversationDB\_upgrade", $handle, $conv, null, $readOnly);
 }

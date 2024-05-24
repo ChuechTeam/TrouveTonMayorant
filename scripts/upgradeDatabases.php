@@ -6,7 +6,9 @@ require_once __DIR__ . "/../src/modules/moderationDB.php";
 require_once __DIR__ . "/../src/modules/viewDB.php";
 
 /*
- * Pour lancer le script : ./upgrade.sh OU php upgradeDatabases.php
+ * To launch the script, run either, in the project directory:
+ * - ./upgrade.sh
+ * - php scripts/upgradeDatabases.php
  */
 
 printf("Initiating user database upgrade...\n");

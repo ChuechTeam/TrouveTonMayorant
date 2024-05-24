@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Common functions for creating, reading, and writing to JSON database with (relatively) robust file locking.
+ * db.php
+ * -----------
+ * Contains functions for creating, reading, and writing to JSON files with (relatively) robust file locking.
  */
 namespace DB;
 
@@ -52,6 +54,31 @@ function create(string $path, array $entry): int {
     }
 }
 
+/**
+ * Reads a JSON database file at the given path, applying any upgrades and locking the file by default.
+ *
+ * The upgrade function, if specified and not null with `$upgradeFunc`, is called when the file is read.
+ * It must apply any updates to the database, and return `true` if some updates were made; `false` otherwise.
+ *
+ * A default value function can optionally be specified using `$defaultFunc`, which must return the default
+ * value for creating a new database, in form of an associative array.
+ * When specified, this function is called when the file does not exist: it creates a new file,
+ * and writes the returned default value in JSON format in it.
+ * The function continues as usual with a filled `$handle` value.
+ *
+ * The parsed JSON database, if found, is stored in the `$entry` parameter.
+ *
+ * @param string $path the path to the JSON database file
+ * @param ?callable(array): bool $upgradeFunc an upgrade function called when loading an existing database, must return
+ *                                   true if the database has been updated, false otherwise
+ * @param resource $handle set to the handle to the loaded file, if the load was successful
+ * @param array|null $entry set to the parsed JSON database, if the load was successful
+ * @param ?callable(): array $defaultFunc a function returning the default value for a new database, which enables
+ *                                   the creation of a file with the returned value if the file doesn't exist
+ * @param bool $readOnly whether the file should be opened in read-only mode, meaning that locking is made
+ *                       using `LOCK_SH` instead of `LOCK_EX`, and that the file is opened in read-only mode
+ * @return bool true if the file was successfully read OR created using `$defaultFunc`, false otherwise
+ */
 function read(string    $path,
               ?callable $upgradeFunc, // (&array) => bool
                         &$handle,
@@ -117,6 +144,13 @@ function read(string    $path,
     return true;
 }
 
+/**
+ * Saves a JSON database to the file system.
+ *
+ * @param resource $handle the handle
+ * @param array $entry the entire database data
+ * @return bool true if the save was successful, false otherwise
+ */
 function save($handle, array $entry): bool {
     $json = json_encode($entry);
     $ok = true;

@@ -18,6 +18,8 @@ namespace ModerationDB;
  * revision => int
  */
 
+require_once __DIR__ . "/db.php";
+
 const PATH = __DIR__ . "/../../moderation.json";
 
 const REV_FIRST = 1;
@@ -34,26 +36,13 @@ function &load(bool $ro = false): array {
     global $modData;
     global $modReadOnly;
     global $modShutdownRegistered;
-    
-    if ($modData === null) {
-        if (!_read(PATH, $modHandle, $modData, $ro)) {
-            // We create the file once to read it afterward
-            trigger_error("Creating moderation database for the first time.");
-            $ok = file_put_contents(PATH, json_encode(
-                [
-                    "reports" => [],
-                    "bannedEmails" => [],
-                    "reportIdSeq" => 1,
-                    "revision" => REV_LAST
-                ]
-            ),  LOCK_EX);
-            if (!$ok) {
-                throw new \RuntimeException("Failed to create the moderation database.");
-            }
 
-            return load($modReadOnly);
+    if ($modData === null) {
+        // Our _read function also creates the database if it doesn't exist.
+        if (!_read(PATH, $modHandle, $modData, $ro)) {
+            throw new \RuntimeException("Failed to load moderation database.");
         }
-        
+
         $modReadOnly = $ro;
 
         if (!$modShutdownRegistered) {
@@ -77,7 +66,7 @@ function save() {
         return;
     }
 
-    if (!_save($modHandle, $modData)) {
+    if (!\DB\save($modHandle, $modData)) {
         throw new \RuntimeException("Failed to save moderation database.");
     }
 
@@ -89,16 +78,16 @@ function unload() {
     global $modData;
     global $modDirty;
     global $modReadOnly;
-    
+
     if (!$modHandle) {
         return;
     }
-    
+
     if ($modDirty) {
         save();
     }
 
-    _close($modHandle);
+    \DB\close($modHandle);
 
     $modData = null;
     $modHandle = null;
@@ -157,7 +146,7 @@ function deleteReport(int $reportId): bool {
 
     $ud = &load();
     $reps = &$ud["reports"];
-    
+
     if (isset($reps[$reportId])) {
         unset($reps[$reportId]);
         $modDirty = true;
@@ -202,10 +191,6 @@ function emailBanned(string $email): bool {
     return isset($ud["bannedEmails"][$email]);
 }
 
-/*
- * TODO: use db.php
- */
-
 function _upgrade(array &$db): bool {
     $rev = $db["revision"] ?? null;
     if ($rev === null) {
@@ -222,62 +207,15 @@ function _upgrade(array &$db): bool {
     return true;
 }
 
+function _default(): array {
+    return [
+        "reports" => [],
+        "bannedEmails" => [],
+        "reportIdSeq" => 1,
+        "revision" => REV_LAST
+    ];
+}
+
 function _read(string $path, &$handle, ?array &$db = null, bool $readOnly = false): bool {
-    $handle = @fopen($path, $readOnly ? "r" : "r+");
-    if ($handle === false) {
-        return false;
-    }
-
-    $lockOk = flock($handle, $readOnly ? LOCK_SH : LOCK_EX);
-    if ($lockOk === false) {
-        fclose($handle);
-        return false;
-    }
-
-    $modData = fread($handle, _fSize($handle));
-    if ($modData === false) {
-        _close($handle);
-        return false;
-    }
-
-    $db = json_decode($modData, true);
-    if (_upgrade($db)) {
-        if ($readOnly) {
-            throw new \RuntimeException("Cannot upgrade database in read-only mode.");
-        }
-
-        return _save($handle, $db);
-    }
-
-    return true;
-}
-
-function _save($handle, array $db): bool {
-    $json = json_encode($db);
-    $ok = true;
-    $ok &= fseek($handle, 0) === 0;
-    $ok &= ftruncate($handle, strlen($json)) !== false;
-    $ok &= fwrite($handle, $json) !== false;
-
-    return $ok;
-}
-
-function _close($handle, ?array $db = null): bool {
-    $ok = true;
-    if ($db !== null) {
-        $ok = _save($handle, $db);
-    }
-
-    $ok &= flock($handle, LOCK_UN);
-    $ok &= fclose($handle);
-
-    return $ok;
-}
-
-function _fSize($handle) {
-    $stat = fstat($handle);
-    if ($stat === false) {
-        throw new \RuntimeException("Failed to gather the file size!");
-    }
-    return $stat['size'];
+    return \DB\read($path, "ModerationDB\_upgrade", $handle, $db, "ModerationDB\_default", $readOnly);
 }
