@@ -27,6 +27,8 @@ $head = $tmplArgs["head"] ?? "";
     <link rel="stylesheet" href="/assets/style/profile.css">
     <link rel="stylesheet" href="/assets/style/nav.css">
     <link rel="stylesheet" href="/assets/style/chat.css">
+    <script src="/scripts/form.js" type="module" defer></script>
+    <script src="/scripts/romu.js" defer></script>
     <?= $head ?>
 </head>
 <body>

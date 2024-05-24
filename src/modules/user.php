@@ -684,7 +684,7 @@ function level(?int $id): int {
         return LEVEL_SUBSCRIBER;
     }
 
-    // Temporaire (mais réel)
+    // Nico privilege
     if (stristr(strtolower($u["firstName"]), "nico")) {
         return LEVEL_SUBSCRIBER;
     }

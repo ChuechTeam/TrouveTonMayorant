@@ -175,6 +175,8 @@
 
     text-decoration: none;
     display: inline-block;
+
+    margin: 2px;
 }
 
 .profile-form .-form-btn:hover {

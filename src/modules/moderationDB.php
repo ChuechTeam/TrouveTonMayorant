@@ -111,6 +111,15 @@ function queryReports(): array {
     return $ud["reports"];
 }
 
+/**
+ * Returns an array containing all banned emails.
+ * @return array all banned emails
+ */
+function queryBannedEmails(): array {
+    $ud = &load();
+    return array_keys($ud["bannedEmails"]);
+}
+
 function findReport(int $reportId): ?array {
     $ud = &load();
     return $ud["reports"][$reportId] ?? null;

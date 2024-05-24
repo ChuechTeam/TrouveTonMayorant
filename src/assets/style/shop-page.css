@@ -11,7 +11,7 @@
     background: linear-gradient(45deg, var(--sup-color) 0%, var(--sup-color-l2) 100%);
     border: 1px solid var(--sup-color-d2);
 
-
+    touch-action: none;
 
     gap: 16px;
 
@@ -186,6 +186,8 @@
     justify-content: center;
 
     animation: pc-fade 1s 5s forwards;
+
+    pointer-events: none;
 
     & > div {
         padding: 16px;

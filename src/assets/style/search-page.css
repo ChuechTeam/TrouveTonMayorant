@@ -30,6 +30,12 @@
     gap: 15px !important;
 }
 
+.relationship{
+    flex-direction: column;
+    gap: 5px !important;
+    display: block;
+}
+
 .wrapper {
     position: relative;
     width: 80%;
@@ -148,10 +154,9 @@ input[type="range"]:active::-webkit-slider-thumb {
     gap: 8px;
 }
 
-#search-entry{
-    margin-left: 30px;
-    -webkit-box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FFE264, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0); 
-    box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FFE264, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0);
+
+#search-entry:hover{
+    animation: anim 2s infinite alternate-reverse;
 }
 
 .buttons{
@@ -159,4 +164,28 @@ input[type="range"]:active::-webkit-slider-thumb {
     gap: 5px;
     justify-content: center;
     margin-bottom: 10px;
+    .sub:first-child{
+        background-color: rgb(4, 2, 71);
+    }
+    #search-entry{
+        margin-left: 30px;
+        -webkit-box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FFE264, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0); 
+        box-shadow: 4px -4px 15px 0px #F6FF33, 12px -11px 7px 0px #FF1F1F, 20px -5px 7px 0px #FFF212, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFE264, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0);
+    }
+}
+
+@keyframes anim{
+    0%{
+        -webkit-box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FFE264, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0); 
+        box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FFE264, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0);
+        
+    }
+    50%{
+        -webkit-box-shadow: 4px -4px 15px 0px #FF9376, 12px -11px 7px 0px #FF1F1F, 20px -5px 7px 0px #FFFA17, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #F6FF33, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FF0808, 5px 5px 15px 5px rgba(0,0,0,0); 
+        box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FF9527, 20px 6px 7px 0px #FF0000, 13px 12px 17px 0px #FFE264, 2px 17px 17px 0px #FF0808, -9px 21px 18px 0px #FFFA17, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFF212, -11px -9px 11px 0px #FFE264, 5px 5px 15px 5px rgba(0,0,0,0);
+    }
+    100%{
+        -webkit-box-shadow: 4px -4px 15px 0px #FF1F1F, 12px -11px 7px 0px #FF9376, 20px -5px 7px 0px #FFE264, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFF212, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0); 
+        box-shadow: 4px -4px 15px 0px #F6FF33, 12px -11px 7px 0px #FF1F1F, 20px -5px 7px 0px #FFF212, 20px 6px 7px 0px #F6FF33, 13px 12px 17px 0px #FF9527, 2px 17px 17px 0px #FF0000, -9px 21px 18px 0px #FFE264, -9px 6px 11px 0px #FF0808, -11px -9px 11px 0px #FFFA17, -11px -9px 11px 0px #FFFA17, 5px 5px 15px 5px rgba(0,0,0,0);
+    }
 }

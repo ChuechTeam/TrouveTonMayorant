@@ -179,7 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     if (User\level($user["id"]) < User\LEVEL_ADMIN) {
         foreach ($conv["messages"] as $msg) {
             if ($msg["id"] === $msgId) {
-                if ($msg["user"] !== $user["id"]) {
+                if ($msg["author"] !== $user["id"]) {
                     bail(403); // Forbidden
                 }
                 break;

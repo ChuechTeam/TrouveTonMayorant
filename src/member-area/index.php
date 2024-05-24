@@ -30,6 +30,14 @@ require_once "../modules/viewDB.php";
               <input type="hidden" name="depName" id="depNameInput" value="">
               <input type="hidden" name="cityName" id="cityNameInput" value="">
             </ul>
+            <ul class="field relationship">
+                <li><input type="checkbox" name="rel_search[]" id="ro" value="ro"><label for="ro">Rencontres occasionnelles</label></li>
+                <li><input type="checkbox" name="rel_search[]" id="rs" value="rs"><label for="rs">Relation sérieuse</label></li>
+                <li><input type="checkbox" name="rel_search[]" id="rl" value="rl"><label for="rl">Relation sans lendemain</label></li>
+                <li><input type="checkbox" name="rel_search[]" id="ad" value="ad"><label for="ad">À découvrir au fil des échanges</label></li>
+                <li><input type="checkbox" name="rel_search[]" id="rne" value="rne"><label for="rne">Relation non exclusive</label></li>
+            </ul>
+
             <div style="display:flex; justify-content:center; align-items:center;">Âge</div>
             <div class="wrapper">
 
@@ -123,9 +131,9 @@ function slider_reset(){
   const v2 = <?php echo (User\age($user["id"]) + 5) < 100 ? User\age($user["id"]) + 5 : 100 ?>;
   const percent1 = (v1 -18 / sliderMaxValue) * 100;
   const percent2 = (v1 -18 / sliderMaxValue) * 100;
-  sliderTrack.style.background = `linear-gradient(to right, #dadae5 ${percent1}% , #3264fe ${percent1}% , #3264fe ${percent2}%, #dadae5 ${percent2}%)`;
-  document.getElementById("range1").innerHTML = v1 ;
+  document.getElementById("range1").innerHTML = v1;
   document.getElementById("range2").innerHTML = v2;
+  sliderTrack.style.background = `linear-gradient(to right, #dadae5 ${percent1}% , #3264fe ${percent1}% , #3264fe ${percent2}%, #dadae5 ${percent2}%)`;
 }
 </script>
 
