@@ -12,7 +12,7 @@ function parseDelMsgHeader(header) {
 export const api = {
     /**
      * Sends a message to a conversation
-     * @param {number} convId the conversation id
+     * @param {string} convId the conversation id
      * @param {string} content contents of the message
      * @param {number | null} since the id of the last received message, to filter out old messages
      *
@@ -52,8 +52,8 @@ export const api = {
     /**
      * Fetches all messages from a conversation posted after a specified message id (`since`).
      * If not specified, fetches all messages.
-     * @param convId the conversation id
-     * @param since the id of the last received message, to filter out old messages
+     * @param {string} convId the conversation id
+     * @param {since} since the id of the last received message, to filter out old messages
      * @return {Promise<{firstMsgId: (number|null), lastMsgId: (number|null), hasContent: boolean, html: (string|null), deletedMessages: number[]}>}
      * a promise with an object, with a list of deleted messages after `since`, that has two "forms":
      * - When `hasContent` is true:
@@ -73,7 +73,7 @@ export const api = {
 
         const res = await fetch(endpoint);
         if (!res.ok) {
-            throw new Error("Failed to send message! Error code: " + res.status);
+            throw new Error("Failed to fetch messages! Error code: " + res.status);
         }
 
         const hasContent = res.status === 200; // 204

@@ -109,15 +109,9 @@ export function initConversation(element) {
         return;
     }
 
-    // Convert it to a number, and make sure it actually is correct.
-    const nid = parseInt(id);
-    if (isNaN(nid)) {
-        throw new Error("Invalid conversation id found in data-id attribute: " + id);
-    }
-
     const state = {
-        /** @type {number} ID of the conversation */
-        id: nid,
+        /** @type {string} ID of the conversation */
+        id,
         /** @type {number|null}
          * ID of the last seen message; when the last message is deleted,
          * this should change to the last non-deleted message id (null if the conversation is empty)  */
