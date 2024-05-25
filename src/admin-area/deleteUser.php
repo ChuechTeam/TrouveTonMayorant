@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         text-align: center;
     }
 
-    .profile-card {
+    .profile-card-container {
         max-width: 768px;
         margin: 0 auto;
     }
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <h1 id="title">Suppression d'un utilisateur</h1>
 <p id="confirm-par">Êtes-vous sûr de vouloir supprimer cet utilisateur ?</p>
-<?php povProfileCard($u); ?>
+<div class="profile-card-container"><?php povProfileCard($u); ?></div>
 <form method="post">
     <input type="hidden" name="id" value="<?= $u["id"] ?>">
     <div id="ban"><input type="checkbox" name="ban"> <label for="ban">Bannir l'email de l'utilisateur</label></div>

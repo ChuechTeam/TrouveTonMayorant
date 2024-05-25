@@ -33,7 +33,6 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
     // Truncate the biography if we're in a shortened profile card.
     $bio = $u["bio"];
     if (!$full && strlen($bio) > 80) {
-        // abrège
         $bio = substr($bio, 0, 80) . "...";
     }
 
@@ -65,7 +64,6 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
             }
         }
     } else {
-
         if (count($u["rel_search"]) == 5) {
             $rls = "Tout type de relation";
         } else {
@@ -105,9 +103,15 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
             break;
     }
 
+    // Add the location in "City, Department" format
+    // If the user hasn't registered their city, just use their department.
     $location = null;
+    $locDepOnly = false;
     if (!empty($u["depName"]) && !empty($u["cityName"])) {
         $location = "{$u["cityName"]}, {$u["depName"]}";
+    } else if (!empty($u["depName"])) {
+        $location = $u["depName"];
+        $locDepOnly = true;
     }
 
     // Variables only for the full profile!
@@ -237,7 +241,7 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
 
                 <?php if (!empty($location)): ?>
                     <div class="pill -location">
-                        <span class="-label">Ville</span>
+                        <span class="-label"><?= $locDepOnly ? "Département" : "Ville" ?></span>
                         <span class="-value"><?= htmlspecialchars($location) ?></span>
                     </div>
                 <?php endif; ?>
@@ -316,7 +320,8 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
 
                 <?php if ($showActions): ?>
                     <div class="-actions">
-                        <button onclick="window.location.href = '<?= $convUrl ?>';">Démarrer une conversation</button>
+                        <button onclick="window.location.href = '<?= $convUrl ?>';" class="chat-button">
+                            <span class="icon -inl">chat</span>Démarrer une conversation</button>
                         <form style="display: contents" action="/member-area/userProfile.php" method="POST">
                             <input type="hidden" name="action" value="block">
                             <input type="hidden" name="id" value="<?= $u["id"] ?>">

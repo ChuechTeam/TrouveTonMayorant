@@ -391,7 +391,7 @@ convDialogTemplate.innerHTML = `
         & > .-close {
             border: none;
             background-color: transparent;
-            & > .-icon {
+            & > .icon {
                 display: block;
                 margin: auto 0;
                 font-size: 1.5em;
@@ -440,8 +440,8 @@ convDialogTemplate.innerHTML = `
 </style>
 <dialog id="dialog">
     <form class="-header" method="dialog">
-    <h2 class="-title">Conversation</h2>
-    <button class="-close"><div class="material-symbols-rounded -icon">close</div> </button>
+        <h2 class="-title">Conversation</h2>
+        <button class="-close"><div class="icon">close</div></button>
     </form>
     <slot></slot>
 </dialog>
@@ -465,6 +465,11 @@ export class ConversationDialog extends HTMLElement {
 
 customElements.define("conversation-dialog", ConversationDialog);
 
+/**
+ * Fetches a conversation from the server and displays it in a dialog box.
+ * @param {string} convId the conversation id to fetch
+ * @return {Promise<void>}
+ */
 export async function fetchAndOpenConv(convId) {
     const conversationHTML = await api.getConversation(convId);
     const dialog = document.body.appendChild(new ConversationDialog());

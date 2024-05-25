@@ -10,4 +10,5 @@ Templates\member("Espace administrateur");
 <ul>
     <li><a href="/admin-area/reports.php">Signalements</a></li>
     <li><a href="/admin-area/bans.php">Bannissements</a></li>
+    <li><a href="/admin-area/allUsers.php">Utilisateurs</a></li>
 </ul>

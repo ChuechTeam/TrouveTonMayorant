@@ -41,10 +41,10 @@ endif;
 $view = \ViewDB\read($user["id"]);
 
 $visitors = [];
-$n = 0;
-$m = 0;
-$f = 0;
-$ageSum = 0;
+$n = 0; // total amount of visitors
+$m = 0; // amount of men
+$w = 0; // amount of women
+$ageSum = 0; // Sum of all ages
 foreach ($view["views"] as $v) {
     $u = \UserDB\findById($v["who"]);
     if ($u !== null) {
@@ -52,7 +52,7 @@ foreach ($view["views"] as $v) {
         if ($u["gender"] === User\GENDER_MAN) {
             $m++;
         } else if ($u["gender"] === User\GENDER_WOMAN) {
-            $f++;
+            $w++;
         }
         $ageSum += \User\age($u["id"]);
 
@@ -65,7 +65,7 @@ foreach ($view["views"] as $v) {
 }
 
 $mProp = $n === 0 ? 0 : (int)round(((float)$m / $n) * 100);
-$fProp = $n === 0 ? 0 : (int)round(((float)$f / $n) * 100);
+$wProp = $n === 0 ? 0 : (int)round(((float)$w / $n) * 100);
 $avgAge = $n === 0 ? 0 : (int)round($ageSum / $n);
 
 usort($visitors, function ($a, $b) {
@@ -89,18 +89,18 @@ usort($visitors, function ($a, $b) {
         <div class="-value"><?= $view["viewCount"] ?></div>
     </div>
     <div class="-stat">
-        <div class="-bg-equation has-math -wait-mathjax">$$ \frac{100}{n} \sum_{i=1}^n \delta_{g_i}^{\mathrm{homme}}
-            $$
+        <div class="-bg-equation has-math -wait-mathjax">
+            $$ \frac{100}{n} \sum_{i=1}^n \delta_{g_i}^{\mathrm{homme}} $$
         </div>
         <h2 class="-title">Pourcentage d'hommes</h2>
         <div class="-value"><?= $mProp ?>%</div>
     </div>
     <div class="-stat">
-        <div class="-bg-equation has-math -wait-mathjax">$$ \frac{100}{n} \sum_{i=1}^n \delta_{g_i}^{\mathrm{femme}}
-            $$
+        <div class="-bg-equation has-math -wait-mathjax">
+            $$ \frac{100}{n} \sum_{i=1}^n \delta_{g_i}^{\mathrm{femme}} $$
         </div>
         <h2 class="-title">Pourcentage de femmes</h2>
-        <div class="-value"><?= $fProp ?>%</div>
+        <div class="-value"><?= $wProp ?>%</div>
     </div>
     <div class="-stat">
         <div class="-bg-equation has-math -wait-mathjax">$$ \frac{1}{n} \sum_{i=1}^n a_i $$</div>
@@ -111,8 +111,8 @@ usort($visitors, function ($a, $b) {
 <h2 style="text-align: center;">Visiteurs</h2>
 <div id="people">
     <?php foreach ($visitors as [$u, $v, $d]): ?>
-        <div class="-person profile-card-container">
-            <?php povProfileCard($u); ?>
+        <div class="-person">
+            <div class="profile-card-container"><?php povProfileCard($u); ?></div>
             <div class="-details">
                 <div class="-views"><span class="icon -inl">visibility</span> <?= $v["count"] ?></div>
                 <div class="-last-visit">Dernière visite : <?= $d->format("d/m/Y \à H:i") ?></div>

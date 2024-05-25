@@ -9,7 +9,8 @@ require_once __DIR__ . "/../modules/userSession.php";
  * @param int $msgId the message id
  * @param int $userId the author's id
  * @param string $content the message content
- * @param bool $externalView if the message is viewed outside the conversation (example: from the reports list)
+ * @param bool $externalView if the message is viewed outside the conversation (example: from the reports list),
+ *                           used to hide delete and report controls
  * @return void
  */
 function chatMessage(int $msgId, int $userId, string $content, bool $externalView = false) {
@@ -27,13 +28,13 @@ function chatMessage(int $msgId, int $userId, string $content, bool $externalVie
     ?>
     <article class="chat-message<?= $msgClass ?>" data-id="<?= $msgId ?>">
         <header class="-head">
-            <div class="-author"><?= htmlspecialchars($authorName) ?></div>
+            <div class="-author" aria-label="Auteur"><?= htmlspecialchars($authorName) ?></div>
             <div class="-controls">
                 <?php if ($showDelete): ?>
-                    <button class="-delete"><span class="material-symbols-rounded -icon">delete</span></button>
+                    <button class="-delete" title="Supprimer le message" aria-label="Supprimer"><span aria-hidden="true" class="icon">delete</span></button>
                 <?php endif; ?>
                 <?php if ($showReport): ?>
-                    <button class="-report"><span class="material-symbols-rounded -icon">flag</span></button>
+                    <button class="-report" title="Signaler le message" aria-label="Signaler"><span aria-hidden="true" class="icon">flag</span></button>
                 <?php endif; ?>
             </div>
         </header>

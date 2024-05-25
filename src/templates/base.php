@@ -2,13 +2,8 @@
     /*
      * To use:
      *
-     * require_once templates/functions.php
+     * require_once templates/functions.php;
      * Templates\base();
-     *
-     * To change the head
-     * <?php Templates\paramStart("head") ?>
-     *      <meta name="coucou">
-     * <?php Templates\paramEnd(); ?>
      */
 
 $content = $tmplArgs["content"] ?? "\$content is empty!";

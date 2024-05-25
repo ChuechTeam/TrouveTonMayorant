@@ -59,7 +59,7 @@ HTML;
         <?php if ($bs === \User\BS_NO_BLOCK): ?>
             <form class="-send">
                 <input type="text" name="content" placeholder="Message..." class="-msg-input" maxlength="2000" autocomplete="off">
-                <button type="submit"><span class="material-symbols-rounded -icon">send</span></button>
+                <button type="submit"><span class="icon">send</span></button>
             </form>
         <?php else: ?>
             <div class="-send-blocked">

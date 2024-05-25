@@ -12,8 +12,12 @@
     border-radius: 8px;
     text-align: center;
     overflow: auto;
-    width: 25%;
-    min-width: 320px;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .login-form > form > * {
@@ -23,59 +27,45 @@
 
 .login-form .-grid-container {
     display: grid;
-    grid-template-areas:
-        'header header'
-        '. .'
-        '. .'
-        'footer footer';
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr 1fr;
     margin-bottom: 10px;
+    grid-auto-flow: row;
+    grid-auto-rows: 1fr;
+
+    align-items: center;
 
     /* Mobile */
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
-    }
-}
-
-.login-form .-grid-container2 {
-    display: grid;
-    grid-template-areas:
-        'header header'
-        '. .'
-        '. .'
-        '. .'
-        '. .'
-        '. .'
-        '. .'
-        'footer footer';
-    grid-template-columns: auto 1fr;
-    margin-bottom: 10px;
-
-
-    /* Mobile */
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
+        justify-items: stretch;
+        text-align: left;
     }
 }
 
 .login-form .-grid-item {
-    padding: 10px;
+    padding-block: 3px;
+    margin: 6px;
+}
+
+.login-form label {
     font-weight: bold;
 }
 
-.login-form .-header {
-    grid-area: header;
+@media (max-width: 768px) {
+    .login-form label {
+        margin-bottom: 0 !important;
+    }
+}
+
+.login-form h3 {
     border-bottom: 1px solid rgb(192, 192, 192);
     color: darkblue;
     font-size: 28px;
 }
 
-.login-form .-footer {
-    grid-area: footer;
-}
-
-.login-form h3 {
-    margin: -5px;
+.login-form .form-switcher {
+    margin-top: 1em;
+    font-size: 0.8em;
 }
 
 @media (max-width: 768px) {
@@ -85,10 +75,14 @@
 
 }
 
-#Ins {
+#registerForm {
     display: none;
 }
 
-#Co {
+#signInForm {
     display: block;
+}
+
+#error:empty {
+    display: none;
 }

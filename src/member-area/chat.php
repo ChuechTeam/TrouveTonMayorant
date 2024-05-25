@@ -74,7 +74,7 @@ $boxClass = $hasRights ? "" : " -not-sub";
                         <div class="-last-msg"><?= htmlspecialchars($conv["lastMsg"]) ?></div>
                         <?php if (!empty($conv["profileLink"])) : ?>
                             <a class="-profile-link" href="<?= $conv["profileLink"] ?>" title="Voir le profil">
-                                <span class="material-symbols-rounded -icon">account_circle</span>
+                                <span class="icon">account_circle</span>
                             </a>
                         <?php endif; ?>
                     </li>

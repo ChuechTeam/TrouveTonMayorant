@@ -43,34 +43,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!is_string($convId)) {
         bail(400);
     }
-    
+
     $msgId = $data["msgId"] ?? null;
     if (!is_int($msgId)) {
         bail(400);
     }
 
     // Make sure that the reason isn't empty and not just a sequence of spaces
-    $reason = trim($data["reason"] ?? "");
+    // And cut if it's too long
+    $reason = trim(substr($data["reason"] ?? "", 0, 1000));
     if (empty($reason)) {
         bail(400);
     }
-    
+
     $conv = ConversationDB\find($data["convId"]);
     if ($conv === null) {
         bail(404);
     }
-    
+
     foreach ($conv["messages"] as $msg) {
         if ($msg["id"] === $data["msgId"]) {
             if ($msg["author"] === $user["id"]) {
                 bail(403);
             }
-            
+
             ModerationDB\addReport($convId, $msgId, $user["id"], $reason);
             exit;
         }
     }
-    
+
     bail(404);
 } else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     // Admin only!
@@ -82,11 +83,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!is_numeric($id)) {
         bail(400);
     }
-    
+
     if (!ModerationDB\deleteReport(intval($id))) {
         bail(404);
     }
-}
-else {
+} else {
     bail(400);
 }

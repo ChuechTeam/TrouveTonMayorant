@@ -109,8 +109,12 @@
     display: flex;
     flex-direction: column;
 
-    & > .profile-card {
+    & > .profile-card-container {
         flex-grow: 1;
+
+        & > .profile-card {
+            box-sizing: border-box;
+        }
     }
 
     & > .-details {

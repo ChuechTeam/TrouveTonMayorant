@@ -29,6 +29,9 @@ function isCurrentPage($path, bool $prefix=false): bool {
     }
 }
 
+// $path can either be an array or a single string,
+// either way, the first element is the link URL, and other elements
+// are links that also make the link show as being selected
 function linkAttribs($path, bool $prefix=false) {
     $array = is_array($path) ? $path : [$path];
     printf('href="%s"', $array[0]);
@@ -84,7 +87,7 @@ $isAdmin = $tmplArgs["userLevel"] >= User\LEVEL_ADMIN;
         </li>
         <?php endif; ?>
         <li class="-sign-out">
-            <a href="<?= "$root/redirect.php" ?>">
+            <a href="<?= "$root/signOut.php" ?>">
                 <span class="icon -inl">logout</span>
                 <span class="-label -mobile-hide">Déconnexion</span>
             </a>

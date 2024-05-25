@@ -92,8 +92,15 @@ function existingId(int $u1, int $u2): ?string {
     }
 }
 
-// Renvoie false s'il y a un problème
-// Sinon, renvoie l'identifiant du message
+/**
+ * Adds a new message to an existing conversation.
+ *
+ * @param string $id the id of the conversation
+ * @param int $author the user id of the author
+ * @param string $content the message content
+ * @param array|null $conv set to the new conversation if the operation succeeded
+ * @return false|int the id of the new message if the operation succeeded, false otherwise
+ */
 function addMessage(string $id, int $author, string $content, array &$conv = null) {
     $handle = null;
     if (_read(_path($id), $handle, $conv)) {
@@ -116,16 +123,29 @@ function addMessage(string $id, int $author, string $content, array &$conv = nul
     }
 }
 
+/**
+ * Deletes a message from a conversation. Does nothing if the message doesn't exist.
+ *
+ * @param string $convId the id of the conversation
+ * @param int $msgId the id of the message to delete
+ * @param array|null $conv set to the new conversation if the conversation exists
+ * @return bool true if a message has been deleted, false otherwise (conversation or message not found)
+ */
 function deleteMessage(string $convId, int $msgId, array &$conv = null): bool {
     $handle = null;
     if (_read(_path($convId), $handle, $conv)) {
         $list = &$conv["messages"];
 
+        // Do a linear search to find the message to delete.
         $del = false;
         $lastMsgId = null;
         for ($i = 0; $i < count($list); $i++) {
             if ($list[$i]["id"] == $msgId) {
+                // Extract the last message id at this point in time.
+                // This will be used by the server to send what messages have been deleted,
+                // to avoid sending old delete events that the client doesn't care about.
                 $lastMsgId = $list[count($list) - 1]["id"] ?? null;
+                // Remove the message from the list.
                 array_splice($list, $i, 1);
                 $del = true;
                 break;
@@ -137,7 +157,6 @@ function deleteMessage(string $convId, int $msgId, array &$conv = null): bool {
                 "deletedId" => $msgId,
                 "lastMsgId" => $lastMsgId
             ];
-            trigger_error("bégué");
             return \DB\close($handle, $conv);
         } else {
             return \DB\close($handle);

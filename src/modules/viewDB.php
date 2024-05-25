@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Stores all profile view statistics for all users.
+ * Files are stored inside the VIEW_DIR directory, in [user id].json files.
+ */
 namespace ViewDB;
 
 require_once __DIR__ . "/db.php";

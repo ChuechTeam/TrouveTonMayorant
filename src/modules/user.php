@@ -295,6 +295,14 @@ function updateProfile(int $id, array $profile, array $profile_details = null, a
     $user["gender_search"] = $profile_details["gender_search"]; // already validated before
     $user["rel_search"] = $profile_details["rel_search"]; // already validated before
 
+    // Also make sure that the equation doesn't try to escape from the MathJax environment
+    // with dollar signs. Escape any dollar sign that is NOT preceded by a backslash.
+    if (!empty($user["equation"])) {
+        // I don't know why I need SIX BACKSLASHES?!? But it works. Seemingly the \x and $x syntax
+        // are making this escape sequence a huge mess.
+        $user["equation"] = preg_replace('/(?<!\\\\)\$/', '\\\\\\$', $user["equation"]) ?? "";
+    }
+
     // Update the user in the database, using the $user array we've copied earlier and
     // modified with the new profile data.
     \UserDB\put($user);
@@ -339,6 +347,7 @@ function updatePassword(int $id, string $pass, ?array &$updatedUser = null): int
 
 /**
  * Validates the main profile data for a user (see the beginning of the user.php file for reference).
+ * Also modifies the existing data to sanitize strings (enforce max length and trim).
  *
  * The `$existingId` parameter must be filled with the user's id with this profile data.
  * A null value can be given if this is a new registration.
@@ -522,6 +531,7 @@ function findConversation(int $userId, string $convId): ?array {
         return null;
     }
 
+    // Can I access this conversation?
     if (in_array($convId, $user["conversations"]) || level($userId) >= LEVEL_ADMIN) {
         return \ConversationDB\find($convId);
     } else {
@@ -604,10 +614,11 @@ function subscribe(int $id, \DateInterval $duration, array &$updatedUser = null)
     }
 
     if (supActive($user, $exp)) {
+        // Extend the current subscription.
         $exp->add($duration);
         $user["supExpire"] = $exp->format(SUP_DATE_FMT);
     } else {
-        // Reset the purchase date.
+        // Begin a new subscription and reset the purchase date.
         $user["supExpire"] = (new \DateTime())->add($duration)->format(SUP_DATE_FMT);
         $user["supBought"] = (new \DateTime())->format(SUP_DATE_FMT);
     }
@@ -695,11 +706,11 @@ function level(?int $id): int {
 /**
  * Returns the age of a user. If not found, returns 0.
  *
- * @param int $id the user id
+ * @param int|array $user the user id, or the user's associative array
  * @return int the age of the user, 0 if not found
  */
-function age(int $id): int {
-    $u = \UserDB\findById($id);
+function age($user): int {
+    $u = is_array($user) ? $user : \UserDB\findById($user);
     if ($u === null) {
         return 0;
     }
@@ -711,8 +722,6 @@ function age(int $id): int {
 
     return $bd->diff(new DateTime())->y;
 }
-
-// $u : id ou tableau utilisateur
 
 /**
  * Returns true whenever a user has an active subscription to TTM sup.

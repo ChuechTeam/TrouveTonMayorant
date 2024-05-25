@@ -1,4 +1,3 @@
-
 #chat-box {
     display: flex;
     flex-direction: row;
@@ -311,26 +310,41 @@
 }
 
 .chat-message {
-    padding: 4px;
+    --pad: 5px 10px;
     border-radius: 4px;
     width: fit-content;
     max-width: calc(100% - 32px);
+    overflow: hidden;
+
+    border: 1px solid rgba(0, 0, 0, 0.1);
 
     &.-me {
-        background-color: #b9edff;
+        background-color: var(--primary-color-l2); /*hsl(225, 75%, 80%);*/
+        color: white;
         margin-left: auto;
+
+        --control-color: #ff5353;
+
+        border: 1px solid rgba(0, 0, 0, 0.3);
+
+        & > .-head {
+            background: rgba(0, 0, 0, 0.2);
+        }
     }
 
     &.-other {
-        background-color: #d5b8ff;
+        background-color: #ececec;
+    }
+
+    & > .-head, & > .-content {
+        padding: var(--pad);
     }
 
     & > .-head {
         font-weight: bold;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        /*border-bottom: 1px solid rgba(0, 0, 0, 0.2);*/
         justify-content: space-between;
-
-        padding-bottom: 4px;
+        background: rgba(0, 0, 0, 0.08);
 
         display: flex;
         align-items: center;
@@ -341,6 +355,7 @@
 
         & > .-controls {
             display: flex;
+            margin-bottom: 2px;
         }
 
         & .-delete, & .-report {
@@ -348,7 +363,7 @@
             padding: 2px 4px;
             margin: 0;
             border-radius: 4px;
-            color: red;
+            color: var(--control-color, red);
             background-color: transparent;
 
             display: flex;
@@ -365,7 +380,7 @@
                 color: white;
             }
 
-            & > .-icon {
+            & > .icon {
                 display: block;
                 pointer-events: none;
             }

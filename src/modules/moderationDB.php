@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * moderationDB.php
+ * ---------------
+ * Stores moderation data such as message reports and banned emails.
+ * This file is structured similarly to userDB.php.
+ */
 namespace ModerationDB;
 
 /*
@@ -31,6 +37,12 @@ $modReadOnly = false;
 $modDirty = false;
 $modShutdownRegistered = false;
 
+/**
+ * Loads the moderation database if it isn't already loaded.
+ *
+ * @param bool $ro whether the database should be read-only
+ * @return array the moderation database
+ */
 function &load(bool $ro = false): array {
     global $modHandle;
     global $modData;
@@ -95,6 +107,10 @@ function unload() {
     $modReadOnly = false;
 }
 
+/**
+ * Returns a list of all reports
+ * @return array a list of all reports
+ */
 function queryReports(): array {
     $ud = &load();
     return $ud["reports"];
@@ -109,11 +125,24 @@ function queryBannedEmails(): array {
     return array_keys($ud["bannedEmails"]);
 }
 
+/**
+ * Finds a report with the given id, returns null if not found.
+ * @param int $reportId the id of the report
+ * @return array|null the report, or null if not found
+ */
 function findReport(int $reportId): ?array {
     $ud = &load();
     return $ud["reports"][$reportId] ?? null;
 }
 
+/**
+ * Adds a new report to the database.
+ * @param string $convId the conversation id
+ * @param int $msgId the reported message id
+ * @param int $userId the user id of the reporter
+ * @param string $reason the reason for the report
+ * @return void
+ */
 function addReport(string $convId, int $msgId, int $userId, string $reason) {
     global $modDirty;
     global $modReadOnly;
@@ -136,6 +165,11 @@ function addReport(string $convId, int $msgId, int $userId, string $reason) {
     $modDirty = true;
 }
 
+/**
+ * Deletes a report from the database. Returns false if the report does not exist.
+ * @param int $reportId the id of the report
+ * @return bool true if the report was deleted, false if it does not exist
+ */
 function deleteReport(int $reportId): bool {
     global $modDirty;
     global $modReadOnly;
@@ -156,6 +190,12 @@ function deleteReport(int $reportId): bool {
     }
 }
 
+/**
+ * Bans an email address. Existing users are not banned though,
+ * this just bans this email from being used in the future.
+ * @param string $email the email to ban
+ * @return void
+ */
 function banEmail(string $email) {
     global $modDirty;
     global $modReadOnly;
@@ -171,6 +211,11 @@ function banEmail(string $email) {
     }
 }
 
+/**
+ * Unbans an email address.
+ * @param string $email the email to unban
+ * @return void
+ */
 function unbanEmail(string $email) {
     global $modDirty;
     global $modReadOnly;
@@ -186,10 +231,19 @@ function unbanEmail(string $email) {
     }
 }
 
+/**
+ * Returns true when the given email is banned.
+ * @param string $email the email to check
+ * @return bool true if the email is banned
+ */
 function emailBanned(string $email): bool {
     $ud = &load();
     return isset($ud["bannedEmails"][$email]);
 }
+
+/*
+ * Internal functions
+ */
 
 function _upgrade(array &$db): bool {
     $rev = $db["revision"] ?? null;

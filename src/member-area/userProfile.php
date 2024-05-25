@@ -16,12 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $prof !== null) {
     } else if ($action === "unblock") {
         $errCode = User\unblockUser($user["id"], $id);
     }
-
-    // Redirect on the same page to avoid history annoyances (i.e. resubmitting form, previous page being the same page)
-    if ($errCode === 0) {
-        header("Location: /member-area/userProfile.php?id=$id");
-        exit;
-    }
 }
 
 $error = $errCode != null && $errCode != 0 ? User\errToString($errCode) : null;

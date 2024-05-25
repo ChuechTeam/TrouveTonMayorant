@@ -50,13 +50,14 @@ require_once "../_chatMessage.php";
  */
 UserSession\requireLevel(User\LEVEL_SUBSCRIBER);
 
+// Validate the id
 if (empty($_GET["id"])) {
     bail(400);
 }
 
+// Get the conversation
 $convId = $_GET["id"];
 $conv = User\findConversation($user["id"], $convId);
-
 if ($conv === null) {
     bail(404);
 }
@@ -86,6 +87,9 @@ function fillDeletedMessagesHeader(array $conv, ?int $since) {
         }
     }
 }
+
+// Prints out the last messages of the conversation, posted after the "since" message.
+// Also fills the First-Message-Id and Last-Message-Id headers.
 function lastMessages(array $conv, ?int $since)
 {
     $first = null;

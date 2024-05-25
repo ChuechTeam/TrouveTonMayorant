@@ -3,7 +3,8 @@ require "_common.php";
 
 Templates\member("Votre profil");
 Templates\addStylesheet("/assets/style/profile-edit-page.css");
-Templates\appendParam("head", '<script src="/scripts/location.js" type="module" defer></script>');
+Templates\appendParam("head", '<script src="/scripts/location.js" type="module" defer></script>
+<script src="/scripts/profileEdit.js" type="module" defer></script>');
 
 // Allow modification of any user profile if we're an admin.
 $notMe = false;
@@ -152,8 +153,6 @@ $errStr = null;
 if ($submitCode > 0) {
     $errStr = User\errToString($submitCode);
 }
-
-$depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement du fichier JSON
 ?>
 
 <h1 class="title">Profil <?= $notMe ? "de {$u["firstName"]} {$u["lastName"]}" : "" ?></h1>
@@ -228,12 +227,11 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 
                 <label class="-grid-item" for="departmentSelect">Lieu de résidence</label>
                 <div class="-grid-item">
-                    <select id="departmentSelect" data-dep="<?= $u["dep"] ?>" name="dep">
-                        <option disabled selected value> -- Département -- </option>
+                    <select id="departmentSelect" data-dep="<?= $u["dep"] ?>" name="dep" data-allow-empty>
+                        <option selected value> [Aucun département] </option>
                     </select>
                     <br>
-                    <select id="citySelect" class="d-none" data-city="<?= $u["city"] ?>" name="city">
-                        <option disabled selected value> -- Ville -- </option>
+                    <select id="citySelect" class="d-none" data-city="<?= $u["city"] ?>" name="city" data-allow-empty="[Aucune ville]">
                     </select>
                     <input type="hidden" name="depName" id="depNameInput" value="<?= htmlspecialchars($u["depName"]) ?>">
                     <input type="hidden" name="cityName" id="cityNameInput" value="<?= htmlspecialchars($u["cityName"]) ?>">
@@ -254,10 +252,10 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
                 <label class="-grid-item" for="bio">Bio</label>
                 <div class="-grid-item"><textarea name="bio" id="bio" class="-bio-input" maxlength="1000" placeholder="Décrivez vos passions, quel genre de personne vous êtes... Cette description sera la première à apparaître sous votre profil quand d'autres utilisateurs vous trouverons. Faites bonne impression :)"><?php echo htmlspecialchars($u['bio']) ?></textarea></div>
                 
-                <label class="-grid-item" id="mathField">Domaine préféré des maths</label>
+                <label class="-grid-item" for="mathField">Domaine préféré des maths</label>
                 <div class="-grid-item"><input type="text" name="mathField" id="mathField" value="<?= htmlspecialchars($u['mathField']) ?>"></div>
 
-                <label class="-grid-item" id="eigenVal">Valeurs propres</label>
+                <label class="-grid-item" for="eigenVal">Valeurs propres</label>
                 <div class="-grid-item"><textarea name="eigenVal" id="eigenVal" class="-desc-input" placeholder="Des valeurs qui vous sont propres... Par exemple, entraide, empathie..." maxlength="200"><?php echo htmlspecialchars($u['eigenVal']) ?></textarea></div>
 
                 <label class="-grid-item" for="user_smoke">Fumeur(se) ?</label>
@@ -347,49 +345,3 @@ $depFilePath = __DIR__ . "/../../data/departements-region.json"; // Emplacement 
 <?php elseif ($submitCode == 0): ?>
     <p id="all-good">Données enregistrées avec succès !</p>
 <?php endif ?>
-
-<script type="module">
-    import {typeset} from "/scripts/math.js";
-
-    // Button to delete the account
-    document.getElementById("delete-account")?.addEventListener("click", function(e) {
-        if (document.getElementById("pass-input").value == "") {
-            e.preventDefault();
-            alert("Veuillez entrer votre mot de passe pour supprimer votre compte.");
-            document.getElementById("pass-input").focus(); // user friendly ??
-        } else {
-            if (!confirm("Voulez vous vraiment supprimer votre compte ?")) {
-                e.preventDefault();
-            }
-        }
-    });
-
-    // Function to get a preview of the uploaded image
-    window.loadFile = function loadFile(id){
-        var preview = document.getElementById(id);
-        preview.src = URL.createObjectURL(event.target.files[0]);
-        preview.onload = function() {
-            URL.revokeObjectURL(preview.src) // free memory
-        }
-    }
-
-    // Update the MathJax equation when editing the preferred equation
-    const eq = document.getElementById("eq");
-    document.getElementById("eq-input").addEventListener("input", e => {
-        typeset(() => {
-            eq.innerHTML = "$$"+ e.target.value +"$$";
-            return [eq];
-        })
-    })
-
-    // Update the depName and cityName hidden inputs when the user selects a department and a city,
-    // so we don't just put the zip code.
-    function regNameUpdate(dropdown, input) {
-        dropdown.addEventListener("change", e => {
-            const opt = dropdown.options[dropdown.selectedIndex];
-            input.value = opt.dataset.publicVal;
-        })
-    }
-    regNameUpdate(document.getElementById("departmentSelect"), document.getElementById("depNameInput"));
-    regNameUpdate(document.getElementById("citySelect"), document.getElementById("cityNameInput"));
-</script>

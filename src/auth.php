@@ -65,80 +65,70 @@ Templates\addStylesheet("/assets/style/auth-page.css");
 
 <div class="login-form-container">
     <div class="login-form">
-        <form action="auth.php" method="post" id="Co">
+        <form action="auth.php" method="post" id="signInForm">
+            <h3>Se connecter</h3>
             <div class="-grid-container">
-                <div class="-grid-item -header"><h3>Se connecter</h3></div>
-                <div class="-grid-item">Email</div>
-                <div class="-grid-item"><input type="email" name="mail" id="" required></div>
-                <div class="-grid-item">Mot de Passe</div>
-                <div class="-grid-item"><input type="password" name="password" id="" required></div>
-                <div class="-grid-item -footer"><button class="sub" type="submit">Se connecter</button></div>
+                <label class="-grid-item" for="signMail">Email</label>
+                <input class="-grid-item" type="email" name="mail" id="signMail" required>
+                <label class="-grid-item" for="signPass">Mot de Passe</label>
+                <input class="-grid-item" type="password" name="password" id="signPass" required>
             </div>
-
-            <p style="font-size: 11px">Pas encore de compte ? <input type="button" value="S'inscrire"
-                                                                     onclick="HideShow('register')"></p>
-        </form>
-
-        <form action="auth.php?register" method="post" id="Ins">
-
-            <div class="-grid-container2">
-                <div class="-grid-item -header"><h3>S'inscrire</h3></div>
-                <div class="-grid-item">Email</div>
-                <div class="-grid-item"><input type="email" name="mail" id="" required></div>
-                <div class="-grid-item">Mot de Passe</div>
-                <div class="-grid-item"><input type="password" name="password" id="" required></div>
-                <div class="-grid-item">Nom</div>
-                <div class="-grid-item"><input type="text" name="name" id="" required></div>
-                <div class="-grid-item">Prénom</div>
-                <div class="-grid-item"><input type="text" name="fname" id="" required></div>
-                <div class="-grid-item">Date de naissance</div>
-                <div class="-grid-item"><input type="date" name="bdate" id="" required></div>
-                <div class="-grid-item">Genre</div>
-                <div class="-grid-item">
-                    <select id="gender" name="gender" required>
-                        <option value="m">Homme</option>
-                        <option value="f">Femme</option>
-                        <option value="nb">Non-binaire</option>
-                    </select>
-                </div>
-                <div class="-grid-item -footer"><button type="submit" class="sub">S'inscrire</button></div>
-            </div>
-            
-            <p style="font-size: 11px">Déjà un compte ? <input type="button" value="Connexion"
-                                                               onclick="HideShow('signIn')">
+            <button class="sub" type="submit">Se connecter</button>
+            <p class="form-switcher">
+                Pas encore de compte ?
+                <input type="button" value="S'inscrire" onclick="switchForm('register')">
             </p>
+        </form>
+
+        <form action="auth.php?register" method="post" id="registerForm">
+            <h3>S'inscrire</h3>
+            <div class="-grid-container">
+                <label class="-grid-item" for="regMail">Email</label>
+                <input type="email" name="mail" id="regMail" class="-grid-item" required>
+                <label class="-grid-item" for="regPass">Mot de Passe</label>
+                <input type="password" name="password" id="regPass" class="-grid-item" required>
+                <label class="-grid-item" for="regLName">Nom</label>
+                <input type="text" name="name" id="regLName" class="-grid-item" required>
+                <label class="-grid-item" for="regFName">Prénom</label>
+                <input type="text" name="fname" id="regFName" class="-grid-item" required>
+                <label class="-grid-item" for="regBDate">Date de naissance</label>
+                <input type="date" name="bdate" id="regBDate" class="-grid-item" required>
+                <label class="-grid-item" for="regGender">Genre</label>
+                <select class="-grid-item" id="regGender" name="gender" required>
+                    <option value="m">Homme</option>
+                    <option value="f">Femme</option>
+                    <option value="nb">Non-binaire</option>
+                </select>
+            </div>
+            <button type="submit" class="sub">S'inscrire</button>
+
+            <p class="form-switcher">Déjà un compte ? <input type="button" value="Connexion" onclick="switchForm('signIn')"></p>
 
         </form>
-        <p id="error">
-            <?= $error ?>
-        </p>
+        <p id="error"><?= $error ?></p>
     </div>
 </div>
 
 <script>
-    function HideShow(page, clear = true) {
+    const signInForm = document.getElementById("signInForm");
+    const registerForm = document.getElementById("registerForm");
+    const errorEl = document.getElementById("error");
+
+    function switchForm(page, clearErr = true) {
         if (page === "register") {
-            var x = document.getElementById("Co");
-            x.style.display = "none";
-            var y = document.getElementById("Ins");
-            y.style.display = "block";
-            var p = document.getElementById('error');
-            if (clear && p && p.innerHTML.trim() !== '') {
-                p.innerHTML = '';
-            }
+            signInForm.style.display = "none";
+            registerForm.style.display = "block";
         } else if (page === "signIn") {
-            var x = document.getElementById("Ins");
-            x.style.display = "none";
-            var y = document.getElementById("Co");
-            y.style.display = "block";
-            var p = document.getElementById('error');
-            if (clear && p && p.innerHTML.trim() !== '') {
-                p.innerHTML = '';
-            }
+            registerForm.style.display = "none";
+            signInForm.style.display = "block";
         } else {
             console.error("Unknown page: " + page);
         }
+
+        if (clearErr) {
+            errorEl.innerHTML = '';
+        }
     }
 
-    HideShow('<?= $page ?>', false);
+    switchForm('<?= $page ?>', false);
 </script>
