@@ -3,7 +3,6 @@ namespace UserSession;
 
 require_once __DIR__ . "/userDB.php";
 require_once __DIR__ . "/user.php";
-require __DIR__ . "/url.php";
 
 const SESSION_DIR = __DIR__ . "/../../sessions";
 
@@ -107,13 +106,11 @@ function level(): int {
  * @param int $level the minimum grade of the site visitor
  */
 function requireLevel(int $level, bool $api = false) {
-    global $root;
-
     if (level() < $level) {
         http_response_code(401);
 
         if (!$api) {
-            header("Location: $root/index.php");
+            header("Location: /index.php");
         }
         exit();
     }

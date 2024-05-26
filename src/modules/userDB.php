@@ -64,6 +64,9 @@ function &load(bool $readOnly = false): array {
             throw new \RuntimeException("Failed to load the user database.");
         }
 
+        // Save the read-only state
+        $usersReadOnly = $readOnly;
+
         // Save the database once the request ends. Don't register the function twice!
         if (!$shutdownRegistered) {
             register_shutdown_function(function () {
@@ -267,6 +270,7 @@ function nextId(): int {
 // Basically, it adds and removes entries in the blockedBy array for the (un-)blocked users.
 function _updateUserBlocks(int $blocker, array $oldBlocks, array &$newBlocks) {
     if ($oldBlocks == $newBlocks) {
+        // No changes!
         return;
     }
 

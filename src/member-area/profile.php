@@ -35,7 +35,9 @@ function fileExistsInAnyExtension($fName, $dir){
     return null;
 }
 
+// Uploads an image from a form field to the user-image-db/user_id folder.
 function uploadImg($field, $userid){
+    // Make the directory if it doesn't exist.
     $target_dir = "../user-image-db/" . $userid . "/";
     @mkdir($target_dir, 0755, true);
 
@@ -103,13 +105,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
     }
-    else if (!empty(($_POST['mail'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate'] && !empty($_POST['gender'])))) { //Si les champs ne sont pas vides
-
+    else if (!empty(($_POST['mail'])) && !empty(($_POST['name'])) && !empty(($_POST['fname']))
+        && !empty(($_POST['bdate'] && !empty($_POST['gender'])))) { // Ensure that required fields are there
+        // Transfer all uploaded images to the server. If there's no upload, keep the previous image.
         $pfp = uploadImg("pfp", $u["id"]) ?? $u["pfp"];
         $pic1 = uploadImg("pic1", $u["id"]) ?? $u["pic1"];
         $pic2 = uploadImg("pic2", $u["id"]) ?? $u["pic2"];
         $pic3 = uploadImg("pic3", $u["id"]) ?? $u["pic3"];
 
+        // Update the profile with the new values.
         $ok = User\updateProfile($u["id"], array(
             "firstName" => $_POST['fname'],
             "lastName" => $_POST['name'],
@@ -139,6 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 "pic3" => ($pic3!== null) ? $pic3 : "",
             ),$u);
 
+        // Update the password if a new one has been provided.
         if (!empty($_POST["password"]) && $ok === 0) {
             $ok = User\updatePassword($u["id"], $_POST["password"], $u);
         }

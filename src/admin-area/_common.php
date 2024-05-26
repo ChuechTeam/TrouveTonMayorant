@@ -2,7 +2,6 @@
 require_once __DIR__ . "/../templates/functions.php";
 require_once __DIR__ . "/../modules/user.php";
 require_once __DIR__ . "/../modules/userSession.php";
-require __DIR__ . "/../modules/url.php";
 
 function bail(int $code) {
     http_response_code($code);
@@ -10,6 +9,7 @@ function bail(int $code) {
 }
 
 $api = $api ?? false;
+// Make sure our user is an admin
 \UserSession\requireLevel(User\LEVEL_ADMIN, $api);
 $user = \UserSession\loggedUser();
 

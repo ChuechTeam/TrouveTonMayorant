@@ -35,7 +35,7 @@ function checkedIfSmoke(string $smoke) {
 }
 ?>
 
-<h1 class="title"><?php echo "Bonyour, " . $user["firstName"] . " " . $user["lastName"] . " !" ?></h1>
+<h1 class="title">Bonyour, <?= htmlspecialchars($user["firstName"] . " " . $user["lastName"]) ?> !</h1>
 <search id="search">
     <h2 style="text-align: center;">Recherchez des profils, trouvez votre prochain mayorant.</h2>
     <div id="fields">
@@ -116,7 +116,23 @@ function checkedIfSmoke(string $smoke) {
                     </div>
                 </div>
             </div>
-            <div class="-group -enlarge">
+            <div class="-group -right">
+                <header class="field-header -disable-on0checks">
+                    <span class="-name">Statut</span>
+                    <button class="-reset icon" type="button" data-reset="situation[]">ink_eraser</button>
+                </header>
+                <ul class="field multi-select">
+                    <li>
+                        <input type="checkbox" name="situation[]" id="sitSingle" value="<?= \User\SITUATION_SINGLE ?>">
+                        <label for="sitSingle">Célibataire</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" name="situation[]" id="sitOpen" value="<?= \User\SITUATION_OPEN ?>">
+                        <label for="sitOpen">Couple libre</label>
+                    </li>
+                </ul>
+            </div>
+            <div class="-group -right-large">
                 <header class="field-header -disable-on0checks">
                     <span class="-name">Relation voulue</span>
                     <button class="-reset icon" type="button" data-reset="rel_search[]">ink_eraser</button>
@@ -155,9 +171,3 @@ function checkedIfSmoke(string $smoke) {
 
     <output id="results"></output>
 </search>
-
-<script>
-
-</script>
-
-

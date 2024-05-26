@@ -7,7 +7,7 @@ const userDep = departmentSelect.dataset.dep;
 const userCity = citySelect.dataset.city;
 
 const allowEmptyCity = citySelect.dataset.allowEmpty !== undefined;
-const emptyCityLabel = citySelect.dataset.allowEmpty ?  citySelect.dataset.allowEmpty : "[Aucune ville]";
+const emptyCityLabel = citySelect.dataset.allowEmpty ? citySelect.dataset.allowEmpty : "[Aucune ville]";
 
 const allowEmptyDep = departmentSelect.dataset.allowEmpty !== undefined;
 
@@ -22,6 +22,8 @@ fetch("/assets/departments.json")
             option.textContent = option.value + " : " + item.dep_name;
             option.dataset.publicVal = item.dep_name;
             departmentSelect.appendChild(option);
+
+            // Select the already selected option if the data-dep attribute is set
             if (userDep == option.value) {
                 option.selected = true;
                 previousDep = userDep;
@@ -77,12 +79,15 @@ function filterCities(selectedDep) {
     // ]
     getCityList()
         .then((data) => {
+            // Populate the city dropdown menu with the cities from the JSON file
             for (const item of data) {
                 let [cityPostalCode, cityDepartment, cityName] = item;
                 if (cityDepartment === selectedDep) {
                     const option = document.createElement("option");
                     option.value = cityPostalCode;
 
+                    // Capitalize the first letter of each word in the city name,
+                    // because the original database is all lowercase
                     cityName = cityName.split(" ");
                     for (let i = 0; i < cityName.length; i++) {
                         cityName[i] = cityName[i][0].toUpperCase() + cityName[i].substr(1);

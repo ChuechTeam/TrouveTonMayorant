@@ -17,9 +17,11 @@ require_once "../_conversation.php";
 UserSession\requireLevel(User\LEVEL_SUBSCRIBER);
 
 $convId = $_GET["id"];
+// Find a conversation we have access to.
 $conv = User\findConversation($user["id"], $convId);
 
 if ($conv === null) {
+    // Print the "Not found" conversation.
     conversation(null, null);
     bail(404);
 } else {

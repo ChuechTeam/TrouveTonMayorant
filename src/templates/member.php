@@ -1,5 +1,4 @@
 <?php
-require __DIR__ . "/../modules/url.php";
 require_once __DIR__ . "/../modules/user.php";
 
 $content = $tmplArgs["content"] ?? "\$content is empty!";
@@ -16,22 +15,28 @@ $chatPath = "/member-area/chat.php";
 $shopPath = "/member-area/shop.php";
 $adminPath = "/admin-area";
 
+// Get the current path and remove the last / character so we can compare it more easily
 global $curPath;
 $curPath = rtrim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/");
 
+// Returns true when the current page is the one specified in $path.
+// If $path is true, also returns true when the current page starts with $path.
 function isCurrentPage($path, bool $prefix=false): bool {
     global $curPath;
     if ($prefix) {
+        // Check if the current path starts with $path
         return strpos($curPath, $path) === 0;
     } 
     else {
+        // Check if the $path is identical to the current path. Also checks for [folder]/index.php.
         return $path === $curPath || $path . "/index.php" === $curPath;
     }
 }
 
+// Prints a href="[URL]" attribute and a class="-active" attribute if the current page is contained in $path.
 // $path can either be an array or a single string,
 // either way, the first element is the link URL, and other elements
-// are links that also make the link show as being selected
+// are links that also make the link show as being selected.
 function linkAttribs($path, bool $prefix=false) {
     $array = is_array($path) ? $path : [$path];
     printf('href="%s"', $array[0]);
@@ -44,6 +49,7 @@ function linkAttribs($path, bool $prefix=false) {
     }
 }
 
+// Those variables are filled in the "member" function (see functions.php)
 $user = $tmplArgs["user"] ?? die("The member template requires a logged user!");
 $isAdmin = $tmplArgs["userLevel"] >= User\LEVEL_ADMIN;
 ?>
@@ -87,7 +93,7 @@ $isAdmin = $tmplArgs["userLevel"] >= User\LEVEL_ADMIN;
         </li>
         <?php endif; ?>
         <li class="-sign-out">
-            <a href="<?= "$root/signOut.php" ?>">
+            <a href="/signOut.php">
                 <span class="icon -inl">logout</span>
                 <span class="-label -mobile-hide">Déconnexion</span>
             </a>

@@ -16,7 +16,7 @@ function initChatBox(element) {
         selectedPerson: null,
         // The HTML element of the selected conversation
         conversation: null,
-        // English: Identifier to avoid loading a conversation that we shouldn't load anymore
+        // Identifier to avoid loading a conversation that we shouldn't load anymore
         // (For example when we click on a conversation, then another,
         // and the request of the first one is completed after the second one)
         curConvLoadId: 0,
@@ -281,27 +281,24 @@ export function initConversation(element) {
                 // Register this id as a deleted message.
                 this.deletedMessagesIds.add(id);
 
-                // Find the message element, from the bottom up (since it's more likely),
-                // and remove it from the DOM.
+                // Remove the message from the DOM, and update the last seen message.
                 const c = this.elems.messages.children;
-                for (let i = c.length - 1; i >= 0; i--) {
-                    if (c[i].dataset.id == id) { // == to allow for string comparison
-                        c[i].remove();
-
-                        // Let's profit from this situation to update the last seen message id,
-                        // ONLY IF the last message is the one which has been deleted.
-                        // In that case, we need to take the last non-deleted element.
-                        if (this.lastSeenMsgId == id) {
-                            if (c[i - 1] != null) {
-                                this.lastSeenMsgId = parseInt(c[i - 1].dataset.id);
-                            } else {
-                                // no more messages!
-                                this.lastSeenMsgId = null;
-                            }
+                if (this.lastSeenMsgId != id) {
+                    // This isn't the last message, so let's find it from the bottom up (since it's more likely),
+                    // and remove it from the DOM.
+                    for (let i = c.length - 1; i >= 0; i--) {
+                        if (c[i].dataset.id == id) { // == to allow for string comparison
+                            c[i].remove();
+                            break;
                         }
-
-                        break;
                     }
+                } else { // this.lastSeenMsgId == id
+                    // The last message has been deleted!
+                    // We need to remove the last message element from the DOM,
+                    // and update the last seen message id.
+                    c[c.length - 1].remove();
+                    // We've removed the last message, so take the now-last message's id, if it exists.
+                    this.lastSeenMsgId = c.length !== 0 ? parseInt(c[c.length - 1].dataset.id) : null;
                 }
             }
         },

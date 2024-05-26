@@ -9,20 +9,25 @@ Templates\appendParam("head", '<script src="/scripts/chat.js" type="module" defe
 
 // Allow viewing conversations of other users if the user is an admin.
 // That's by all means very unethical, but it's required sooo :))
-$u = null;
-$impersonate = false;
+$u = null; // User to view the conversations of
+$impersonate = false; // true when we're viewing the conversations of another user
 if (isset($_GET["impersonate"]) && UserSession\level() >= \User\LEVEL_ADMIN) {
     $u = UserDB\findById(intval($_GET["impersonate"]));
     $impersonate = true;
+
+    // If the user doesn't exist, just give up with a "Not found" message.
     if ($u === null) {
         echo '<div class="not-found">Utilisateur introuvable</div>';
         http_response_code(404);
         exit();
     }
 } else {
+    // If we don't want to impersonate, just view the conversations of the logged-in user.
     $u = $user;
 }
 
+// True when the user can access the chat and send messages.
+// When it's false, an overlay will be displayed to buy TTM sup.
 $hasRights = $impersonate || \UserSession\level() >= \User\LEVEL_SUBSCRIBER;
 $selectedConvId = null;
 
@@ -35,17 +40,14 @@ if (!empty($_GET["startNew"]) && $hasRights) {
     }
 }
 
-if ($selectedConvId === null && !empty($_GET["conv"])) {
-    $selectedConvId = $_GET["conv"];
-}
-
 if ($hasRights) {
+    // Fill the $conversation array with some data to populate the person list.
     $conversations = [];
     foreach ($u["conversations"] as $convId) {
         $conv = ConversationDB\find($convId);
         if ($conv !== null) {
             $otherUserId = $conv["userId1"] == $u["id"] ? $conv["userId2"] : $conv["userId1"];
-            $otherUser = UserDB\findById($otherUserId);
+            $otherUser = UserDB\findById($otherUserId); // It may be null --> deleted user!
             $conversations[] = [
                 "id" => $convId,
                 "userName" => $otherUser !== null ? $otherUser["firstName"] . " " . $otherUser["lastName"] : "Utilisateur supprimé",

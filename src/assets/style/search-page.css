@@ -312,24 +312,41 @@ input[type="range"]:active::-webkit-slider-thumb {
 }
 
 #search-form {
-    display: flex;
+    display: grid;
     gap: 8px;
-    flex-direction: column;
-    flex-wrap: wrap;
-    max-height: 500px;
+
+    grid-template-columns: auto auto;
+    grid-template-rows: repeat(4, auto);
 }
 
-@media (max-width: 768px) {
-    #search-form {
-        max-height: unset;
-    }
+#search-form > .-group {
+    grid-column: 1;
 }
 
-#search-form > .-group.-enlarge {
-    flex-grow: 1;
+#search-form > .-group.-right {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+#search-form > .-group.-right-large {
+    grid-column: 2;
+    grid-row: 2 / -1;
     display: flex;
     flex-direction: column;
     & > .field {
         flex: 1 0;
+    }
+}
+
+
+@media (max-width: 768px) {
+    #search-form {
+        grid-template-columns: auto;
+        max-height: unset;
+
+        & > .-group {
+            grid-column: 1 !important;
+            grid-row: auto !important;
+        }
     }
 }

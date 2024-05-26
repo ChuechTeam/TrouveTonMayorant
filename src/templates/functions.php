@@ -54,19 +54,29 @@ function member(?string $title = null) {
         die("The member template requires a logged user!");
     }
 
+    // Fill some user-related data to use later inside the template
     setParam("user", $user);
     setParam("userLevel", \User\level($user["id"]));
 
     // Include MathJax for math rendering
     appendParam("head", <<<HTML
 <script>
+    window.mathJaxReady = new Promise((resolve) => {
+        window.readyResolve = resolve;
+    });
     MathJax = {
         tex: {
             inlineMath: [['$', '$']],
             processEscapes: true
         },
         loader: {load: ['ui/safe']},
-        startup: { elements: ['.has-math'] }
+        startup: { 
+            elements: ['.has-math'],
+            ready: function() {
+                MathJax.startup.defaultReady();
+                MathJax.startup.promise.then(window.readyResolve);
+            }
+        }
     };
 </script>
 <script async src="/scripts/math.js" type="module"></script>

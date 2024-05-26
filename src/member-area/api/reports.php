@@ -23,7 +23,7 @@ require_once "../../modules/moderationDB.php";
  * Deletes a report (admin only)
  *
  * Parameters (URL) :
- * ?id : the report id
+ * ?id: the report id
  *
  * Returns :
  * 200 OK

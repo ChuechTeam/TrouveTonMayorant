@@ -6,8 +6,12 @@ require_once "../modules/viewDB.php";
 
 $id = intval($_REQUEST["id"] ?? null);
 $prof = $id === 0 ? null : \UserDB\findById($id);
-Templates\member("Profil");
 
+// Put a nice page title with the user's full name.
+$title = $prof != null ? htmlspecialchars("Profil de {$prof["firstName"]} {$prof["lastName"]}") : "Profil";
+Templates\member($title);
+
+// Handling block/unblock requests
 $errCode = null;
 if ($_SERVER["REQUEST_METHOD"] === "POST" && $prof !== null) {
     $action = $_POST["action"] ?? null;
@@ -17,7 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $prof !== null) {
         $errCode = User\unblockUser($user["id"], $id);
     }
 }
-
 $error = $errCode != null && $errCode != 0 ? User\errToString($errCode) : null;
 
 $bs = User\blockStatus($user["id"], $id);

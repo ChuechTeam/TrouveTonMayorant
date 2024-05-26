@@ -9,9 +9,10 @@ Templates\addStylesheet("/assets/style/profile-visits-page.css");
 
 echo '<h1 class="title">Statistiques de votre profil</h1>';
 
-$hasRights = \UserSession\level() >= \User\LEVEL_SUBSCRIBER;
-if (!$hasRights):
-    srand($user["id"]);
+// If the user isn't registered, print out some bullshit stats hidden,
+// blurred behind a lock icon, and exit the script early.
+if (\UserSession\level() < \User\LEVEL_SUBSCRIBER):
+    srand($user["id"]); // Initialise the random seed to not have fluctuating stats with each request.
     ?>
     <div id="stats">
         <!-- BTW those aren't the real stats -->
@@ -40,7 +41,7 @@ endif;
 
 $view = \ViewDB\read($user["id"]);
 
-$visitors = [];
+$visitors = []; // array of tuples: [user, view_count, date]
 $n = 0; // total amount of visitors
 $m = 0; // amount of men
 $w = 0; // amount of women
@@ -54,7 +55,7 @@ foreach ($view["views"] as $v) {
         } else if ($u["gender"] === User\GENDER_WOMAN) {
             $w++;
         }
-        $ageSum += \User\age($u["id"]);
+        $ageSum += \User\age($u);
 
         // Only display users not blocking the user, and not blocked by the user.
         if (\User\blockStatus($user["id"], $u["id"]) === \User\BS_NO_BLOCK) {
@@ -64,10 +65,12 @@ foreach ($view["views"] as $v) {
     }
 }
 
+// Calculate the percentages. If nobody has visited the profile, everything is set to 0.
 $mProp = $n === 0 ? 0 : (int)round(((float)$m / $n) * 100);
 $wProp = $n === 0 ? 0 : (int)round(((float)$w / $n) * 100);
 $avgAge = $n === 0 ? 0 : (int)round($ageSum / $n);
 
+// Sort the visitors by latest visit date (descending): the most recent is first.
 usort($visitors, function ($a, $b) {
     // value < 0 --> a < b --> first in the array,
     // value > 0 --> a > b --> last in the array,

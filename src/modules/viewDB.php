@@ -34,6 +34,7 @@ function _path(int $uid): string {
 
 /**
  * Reads view stats for a given user from the database.
+ * Creates them if they don't exist.
  *
  * @param int $uid the user id
  * @return array the view stats
@@ -81,7 +82,7 @@ function registerView(int $uid, int $who, \DateInterval $minInterval = null, arr
             // $now - $nextViewTime < 0
             // <==> $now < $nextViewTime
             // <==> $dist->inverse = 1
-            // If the difference is negative, then
+            // If the difference is negative, then it's too early
             if ($dist->invert === 1) {
                 \DB\close($handle);
                 return;
@@ -109,6 +110,10 @@ function upgradeAll() {
         \DB\close($handle);
     }
 }
+
+/*
+ * Internal functions
+ */
 
 function _read(int $uid, &$handle, array &$view = null) {
     $ok = \DB\read(_path($uid), 'ViewDB\_upgrade', $handle, $view, function() use ($uid) {

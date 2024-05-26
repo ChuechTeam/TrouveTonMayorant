@@ -10,7 +10,7 @@ const sliderMaxValue = document.getElementById("slider-1").max - document.getEle
 
 async function loadResults() {
     // window.location.origin = http://localhost:8080 (for exemple)
-    const endpoint = new URL("research.php", window.location.origin);
+    const endpoint = new URL("member-area/api/search.php", window.location.origin);
     // register a_min and a_max fields using the min/max range values
     endpoint.searchParams.append("a_min", displayValOne.innerText);
     endpoint.searchParams.append("a_max", displayValTwo.innerText);

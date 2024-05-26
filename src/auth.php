@@ -1,8 +1,8 @@
 <?php
 require_once "templates/functions.php";
 require_once "modules/userSession.php";
-require_once "modules/url.php";
 
+// Get the ?register URL parameter to show the right page
 $register = isset($_GET["register"]);
 $page = $register ? "register" : "signIn";
 
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $u = UserDB\findByEmailPassword($user_m, $user_p);
             if ($u !== null) {
                 \UserSession\signIn($u["id"]);
-                header("Location: $root/index.php");
+                header("Location: /index.php");
                 exit();
             } else {
                 $errCode = User\ERR_INVALID_CREDENTIALS;
@@ -31,7 +31,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         // Register & check fields
-        if (!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name'])) && !empty(($_POST['fname'])) && !empty(($_POST['bdate'])) && !empty(($_POST['gender']))) { //Si les champs ne sont pas vides
+        if (!empty(($_POST['mail'])) && !empty(($_POST['password'])) && !empty(($_POST['name']))
+            && !empty(($_POST['fname'])) && !empty(($_POST['bdate'])) && !empty(($_POST['gender']))) {
             // Gather all important infos
             $user_m = $_POST['mail'];
 
@@ -44,9 +45,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $id = 0;
             $errCode = User\register($user_fn, $user_n, $user_m, $user_p, $user_bd, $user_gender, $id);
             if ($errCode === 0) {
-                // Start a user session with our newly created user
+                // Start a user session with our newly created user, and redirect them to the member homepage
                 \UserSession\signIn($id);
-                header("Location: $root/index.php");
+                header("Location: /index.php");
                 exit();
             }
         } else {
@@ -108,7 +109,7 @@ Templates\addStylesheet("/assets/style/auth-page.css");
         <p id="error"><?= $error ?></p>
     </div>
 </div>
-
+<?php /* This script isn't in a separate file to avoid flickering, we want to make sure it runs synchronously */ ?>
 <script>
     const signInForm = document.getElementById("signInForm");
     const registerForm = document.getElementById("registerForm");

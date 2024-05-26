@@ -5,6 +5,7 @@ Templates\member("Boutique");
 Templates\addStylesheet("/assets/style/shop-page.css");
 Templates\appendParam("head", '<script src="/scripts/shop.js" type="module" defer></script>');
 
+// List of all available offers.
 $offers = [
     [
         "duration" => new DateInterval("P1M"),
@@ -28,18 +29,19 @@ $offers = [
     ]
 ];
 
-$errorStr = null;
-
+// Handle purchase requests
+$errorStr = null; // filled when there's an error
+$purchased = false; // true when a successful purchase has been made
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $idx = $_POST["offer"] ?? "-1";
+    $idx = $_POST["offer"] ?? "-1"; // Index in the $offers array
+    // Make sure it is a valid offer index.
     if (is_numeric($idx) && (($idx = intval($idx)) >= 0 && $idx < count($offers))) {
         $offer = $offers[$idx];
 
+        // Subscribe the user to TTM sup: extend their existing subscription or create a new one.
         $ok = User\subscribe($user["id"], $offer["duration"], $user);
         if ($ok === 0) {
-            $_SESSION["purchased"] = true;
-            header("Location: /member-area/shop.php");
-            exit();
+            $purchased = true;
         } else {
             $errorStr = User\errToString($ok);
         }
@@ -49,6 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 $level = \UserSession\level();
+// Gather the subscription dates: parse them, and make sure that they are valid.
 $expDate = $user["supExpire"] === null ? null : DateTime::createFromFormat(\User\SUP_DATE_FMT, $user["supExpire"]);
 if ($expDate === false) {
     trigger_error("Invalid supExpire date format: " . $user["supExpire"], E_USER_WARNING);
@@ -62,6 +65,8 @@ if ($supBought === false) {
 $subscribed = $level >= User\LEVEL_SUBSCRIBER;
 $subCardClass = $subscribed ? "-subscribed" : "-unsubscribed";
 
+// When subscribed, generate a random 16-digit code (like credit cards) unique to each user.
+// This is just for cosmetic purposes.
 if ($subscribed) {
     $randNum = "";
     srand($user["id"]);
@@ -72,9 +77,6 @@ if ($subscribed) {
         $randNum .= rand(1, 9);
     }
 }
-
-$purchased = isset($_SESSION["purchased"]);
-unset($_SESSION["purchased"]);
 ?>
 
 <h1 class="title">Boutique</h1>
@@ -108,7 +110,7 @@ unset($_SESSION["purchased"]);
     <?php endif; ?>
 </div>
 
-<h2>Offres</h2>
+<h2>Offres d'abonnement</h2>
 <div id="offers">
     <?php foreach ($offers as $i => $o): ?>
         <div class="shop-offer">

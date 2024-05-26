@@ -57,6 +57,7 @@ if (empty($_GET["id"])) {
 
 // Get the conversation
 $convId = $_GET["id"];
+// This function ensures that the user has the right to access the conversation
 $conv = User\findConversation($user["id"], $convId);
 if ($conv === null) {
     bail(404);
@@ -67,7 +68,7 @@ $since = is_numeric($_GET["since"] ?? null) ? intval($_GET["since"]) : null;
 
 // Fills the Deleted-Messages header with a comma-separated list of the last deleted messages.
 // The list only contains messages deleted AT THE SAME TIME OR AFTER the $since message.
-// Already deleted messages can be sent when no messages have been deleted after the last deletion.
+// Already deleted messages may be sent when no messages have been deleted after the last deletion.
 function fillDeletedMessagesHeader(array $conv, ?int $since) {
     if ($since != null) {
         $delMessagesIds = [];
@@ -81,6 +82,7 @@ function fillDeletedMessagesHeader(array $conv, ?int $since) {
             $delMessagesIds[] = $ev[$i]["deletedId"];
         }
 
+        // Fill the Deleted-Message header with a comma-separated list of deleted messages.
         if (!empty($delMessagesIds)) {
             $delStr = implode(",", $delMessagesIds);
             header("Deleted-Messages: " . $delStr);
@@ -99,6 +101,9 @@ function lastMessages(array $conv, ?int $since)
     // so we can edit the headers afterward.
     ob_start();
 
+    // Do a linear search to scan all messages, so we can find the first message to send
+    // This could be improved by searching from the end, or doing a binary search,
+    // but that would introduce too much complexity.
     foreach ($conv["messages"] as $msg) {
         if ($since === null || $msg["id"] > $since) {
             if ($first === null) {
@@ -110,6 +115,7 @@ function lastMessages(array $conv, ?int $since)
         }
     }
 
+    // Fill out the headers
     if ($first !== null) {
         header("First-Message-Id: " . $first);
     }
@@ -117,21 +123,26 @@ function lastMessages(array $conv, ?int $since)
         header("Last-Message-Id: " . $last);
     }
 
+    // There are no new messages? Exit with a 204 No Content status code.
     if ($first === null && $last === null) {
         bail(204); // No content
     }
 
+    // And *NOW* we can print out the HTML content.
     echo ob_get_clean();
 }
 
 // Send the block status to the client so it knows if it can send messages again
-if ($user["id"] == $conv["userId1"]) {
+if ($user["id"] === $conv["userId1"]) {
+    // Then I am userId1, check the block status against userId2
     $bs = \User\blockStatus($conv["userId1"], $conv["userId2"]);
-} else if ($conv["userId2"] == $user["id"]) {
+} else if ($user["id"] === $conv["userId2"]) {
+    // Then I am userId2, check the block status against userId1
     $bs = \User\blockStatus($conv["userId2"], $conv["userId1"]);
 } else {
     $bs = \User\BS_NO_BLOCK;
 }
+
 // Blocked --> header sent
 // Not blocked --> no header
 if ($bs !== \User\BS_NO_BLOCK) {
@@ -139,38 +150,37 @@ if ($bs !== \User\BS_NO_BLOCK) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    // Send the last messages posted after the $since message.
+    // Also fill deleted messages.
     fillDeletedMessagesHeader($conv, $since);
     lastMessages($conv, $since);
 } else if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Is there a block preventing me from sending messages?
     if ($bs != \User\BS_NO_BLOCK) {
         bail(403); // Forbidden
     }
 
+    // Read the JSON input
     $data = json_decode(file_get_contents('php://input'), true);
     if (!is_array($data)) {
-        bail(400);
+        bail(400); // Bad request
     }
 
+    // Trim the message and prevent it from being too long
     $content = substr(trim($data["content"] ?? ""), 0, 2000);
     if (empty($content)) {
-        bail(400);
+        bail(400); // Bad request
     }
 
+    // Add the message to the database
     $msgId = ConversationDB\addMessage($convId, $user["id"], $content, $conv);
     if ($msgId === false) {
-        bail(500);
+        bail(500); // Internal server error
     }
 
-    if ($since !== null) {
-        fillDeletedMessagesHeader($conv, $since);
-        lastMessages($conv, $since);
-    } else {
-        header("First-Message-Id: " . $msgId);
-        header("Last-Message-Id: " . $msgId);
-        fillDeletedMessagesHeader($conv, $since);
-
-        chatMessage($msgId, $user["id"], $content);
-    }
+    // Send the last messages like the GET request does.
+    fillDeletedMessagesHeader($conv, $since);
+    lastMessages($conv, $since);
 } else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     if (!is_numeric($_GET["msgId"] ?? null)) {
         bail(404);
@@ -191,6 +201,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         }
     }
 
+    // Delete the message. deleteMessage returns false if the message was not found.
     if (!ConversationDB\deleteMessage($convId, $msgId, $conv)) {
         bail(404);
     }

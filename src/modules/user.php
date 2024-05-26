@@ -710,16 +710,19 @@ function level(?int $id): int {
  * @return int the age of the user, 0 if not found
  */
 function age($user): int {
+    // If we're given an array, use it; else, $user is an id and we need to find the user.
     $u = is_array($user) ? $user : \UserDB\findById($user);
     if ($u === null) {
         return 0;
     }
 
+    // Parse the date from the "bdate" field.
     $bd = DateTime::createFromFormat("Y-m-d", $u["bdate"]);
     if ($bd === false) {
         throw new \RuntimeException("Birthdate is in an invalid format: {$u["bdate"]}");
     }
 
+    // Calculate the date difference between the birthdate and today.
     return $bd->diff(new DateTime())->y;
 }
 
