@@ -370,7 +370,7 @@ export function initConversation(element) {
  */
 const convDialogTemplate = document.createElement("template");
 convDialogTemplate.innerHTML = `
-<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/style/_root.css">
 <style>
 #dialog {
     display: flex;

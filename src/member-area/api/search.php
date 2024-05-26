@@ -29,7 +29,7 @@ require_once "../_profileCard.php";
 UserDB\load(true);
 $first = true; // To know if we have to send an "empty results" div or not
 $gender = $_GET["gender"] ?? []; // If unset --> [], so no users will be filtered by gender
-$smoke = $_GET["smoker"] ?? null; // Smoker preference
+$smoke = $_GET["smoker"] ?? []; // Smoker preference
 $rel = $_GET["rel_search"] ?? []; // If unset --> [], so no users will be filtered by the type of relationship they search for
 $a_min = intval($_GET["a_min"] ?? 18); // Minimum age (18 if not specified)
 $a_max = intval($_GET["a_max"] ?? 200); // Maximum age (200 if not specified)
@@ -52,14 +52,15 @@ foreach (UserDB\query() as $u) {
     // Calculate the age of the user
     $age = User\age($u);
 
-    if ((empty($gender) || in_array($u["gender"], $gender)) && // Apply gender preferences
-        ($smoke === null || $u["user_smoke"] === $smoke) && // Apply smoking preferences
+    if (
+        (empty($gender) || in_array($u["gender"], $gender)) && // Apply gender preferences
+        (empty($smoke) || in_array($u["user_smoke"], $smoke)) && // Apply smoking preferences
         ($age >= $a_min && $age <= $a_max) && // Apply age preferences
         ($dep === null || $u["dep"] == $dep) && // Apply department preferences
         ($city === null || $u["city"] == $city) && // Apply city preferences
-        (empty($rel) || any_in_array($rel, $u["rel_search"]) && // Apply relationship preferences
+        (empty($rel) || any_in_array($rel, $u["rel_search"])) && // Apply relationship preferences
         (empty($situation) || in_array($u["situation"], $situation)) && // Apply relationship status preferences
-        (User\blockStatus(userSession\loggedUserId(), $u["id"]) !== User\BS_THEM)) && // Don't show users that blocked me
+        (User\blockStatus(userSession\loggedUserId(), $u["id"]) !== User\BS_THEM) && // Don't show users that blocked me
         ($u["id"] !== $user["id"]) // Don't show myself
     ) {
         // If it's our first result, start the search-results div

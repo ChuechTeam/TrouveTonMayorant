@@ -85,3 +85,10 @@ TTM est sujet à plusieurs limitations :
   - Safari 17.2
 - **Conversations** : Il est impossible de supprimer ou masquer des conversations, ni
   de connaître leur date de création.
+
+## Ressources externes
+
+TTM utilise trois ressources externes :
+- **Material Symbols** : La police d'icônes de Google (dans `/src/assets/matsym-rounded.woff2`)
+- **MathJax** : Permet d'afficher des formules mathématiques bien formatées
+- **Police Computer Modern** : Pour utiliser la police iconique de LaTeX

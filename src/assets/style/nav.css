@@ -81,7 +81,7 @@
             flex-grow: 1;
         }
 
-        & a {
+        &:not(.-keep-mobile-labels) a {
             & > .-label { display: none; }
             padding-left: 0 !important;
             padding-right: 0 !important;
@@ -102,7 +102,7 @@
 
         & .-label {
             display: block;
-            font-size: 0.5em;
+            font-size: 0.8em;
         }
     }
 }

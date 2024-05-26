@@ -285,6 +285,14 @@
 
     animation: all-good-shine 6.0s linear,
     all-good-disappear 1.0s 5.0s forwards;
+
+    @media (max-width: 768px) { 
+        left: 15px;
+        right: 15px;
+        bottom: 70px;
+        box-sizing: border-box;
+        margin: 0;
+    }
 }
 @keyframes all-good-shine {
     0% {

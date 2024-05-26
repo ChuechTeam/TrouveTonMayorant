@@ -7,3 +7,5 @@ conversations/
 sessions/
 user-image-db/
 views/
+
+!datasets/**

@@ -35,7 +35,7 @@ function checkedIfSmoke(string $smoke) {
 }
 ?>
 
-<h1 class="title">Bonyour, <?= htmlspecialchars($user["firstName"] . " " . $user["lastName"]) ?> !</h1>
+<h1 class="title">Bonyour, <?= htmlspecialchars($user["firstName"] . " " . $user["lastName"]) ?>&nbsp;!</h1>
 <search id="search">
     <h2 style="text-align: center;">Recherchez des profils, trouvez votre prochain mayorant.</h2>
     <div id="fields">
@@ -65,16 +65,16 @@ function checkedIfSmoke(string $smoke) {
             <div class="-group">
                 <header class="field-header -disable-on0checks">
                     <span class="-name">Fumeur</span>
-                    <button class="-reset icon" type="button" data-reset="smoker">ink_eraser</button>
+                    <button class="-reset icon" type="button" data-reset="smoker[]">ink_eraser</button>
                 </header>
                 <ul class="field multi-select">
                     <li>
-                        <input type="checkbox" name="smoker" value="yes"
+                        <input type="checkbox" name="smoker[]" value="yes"
                                id="searchSmokeYes" <?php checkedIfSmoke(User\PREF_YES); ?>>
                         <label for="searchSmokeYes">Oui</label>
                     </li>
                     <li>
-                        <input type="checkbox" name="smoker" value="no"
+                        <input type="checkbox" name="smoker[]" value="no"
                                id="searchSmokeNo" <?php checkedIfSmoke(User\PREF_NO); ?>>
                         <label for="searchSmokeNo">Non</label>
                     </li>
@@ -166,7 +166,8 @@ function checkedIfSmoke(string $smoke) {
                 </ul>
             </div>
         </form>
-        <button class="sub" id="search-button">Recherche</button>
+            <button class="sub" id="search-button">Recherche</button>
+        
     </div>
 
     <output id="results"></output>

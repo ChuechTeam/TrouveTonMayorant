@@ -46,6 +46,7 @@
 
     & .-pfp, & .-block-icon {
         width: 128px;
+        flex: 0 0 128px;
     }
 
     & .-block-icon {
@@ -78,6 +79,7 @@
     }
 
     .profile-card .-pfp, .profile-card .-block-icon {
+        flex: unset;
         width: 100%;
         max-height: 10em;
     }
@@ -274,6 +276,15 @@
             height: 400px;
             object-fit: cover;
             object-position: center;
+        }
+
+        & > .-bio {
+            white-space: pre-wrap;
+        }
+
+        & > .-actions {
+            display: flex;
+            gap: 6px;
         }
     }
 

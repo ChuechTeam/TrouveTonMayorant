@@ -99,13 +99,21 @@ a:visited {
 .sub {
     border-radius: 4px;
     background-color: rgb(19, 48, 134);
-    color: white;
+    color: white !important;
     padding: 6px 8px;
     border: 1px solid transparent;
+
+    text-decoration: none !important;
 }
 
 .sub:hover {
     background-color: color-mix(in srgb, rgb(19, 48, 134) 80%, black 20%);
+    cursor: pointer;
+}
+
+
+.sub:active {
+    background-color: color-mix(in srgb, rgb(19, 48, 134) 70%, black 30%);
     cursor: pointer;
 }
 

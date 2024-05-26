@@ -18,7 +18,7 @@ $head = $tmplArgs["head"] ?? "";
     <title><?= $title ?></title>
     <link rel="preload" href="/assets/matsym-rounded.woff2" as="font" crossorigin="anonymous">
     <link rel="stylesheet" href="/assets/Computer-Modern/Sans/cmun-sans.css">
-    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="stylesheet" href="/assets/style/_root.css" />
     <link rel="stylesheet" href="/assets/style/profile.css">
     <link rel="stylesheet" href="/assets/style/nav.css">
     <link rel="stylesheet" href="/assets/style/chat.css">

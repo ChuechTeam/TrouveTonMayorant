@@ -4,6 +4,7 @@
  * Step 3: ROMUUUUU
  */
 let chaosInterval = null;
+let chaosIntensity = 0;
 
 function romu(definitive = true) {
     const e = document.createElement("div");
@@ -22,9 +23,11 @@ function romu(definitive = true) {
 
     if (!chaosInterval) {
         chaosInterval = setInterval(() => {
-            const rnd1 = Math.random() * 20 - 10;
-            const rnd2 = Math.random() * 20 - 10;
+            const mag = 20+chaosIntensity*0.1;
+            const rnd1 = Math.random() * mag - mag/2;
+            const rnd2 = Math.random() * mag - mag/2;
             e.style.transform = `translate(${rnd1}px, ${rnd2}px)`;
+            chaosIntensity++;
         }, 10);
     }
 }
@@ -44,3 +47,14 @@ if (document.cookie.toLocaleLowerCase().includes("romu")
     romu(false);
 }
 
+function flipRomu(scroll=false) {
+    if (document.documentElement.style.background) {
+        unromu();
+    } else {
+        romu();
+    }
+
+    if (scroll) {
+        document.documentElement.scrollTop = 99999;
+    }
+}

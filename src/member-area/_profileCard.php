@@ -32,8 +32,8 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
 
     // Truncate the biography if we're in a shortened profile card.
     $bio = $u["bio"];
-    if (!$full && strlen($bio) > 80) {
-        $bio = substr($bio, 0, 80) . "...";
+    if (!$full && strlen($bio) > 100) {
+        $bio = substr($bio, 0, 100) . "...";
     }
 
     // URL linking to the profile picture, relative to the src/ directory
@@ -256,7 +256,7 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
                 <?php if (!empty($field)): ?>
                     <div class="pill -field">
                         <span class="-label">Maths <span class="icon -inl" style="margin: 0 0 0 0.3em;">favorite</span></span>
-                        <span class="-value"><?= htmlspecialchars($field) ?></span>
+                        <span class="-value has-math"><?= htmlspecialchars($field) ?></span>
                     </div>
                 <?php endif; ?>
 
@@ -298,7 +298,7 @@ function profileCard(array $u, bool $full, bool $showActions, bool $adminMode) {
                 <?php endif; ?>
                 <?php if (!empty($equation)): ?>
                     <h2>Mon problème favori</h2>
-                    <p class="has-math -wait-mathjax"> $$ <?= htmlspecialchars($equation) ?> $$ </p>
+                    <p class="has-math -wait-mathjax">$$ <?= htmlspecialchars($equation) ?> $$</p>
                 <?php endif; ?>
                 <?php if (!empty($non_empty_pics)) : ?>
                     <h2>Galerie</h2>
