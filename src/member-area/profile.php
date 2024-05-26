@@ -181,7 +181,7 @@ if ($submitCode > 0) {
                 <div class="-grid-item"><input type="email" value="<?= htmlspecialchars($u['email']) ?>" name="mail" id="mail" required></div>
                 
                 <label class="-grid-item" for="pass-input">Mot de Passe</label>
-                <div class="-grid-item"><input type="password" name="password" id="pass-input"></div>   
+                <div class="-grid-item"><input type="password" name="password" id="pass-input" autocomplete="new-password"></div>
                 
                 <label class="-grid-item">Date d'inscription</label>
                 <div class="-grid-item"><?= DateTime::createFromFormat('Y-m-d', $u['rdate'])->format('d/m/Y'); ?></div>
