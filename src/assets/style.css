@@ -53,8 +53,9 @@
 }
 
 html {
-    background: linear-gradient(180deg, rgba(171, 171, 255, 1), white 33%, rgba(255, 172, 172, 1));
-    background-attachment: fixed;
+    background: linear-gradient(hsl(225, 75%, 93%), hsl(225, 75%, 86%));
+    background-attachment: scroll;
+    min-height: 100%;
 }
 
 body {
