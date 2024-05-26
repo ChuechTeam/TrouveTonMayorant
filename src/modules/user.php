@@ -124,11 +124,11 @@ const SUP_DATE_FMT = \DateTimeInterface::ATOM; // The date format used in supExp
  * @param string $password the password in clear text
  * @param string $bdate birthdate in the format "Y-m-d"
  * @param string $gender the gender (see the GENDER enum)
- * @param int $id if the registration is successful, is set to the id of the registered user
+ * @param int|null $id if the registration is successful, is set to the id of the registered user
  * @param bool $admin whether the user is an admin
  * @return int the error code (see the ERR enum), 0 if success
  */
-function register(string $firstname, string $lastname, string $email, string $password, string $bdate, string $gender, int &$id, bool $admin = false): int {
+function register(string $firstname, string $lastname, string $email, string $password, string $bdate, string $gender, ?int &$id, bool $admin = false): int {
     if (\UserDB\findByEmail($email) != null) {
         return ERR_EMAIL_USED;
     }
